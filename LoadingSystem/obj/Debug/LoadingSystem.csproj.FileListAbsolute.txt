@@ -1,0 +1,15 @@
+D:\Visual Studio Projects\C#\LoadingSystem\LoadingSystem\obj\Debug\MainWindow.g.cs
+D:\Visual Studio Projects\C#\LoadingSystem\LoadingSystem\obj\Debug\App.g.cs
+D:\Visual Studio Projects\C#\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem_MarkupCompile.cache
+D:\Visual Studio Projects\C#\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem_MarkupCompile.lref
+D:\Visual Studio Projects\C#\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem.csprojAssemblyReference.cache
+D:\Visual Studio Projects\C#\LoadingSystem\LoadingSystem\bin\Debug\LoadingSystem.exe.config
+D:\Visual Studio Projects\C#\LoadingSystem\LoadingSystem\bin\Debug\LoadingSystem.exe
+D:\Visual Studio Projects\C#\LoadingSystem\LoadingSystem\bin\Debug\LoadingSystem.pdb
+D:\Visual Studio Projects\C#\LoadingSystem\LoadingSystem\obj\Debug\MainWindow.baml
+D:\Visual Studio Projects\C#\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem.g.resources
+D:\Visual Studio Projects\C#\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem.Properties.Resources.resources
+D:\Visual Studio Projects\C#\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem.csproj.GenerateResource.cache
+D:\Visual Studio Projects\C#\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem.csproj.CoreCompileInputs.cache
+D:\Visual Studio Projects\C#\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem.exe
+D:\Visual Studio Projects\C#\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem.pdb
