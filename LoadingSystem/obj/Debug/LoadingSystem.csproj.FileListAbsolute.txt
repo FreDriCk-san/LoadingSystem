@@ -13,3 +13,27 @@ D:\Visual Studio Projects\C#\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem
 D:\Visual Studio Projects\C#\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem.csproj.CoreCompileInputs.cache
 D:\Visual Studio Projects\C#\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem.exe
 D:\Visual Studio Projects\C#\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem.pdb
+D:\Visual Studio Projects\C#\LoadingSystem\LoadingSystem\bin\Debug\Xceed.Wpf.Toolkit.dll
+D:\Visual Studio Projects\C#\LoadingSystem\LoadingSystem\bin\Debug\Xceed.Wpf.Toolkit.pdb
+D:\Visual Studio Projects\C#\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem.csproj.CopyComplete
+C:\TempFolder\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem.csprojResolveAssemblyReference.cache
+C:\TempFolder\LoadingSystem\LoadingSystem\obj\Debug\MainWindow.g.cs
+C:\TempFolder\LoadingSystem\LoadingSystem\obj\Debug\App.g.cs
+C:\TempFolder\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem_MarkupCompile.cache
+C:\TempFolder\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem_MarkupCompile.lref
+C:\TempFolder\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem.exe
+C:\TempFolder\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem.pdb
+C:\TempFolder\LoadingSystem\LoadingSystem\bin\Debug\LoadingSystem.exe.config
+C:\TempFolder\LoadingSystem\LoadingSystem\bin\Debug\LoadingSystem.exe
+C:\TempFolder\LoadingSystem\LoadingSystem\bin\Debug\LoadingSystem.pdb
+C:\TempFolder\LoadingSystem\LoadingSystem\bin\Debug\Xceed.Wpf.Toolkit.dll
+C:\TempFolder\LoadingSystem\LoadingSystem\bin\Debug\Xceed.Wpf.Toolkit.pdb
+C:\TempFolder\LoadingSystem\LoadingSystem\obj\Debug\MainWindow.baml
+C:\TempFolder\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem.g.resources
+C:\TempFolder\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem.Properties.Resources.resources
+C:\TempFolder\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem.csproj.GenerateResource.cache
+C:\TempFolder\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem.csproj.CoreCompileInputs.cache
+C:\TempFolder\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem.csproj.CopyComplete
+C:\TempFolder\LoadingSystem\LoadingSystem\obj\Debug\View\View.g.cs
+C:\TempFolder\LoadingSystem\LoadingSystem\obj\Debug\GeneratedInternalTypeHelper.g.cs
+C:\TempFolder\LoadingSystem\LoadingSystem\obj\Debug\View\View.baml

@@ -1015,8 +1015,16 @@
         }
       },
       "LoadingSystem/1.0.0": {
+        "dependencies": {
+          "Xceed.Wpf.Toolkit": "1.0.0"
+        },
         "runtime": {
           "LoadingSystem.exe": {}
+        }
+      },
+      "Xceed.Wpf.Toolkit/1.0.0": {
+        "runtime": {
+          "Xceed.Wpf.Toolkit.dll": {}
         }
       }
     }
@@ -1518,6 +1526,11 @@
       "hashPath": "system.xml.xpath.xmldocument.4.0.1.nupkg.sha512"
     },
     "LoadingSystem/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Xceed.Wpf.Toolkit/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

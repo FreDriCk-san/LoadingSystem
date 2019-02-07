@@ -3,7 +3,7 @@ using System.Data;
 
 namespace LoadingSystem.Model
 {
-    public class DataGridModel
+    public class DataGridModel : INotifyPropertyChanged
     {
         private DataTable dataGridTable = new DataTable();
 

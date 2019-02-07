@@ -16,3 +16,5 @@ D:\Visual Studio Projects\C#\LoadingSystem\UnitTestProject1\obj\Debug\netcoreapp
 D:\Visual Studio Projects\C#\LoadingSystem\UnitTestProject1\obj\Debug\netcoreapp2.1\UnitTestProject1.dll
 D:\Visual Studio Projects\C#\LoadingSystem\UnitTestProject1\obj\Debug\netcoreapp2.1\UnitTestProject1.pdb
 D:\Visual Studio Projects\C#\LoadingSystem\UnitTestProject1\obj\Debug\netcoreapp2.1\UnitTestProject1.csprojAssemblyReference.cache
+D:\Visual Studio Projects\C#\LoadingSystem\UnitTestProject1\bin\Debug\netcoreapp2.1\Xceed.Wpf.Toolkit.dll
+D:\Visual Studio Projects\C#\LoadingSystem\UnitTestProject1\bin\Debug\netcoreapp2.1\Xceed.Wpf.Toolkit.pdb

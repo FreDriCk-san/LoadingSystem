@@ -4,42 +4,14 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LoadingSystem"
+        xmlns:wpfTool="http://schemas.xceed.com/wpf/xaml/toolkit"
+        xmlns:view="clr-namespace:LoadingSystem.View"
+        xmlns:model="clr-namespace:LoadingSystem.Model"
         mc:Ignorable="d"
         Title="LoadingSystem" Height="757" Width="1081">
 
     <Grid>
-        <Menu HorizontalAlignment="Left" Height="21" VerticalAlignment="Top" Width="1070">
-            <MenuItem Header="Файл">
-                <MenuItem Header="Открыть" Click="OpenClick"/>
-            </MenuItem>
-        </Menu>
-
-
-        <TextBox x:Name="textBoxNum" IsReadOnly="True"
-                 HorizontalAlignment="Left" Height="370" 
-                 Margin="10,27,0,0" TextWrapping="Wrap" 
-                 Text="TextBox" VerticalAlignment="Top" 
-                 Width="54" ScrollViewer.ScrollChanged="MainInfo_ScrollChanged"/>
-
-
-        <TextBox x:Name="textBoxInfo" IsReadOnly="True" 
-                 HorizontalAlignment="Left" Height="370" 
-                 Margin="69,27,0,0" TextWrapping="Wrap" 
-                 Text="TextBox" AcceptsReturn="True" 
-                 VerticalScrollBarVisibility="Auto" VerticalAlignment="Top" 
-                 Width="684" ScrollViewer.ScrollChanged="MainInfo_ScrollChanged"/>
-
-
-        <Grid x:Name="gridOfProperties" HorizontalAlignment="Left" Height="92" Margin="10,414,0,0" VerticalAlignment="Top" Width="1050">
-            <TextBox Text="Name" Margin="0,0,1009,71"/>
-            <TextBox Text="Type" Margin="0,21,1009,50"/>
-            <TextBox Text="Unit" Margin="0,42,1009,29"/>
-            <ScrollViewer x:Name="stackPanelScroll" HorizontalScrollBarVisibility="Auto" Margin="41,0,0,0">
-                <StackPanel x:Name="propertyPanel" Orientation="Horizontal"/>
-            </ScrollViewer>
-        </Grid>
-        <DataGrid x:Name="gridOfData" HorizontalAlignment="Left" Height="205" Margin="10,511,0,0" VerticalAlignment="Top" Width="1050" LoadingRow="DataGrid_LoadingRow" ColumnWidth="110" RowHeaderWidth="40" ScrollViewer.ScrollChanged="GridOfData_ScrollChanged"/>
-
+        <view:View />
     </Grid>
 
 </Window>

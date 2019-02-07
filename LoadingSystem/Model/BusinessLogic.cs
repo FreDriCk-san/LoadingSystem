@@ -1,110 +1,124 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace LoadingSystem.Model
 {
-    public class BusinessLogic
+	public class BusinessLogic
     {
 
-        public static async Task<string> ReadFromFileAsync(string path)
+        public static List<DataModel> ReadData(string[] arrayOfText, int dataIndex, int take)
         {
-            using (var reader = File.OpenText(path))
+			var line = string.Empty;
+			var listOfData = new List<DataModel>();
+
+            for (int i = dataIndex; i < dataIndex + take; ++i)
             {
-                var text = await reader.ReadToEndAsync();
-                return text;
-            }
-        }
-
-
-
-        public static string InfoStartsFrom(string text, int numberOfLine)
-        {
-            var lines = Regex.Split(text, "\r\n|\r|\n").Skip(numberOfLine - 1);
-            var result = string.Join(Environment.NewLine, lines.ToArray());
-            return result.Remove(result.LastIndexOf(Environment.NewLine));
-        }
-
-
-
-        public static int CountOfColumns(string text)
-        {
-            var result = 0;
-            var firstLine = text.Substring(0, text.IndexOf(Environment.NewLine));
-
-            for (int i = 0; i < firstLine.Length - 1; ++i)
-            {
-                if ((firstLine.ElementAt(i) == ' ') && (char.IsDigit(firstLine.ElementAt(i + 1))))
-                {
-                    result++;
-                }
+                listOfData.Add(GetValues($"{arrayOfText[i]}  "));
             }
 
-            return result;
+			return listOfData;
         }
 
 
-
-        public static int CountOfRows(string text)
-        {
-            var result = text.Split('\n').Length;
-            return result;
-        }
-
-
-
-        public static List<double> GetValues(string text, char decimalSeparator, char separator)
+        public static DataModel GetValues(string text)
         {
             var decimalList = new List<double>();
             var builder = new StringBuilder();
+			var dataClass = new DataModel();
+			var decimalSeparator = char.MinValue;
+			var separator = char.MinValue;
+			var decimalRound = 0;
 
-            var numbers = text.Split(new string[] { "\r\n", "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
+			var lines = text.Split(new string[] { "\r\n", "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
 
-            foreach (var number in numbers)
-            {
-                foreach (var character in number)
-                {
-                    if (char.IsDigit(character) || character == decimalSeparator)
-                    {
-                        builder.Append(character);
-                    }
-                    else if (character == separator)
-                    {
-                        decimalList.Add(StringToDouble(builder.ToString()));
+			foreach (var line in lines)
+			{
+				for (int i = 1; i < line.Length - 2; i++)
+				{
+					var currentChar = line.ElementAt(i);
+					var nextChar = line.ElementAt(i + 1);
 
-                        builder.Clear();
-                    }
-                }
+					// Check, if it's a header
+					if (currentChar == ':' || nextChar == ':')
+					{
+						builder.Clear();
+						continue;
+					}
 
-                decimalList.Add(StringToDouble(builder.ToString()));
+					// Check, if it's a separator
+					else if (currentChar == separator && char.IsDigit(line.ElementAt(i - 1)))
+					{
+						decimalList.Add(StringToDouble(builder.ToString()));
+						builder.Clear();
+					}
 
-                builder.Clear();
-            }
+					// Check if it's a decimal separator
+					else if (currentChar == '.' || currentChar == ',')
+					{
+						// Get decimal separator
+						if (decimalSeparator == char.MinValue)
+						{
+							decimalSeparator = currentChar;
+						}
 
-            return decimalList;
+						builder.Append(currentChar);
+					}
+
+					// Check, if it's a number
+					else if (char.IsDigit(currentChar))
+					{
+						// If it is a last character without next spaces (symbols)
+						if (i == line.Length - 3)
+						{
+							builder.Append(currentChar);
+							decimalList.Add(StringToDouble(builder.ToString()));
+							decimalRound = GetDecimalNumberCount(builder.ToString(), decimalSeparator, separator);
+							builder.Clear();
+							continue;
+						}
+
+						// Get separator
+						if (!char.IsDigit(nextChar))
+						{
+							if (separator == char.MinValue && decimalSeparator != char.MinValue)
+							{
+								separator = nextChar;
+							}
+						}
+
+						builder.Append(currentChar);
+					}
+
+				}
+
+			}
+
+			dataClass.ListOfNumbers = decimalList;
+			dataClass.Separator = separator;
+			dataClass.DecimalSeparator = decimalSeparator;
+			dataClass.DecimalRound = decimalRound;
+
+            return dataClass;
         }
 
 
         public static int GetDecimalNumberCount(string text, char decimalSeparator, char separator)
         {
             var counter = 0;
-            var firstLine = text.Substring(0, text.IndexOf(Environment.NewLine));
             var flag = false;
             var listOfValues = new List<int>();
 
-            for (int i = 0; i < firstLine.Length; ++i)
+            for (int i = 0; i < text.Length; ++i)
             {
-                if(firstLine.ElementAt(i) == decimalSeparator)
+                if(text.ElementAt(i) == decimalSeparator)
                 {
                     flag = true;
                     counter--;
                 }
-                else if (firstLine.ElementAt(i) == separator)
+                else if (text.ElementAt(i) == separator)
                 {
                     listOfValues.Add(counter);
                     flag = false;
@@ -115,7 +129,7 @@ namespace LoadingSystem.Model
                 {
                     counter++;
 
-                    if (i == firstLine.Length - 1)
+                    if (i == text.Length - 1)
                     {
                         listOfValues.Add(counter);
                     }
@@ -137,6 +151,18 @@ namespace LoadingSystem.Model
 
 
 
+        public static int GetDataIndex(string[] arrayOfText)
+        {
+            for (int i = 0; i < arrayOfText.Length; ++i)
+            {
+                if (arrayOfText[i].Contains("Log Data"))
+                {
+                    return i + 1;
+                }
+            }
+
+            return 0;
+        }
 
 
         private static double StringToDouble(string text)

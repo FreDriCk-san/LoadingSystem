@@ -11,7 +11,7 @@ namespace UnitTestProject1
         {
             var task = Task.Run(async () => {
                 return await LoadingSystem.Model.BusinessLogic
-                             .ReadFromFileAsync(@"D:\Visual Studio Projects\C#\LoadingSystem\LoadingSystem\Resources\104_ÄÌÍ_791.UT");
+                             .ReadFromFileAsync(@"C:\TempFolder\LoadingSystem\LoadingSystem\Resources\104_ÄÌÍ_791 - Original.UT");
             });
 
             var text = task.Result;
