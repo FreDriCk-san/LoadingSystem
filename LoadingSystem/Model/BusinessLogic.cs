@@ -25,87 +25,82 @@ namespace LoadingSystem.Model
 
         public static DataModel GetValues(string text)
         {
-            var decimalList = new List<double>();
-            var builder = new StringBuilder();
+			var decimalList = new List<double>();
+			var builder = new StringBuilder();
 			var dataClass = new DataModel();
 			var decimalSeparator = char.MinValue;
 			var separator = char.MinValue;
 			var decimalRound = 0;
 
-			var lines = text.Split(new string[] { "\r\n", "\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
-
-			foreach (var line in lines)
+			for (int i = 1; i < text.Length - 2; i++)
 			{
-				for (int i = 1; i < line.Length - 2; i++)
-				{
-					var currentChar = line.ElementAt(i);
-					var nextChar = line.ElementAt(i + 1);
+				var currentChar = text.ElementAt(i);
+				var nextChar = text.ElementAt(i + 1);
 
-					// Check, if it's a header
-					if (currentChar == ':' || nextChar == ':')
+				// Check, if it's a header
+				if (currentChar == ':' || nextChar == ':')
+				{
+					builder.Clear();
+					continue;
+				}
+
+				// Check, if it's a separator
+				else if (currentChar == separator && char.IsDigit(text.ElementAt(i - 1)))
+				{
+					decimalList.Add(StringToDouble(builder.ToString()));
+					builder.Clear();
+				}
+
+				// Check if it's a decimal separator
+				else if (currentChar == '.' || currentChar == ',')
+				{
+					// Get decimal separator
+					if (decimalSeparator == char.MinValue)
 					{
+						decimalSeparator = currentChar;
+					}
+
+					builder.Append(currentChar);
+				}
+
+				// Check, if it's a number
+				else if (char.IsDigit(currentChar))
+				{
+					// If it is a last character without next spaces (symbols)
+					if (i == text.Length - 3)
+					{
+						builder.Append(currentChar);
+						decimalList.Add(StringToDouble(builder.ToString()));
+						decimalRound = GetDecimalNumberCount(builder.ToString(), decimalSeparator, separator);
 						builder.Clear();
 						continue;
 					}
 
-					// Check, if it's a separator
-					else if (currentChar == separator && char.IsDigit(line.ElementAt(i - 1)))
+					// Get separator
+					if (!char.IsDigit(nextChar))
 					{
-						decimalList.Add(StringToDouble(builder.ToString()));
-						builder.Clear();
+						if (separator == char.MinValue && decimalSeparator != char.MinValue)
+						{
+							separator = nextChar;
+						}
 					}
 
-					// Check if it's a decimal separator
-					else if (currentChar == '.' || currentChar == ',')
-					{
-						// Get decimal separator
-						if (decimalSeparator == char.MinValue)
-						{
-							decimalSeparator = currentChar;
-						}
-
-						builder.Append(currentChar);
-					}
-
-					// Check, if it's a number
-					else if (char.IsDigit(currentChar))
-					{
-						// If it is a last character without next spaces (symbols)
-						if (i == line.Length - 3)
-						{
-							builder.Append(currentChar);
-							decimalList.Add(StringToDouble(builder.ToString()));
-							decimalRound = GetDecimalNumberCount(builder.ToString(), decimalSeparator, separator);
-							builder.Clear();
-							continue;
-						}
-
-						// Get separator
-						if (!char.IsDigit(nextChar))
-						{
-							if (separator == char.MinValue && decimalSeparator != char.MinValue)
-							{
-								separator = nextChar;
-							}
-						}
-
-						builder.Append(currentChar);
-					}
-
+					builder.Append(currentChar);
 				}
 
 			}
+
 
 			dataClass.ListOfNumbers = decimalList;
 			dataClass.Separator = separator;
 			dataClass.DecimalSeparator = decimalSeparator;
 			dataClass.DecimalRound = decimalRound;
 
-            return dataClass;
-        }
+			return dataClass;
+		}
 
 
-        public static int GetDecimalNumberCount(string text, char decimalSeparator, char separator)
+		public static int GetDecimalNumberCount(string text, char decimalSeparator, char separator)
         {
             var counter = 0;
             var flag = false;

@@ -136,7 +136,7 @@ namespace LoadingSystem.Model
 			fieldName = "";
 			dataSetName = "";
 			importFrom = 0;
-			importTo = 200;
+			importTo = 100;
 		}
 
 

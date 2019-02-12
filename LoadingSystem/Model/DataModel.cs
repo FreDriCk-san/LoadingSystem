@@ -9,6 +9,8 @@ namespace LoadingSystem.Model
 		private int decimalRound;
 		private char separator;
 		private char decimalSeparator;
+		private int columnCount;
+		private int dataStartsFrom;
 
 
 		public List<double> ListOfNumbers
@@ -52,6 +54,28 @@ namespace LoadingSystem.Model
 			{
 				decimalSeparator = value;
 				OnPropertyChanged("DecimalSeparator");
+			}
+		}
+
+		public int ColumnCount
+		{
+			get { return columnCount; }
+
+			set
+			{
+				columnCount = value;
+				OnPropertyChanged("ColumnCount");
+			}
+		}
+
+		public int DataStartsFrom
+		{
+			get { return dataStartsFrom; }
+
+			set
+			{
+				dataStartsFrom = value;
+				OnPropertyChanged("DataStartsFrom");
 			}
 		}
 

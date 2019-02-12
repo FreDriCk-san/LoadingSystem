@@ -1,7 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
+using System;
+using System.Globalization;
 
 namespace LoadingSystem.Model
 {
@@ -11,25 +15,229 @@ namespace LoadingSystem.Model
 
         private const FileOptions DefaultOptions = FileOptions.Asynchronous | FileOptions.SequentialScan;
 
-        public static async Task<string[]> ReadAllLinesAsync(string path)
+        public static async Task<DataModel> ReadAllLinesAsync(string path)
         {
-            var lines = new List<string>();
-            var index = 1;
+			var data = new DataModel();
+			var builder = new StringBuilder();
+			var decimalSeparator = char.MinValue;
+			var separator = char.MinValue;
+			var decimalRound = 0;
 
-            using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, DefaultBufferSize, DefaultOptions))
-            using (var reader = new StreamReader(stream, CodepageDetector.getCyrillic(path)))
-            {
-                while (!reader.EndOfStream)
-                {
-                    var line = await reader.ReadLineAsync();
-                    lines.Add($"{index}:\t\t{line}");
-                    index++;
-                }
-            }
+			using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, DefaultBufferSize, DefaultOptions))
+			{
+				using (var reader = new StreamReader(stream, CodepageDetector.getCyrillic(path)))
+				{
 
-            return lines.ToArray();
+					while (!reader.EndOfStream)
+					{
+						var line = await reader.ReadLineAsync();
+
+						if (StringIsDigitOnly(line))
+						{
+							for (int i = 1; i < line.Length - 2; i++)
+							{
+								var currentChar = line.ElementAt(i);
+								var nextChar = line.ElementAt(i + 1);
+
+								// Check, if it's a header
+								if (currentChar == ':' || nextChar == ':')
+								{
+									builder.Clear();
+									continue;
+								}
+
+								// Check, if it's a separator
+								else if (currentChar == separator && char.IsDigit(line.ElementAt(i - 1)))
+								{
+									data.ListOfNumbers.Add(StringToDouble(builder.ToString()));
+									builder.Clear();
+								}
+
+								// Check if it's a decimal separator
+								else if (currentChar == '.' || currentChar == ',')
+								{
+									// Get decimal separator
+									if (decimalSeparator == char.MinValue)
+									{
+										decimalSeparator = currentChar;
+									}
+
+									builder.Append(currentChar);
+								}
+
+								// Check, if it's a number
+								else if (char.IsDigit(currentChar))
+								{
+									// If it is a last character without next spaces (symbols)
+									if (i == line.Length - 3)
+									{
+										builder.Append(currentChar);
+										data.ListOfNumbers.Add(StringToDouble(builder.ToString()));
+										decimalRound = GetDecimalNumberCount(builder.ToString(), decimalSeparator, separator);
+										builder.Clear();
+										continue;
+									}
+
+									// Get separator
+									if (!char.IsDigit(nextChar))
+									{
+										if (separator == char.MinValue && decimalSeparator != char.MinValue)
+										{
+											separator = nextChar;
+										}
+									}
+
+									builder.Append(currentChar);
+								}
+							}
+
+
+							data.Separator = separator;
+							data.DecimalRound = decimalRound;
+							data.DecimalSeparator = decimalSeparator;
+						}
+
+						
+
+					}
+
+				}
+			}
+
+			return data;
         }
-    }
+
+
+
+		public static async Task<string[]> ReadLinesAsync(string path, int fromString, int toString)
+		{
+			var lines = new List<string>();
+			var index = 1;
+
+			using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, DefaultBufferSize, DefaultOptions))
+			{
+				using (var reader = new StreamReader(stream, CodepageDetector.getCyrillic(path)))
+				{
+
+					while (!reader.EndOfStream)
+					{
+						var line = await reader.ReadLineAsync();
+						
+						if (index >= fromString && index <= toString)
+						{
+							lines.Add($"{index}:\t\t{line}");
+						}
+
+						index++;
+					}
+				}
+			}
+
+			return lines.ToArray();
+		}
+
+
+
+		private static int GetDecimalNumberCount(string text, char decimalSeparator, char separator)
+		{
+			var counter = 0;
+			var flag = false;
+			var listOfValues = new List<int>();
+
+			for (int i = 0; i < text.Length; ++i)
+			{
+				if (text.ElementAt(i) == decimalSeparator)
+				{
+					flag = true;
+					counter--;
+				}
+				else if (text.ElementAt(i) == separator)
+				{
+					listOfValues.Add(counter);
+					flag = false;
+					counter = 0;
+				}
+
+				if (flag)
+				{
+					counter++;
+
+					if (i == text.Length - 1)
+					{
+						listOfValues.Add(counter);
+					}
+				}
+			}
+
+			var maxCount = 0;
+
+			for (int i = 0; i < listOfValues.Count; ++i)
+			{
+				if (listOfValues.ElementAt(i) > maxCount)
+				{
+					maxCount = listOfValues.ElementAt(i);
+				}
+			}
+
+			return maxCount;
+		}
+
+
+
+		// TO DO: Check, from where read data (ReDo!!!!)
+		public static int GetDataIndex(string[] arrayOfText)
+		{
+			for (int i = 0; i < arrayOfText.Length; ++i)
+			{
+				if (arrayOfText[i].Contains("Log Data"))
+				{
+					return i + 1;
+				}
+			}
+
+			return 0;
+		}
+
+
+
+		private static double StringToDouble(string text)
+		{
+			double result;
+
+			if (!Double.TryParse(text, NumberStyles.Number | NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out result))
+			{
+				throw new Exception($"Cannot parse to double value {text}");
+			}
+
+			return result;
+		}
+
+
+
+		// TO DO: Check if sting validation is correct
+		private static bool StringIsDigitOnly(string text)
+		{
+			for (int i = 0; i < text.Length; ++i)
+			{
+				var currentChar = text[i];
+				
+				if (!char.IsDigit(currentChar) || currentChar != '.' 
+					|| currentChar != ',' || currentChar != ';' || currentChar != ':')
+				{
+					return false;
+				}
+				else if (currentChar != ' ')
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+	}
+
+
+
 
     class CodepageDetector
     {
@@ -41,6 +249,8 @@ namespace LoadingSystem.Model
         static char[] mAlphabet = {
             'А','Б','В','Г','Д','Е','Ё','Ж','З','И','Й','К','Л','М','Н','О','П','Р','С','Т','У','Ф','Х','Ц','Ч','Ш','Щ','Ъ','Ы','Ь','Э','Ю','Я',
             'а','б','в','г','д','е','ё','ж','з','и','й','к','л','м','н','о','п','р','с','т','у','ф','х','ц','ч','ш','щ','ъ','ы','ь','э','ю','я' };
+
+
 
         static public int getCyrillicQuality(string aStr)
         {
@@ -56,6 +266,9 @@ namespace LoadingSystem.Model
             }
             return result;
         }
+
+
+
         public static Encoding getCyrillicFromBuffer(byte[] aBuff, int aIndex, int aSize)
         {
             if (mDec == null)
@@ -88,6 +301,9 @@ namespace LoadingSystem.Model
 
             return Encoding.GetEncoding(mCodePages[idMax]);
         }
+
+
+
         public static Encoding getCyrillic(string aFilename)
         {
             byte[] buff = new byte[1024 * 8];

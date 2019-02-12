@@ -10,11 +10,13 @@ namespace LoadingSystem.ViewModel
 {
 	public class ViewModel : INotifyPropertyChanged
 	{
+		private string filePath;
+
 		private ToggleCommand fileOpenCommand;
 
 		private Model.TextModel textModel;
 		private Model.PropertyGridModel propertyGridModel;
-		private List<Model.DataModel> dataModel;
+		private Model.DataModel dataModel;
 		private DataTable dataGridTable;
 		private DataView defaultTableView;
 
@@ -31,26 +33,24 @@ namespace LoadingSystem.ViewModel
 
 						if (openFileDialog.ShowDialog() == true)
 						{
-							var textTask = Task.Run(async () =>
+							filePath = openFileDialog.FileName;
+
+							var textTasks = Task.Run(async () =>
 							{
-								return await Model.FileReader.ReadAllLinesAsync(openFileDialog.FileName);
+								return await Model.FileReader.ReadLinesAsync(filePath, 0, 100);
 							});
 
-							TextModel = new Model.TextModel(textTask.Result.Length);
-							TextModel.ArrayOfText = textTask.Result;
-							TextModel.DataIndex = Model.BusinessLogic.GetDataIndex(textModel.ArrayOfText);
+							EditTextBox(textTasks.Result, 0, 100);
 
-							EditTextBox();
-
-							var dataTask = Task.Run(() =>
+							var dataTask = Task.Run(async () =>
 							{
-								return Model.BusinessLogic.ReadData(TextModel.ArrayOfText, TextModel.DataIndex, 200);
+								return await Model.FileReader.ReadAllLinesAsync(filePath);
 							});
 
 							DataModel = dataTask.Result;
 
-							PropertyGridModel.PropertyGridType.Separator = DataModel[0].Separator;
-							PropertyGridModel.PropertyGridType.DecimalSeparator = DataModel[0].DecimalSeparator;
+							PropertyGridModel.PropertyGridType.Separator = DataModel.Separator;
+							PropertyGridModel.PropertyGridType.DecimalSeparator = DataModel.DecimalSeparator;
 
 							EditTable();
 						}
@@ -97,7 +97,7 @@ namespace LoadingSystem.ViewModel
 			}
 		}
 
-		public List<Model.DataModel> DataModel
+		public Model.DataModel DataModel
 		{
 			get { return dataModel; }
 
@@ -137,6 +137,7 @@ namespace LoadingSystem.ViewModel
 		{
 			PropertyGridModel = new Model.PropertyGridModel();
 
+			// TO DO: Resolve problem with changing itemValue by pressing "Enter" button
 			PropertyGridModel.PropertyGridCommon.PropertyChanged += PropertyGridCommon_PropertyChanged;
 		}
 
@@ -144,19 +145,25 @@ namespace LoadingSystem.ViewModel
 		{
 			if (e.PropertyName == "ImportFrom" || e.PropertyName == "ImportTo")
 			{
-				EditTextBox();
+				var readFrom = PropertyGridModel.PropertyGridCommon.ImportFrom;
+				var readTo = PropertyGridModel.PropertyGridCommon.ImportTo;
+
+				var textTask = Task.Run(async () =>
+				{
+					return await Model.FileReader.ReadLinesAsync(filePath, readFrom, readTo);
+				});
+
+				EditTextBox(textTask.Result, readFrom, readTo);
 			}
 		}
 
-		private void EditTextBox()
+		private void EditTextBox(string[] data, int readFrom, int readTo)
 		{
 			var textBuilder = new StringBuilder();
-			var readFrom = PropertyGridModel.PropertyGridCommon.ImportFrom;
-			var readTo = PropertyGridModel.PropertyGridCommon.ImportTo;
 
 			for (int i = readFrom; i < readTo; ++i)
 			{
-				textBuilder.Append($"{TextModel.ArrayOfText[i]} \n");
+				textBuilder.Append($"{data[i]} \n");
 			}
 
 			TextBoxData = textBuilder.ToString();
@@ -165,7 +172,7 @@ namespace LoadingSystem.ViewModel
 
 		private void EditTable()
 		{
-			var columns = DataModel[0].ListOfNumbers.Count;
+			var columns = DataModel.ListOfNumbers.Count;
 			DataGridTable = new Model.DataGridModel().DataGridTable;
 			DefaultTableView = new DataView();
 			DataGridTable.Columns.Clear();
@@ -178,11 +185,8 @@ namespace LoadingSystem.ViewModel
 
 			var content = new object[columns];
 
-			for (int i = 0; i < DataModel.Count; ++i)
-			{
-				content = DataModel[i].ListOfNumbers.Cast<object>().ToArray();
-				DataGridTable.Rows.Add(content);
-			}
+			content = DataModel.ListOfNumbers.Cast<object>().ToArray();
+			DataGridTable.Rows.Add(content);
 
 			DataGridTable.EndLoadData();
 			DefaultTableView = DataGridTable.DefaultView;
