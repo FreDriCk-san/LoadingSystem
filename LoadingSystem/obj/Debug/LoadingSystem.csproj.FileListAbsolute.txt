@@ -37,3 +37,6 @@ C:\TempFolder\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem.csproj.CopyCom
 C:\TempFolder\LoadingSystem\LoadingSystem\obj\Debug\View\View.g.cs
 C:\TempFolder\LoadingSystem\LoadingSystem\obj\Debug\GeneratedInternalTypeHelper.g.cs
 C:\TempFolder\LoadingSystem\LoadingSystem\obj\Debug\View\View.baml
+D:\Visual Studio Projects\C#\LoadingSystem\LoadingSystem\obj\Debug\View\View.g.cs
+D:\Visual Studio Projects\C#\LoadingSystem\LoadingSystem\obj\Debug\GeneratedInternalTypeHelper.g.cs
+D:\Visual Studio Projects\C#\LoadingSystem\LoadingSystem\obj\Debug\View\View.baml

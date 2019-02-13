@@ -37,6 +37,7 @@ namespace LoadingSystem.Model
 		private string dataSetName;
 		private int importFrom;
 		private int importTo;
+        private int dataStartsFrom;
 
 		#region Data Init
 		[DisplayName("Наименование скважины")]
@@ -127,6 +128,21 @@ namespace LoadingSystem.Model
 				}
 			}
 		}
+
+
+        [DisplayName("Данные начинаются со строки")]
+        [Description("С какой строки начинается информация")]
+        [ReadOnly(true)]
+        public int DataStartsFrom
+        {
+            get { return dataStartsFrom; }
+
+            set
+            {
+                dataStartsFrom = value;
+                OnPropertyChanged("DataStartsFrom");
+            }
+        }
 		#endregion
 
 		public PropertyGridCommon()
@@ -137,6 +153,7 @@ namespace LoadingSystem.Model
 			dataSetName = "";
 			importFrom = 0;
 			importTo = 100;
+            dataStartsFrom = 0;
 		}
 
 

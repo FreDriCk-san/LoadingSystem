@@ -79,7 +79,10 @@ namespace LoadingSystem.Model
 			}
 		}
 
-
+        public DataModel()
+        {
+            listOfNumbers = new List<double>();
+        }
 
 
 		public event PropertyChangedEventHandler PropertyChanged;

@@ -51,6 +51,7 @@ namespace LoadingSystem.ViewModel
 
 							PropertyGridModel.PropertyGridType.Separator = DataModel.Separator;
 							PropertyGridModel.PropertyGridType.DecimalSeparator = DataModel.DecimalSeparator;
+                            PropertyGridModel.PropertyGridCommon.DataStartsFrom = DataModel.DataStartsFrom;
 
 							EditTable();
 						}
@@ -136,6 +137,7 @@ namespace LoadingSystem.ViewModel
 		public ViewModel()
 		{
 			PropertyGridModel = new Model.PropertyGridModel();
+            DataModel = new Model.DataModel();
 
 			// TO DO: Resolve problem with changing itemValue by pressing "Enter" button
 			PropertyGridModel.PropertyGridCommon.PropertyChanged += PropertyGridCommon_PropertyChanged;
@@ -172,7 +174,7 @@ namespace LoadingSystem.ViewModel
 
 		private void EditTable()
 		{
-			var columns = DataModel.ListOfNumbers.Count;
+			var columns = DataModel.ColumnCount;
 			DataGridTable = new Model.DataGridModel().DataGridTable;
 			DefaultTableView = new DataView();
 			DataGridTable.Columns.Clear();
@@ -185,8 +187,11 @@ namespace LoadingSystem.ViewModel
 
 			var content = new object[columns];
 
-			content = DataModel.ListOfNumbers.Cast<object>().ToArray();
-			DataGridTable.Rows.Add(content);
+            for (int i = 0, j = 0; j < DataModel.ListOfNumbers.Count / columns; ++j, i += columns)
+            {
+                content = DataModel.ListOfNumbers.Skip(i).Take(columns).Cast<object>().ToArray();
+                DataGridTable.Rows.Add(content);
+            }
 
 			DataGridTable.EndLoadData();
 			DefaultTableView = DataGridTable.DefaultView;

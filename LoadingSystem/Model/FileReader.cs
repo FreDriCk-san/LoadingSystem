@@ -27,12 +27,24 @@ namespace LoadingSystem.Model
 			{
 				using (var reader = new StreamReader(stream, CodepageDetector.getCyrillic(path)))
 				{
+                    var dataLineFound = false;
+                    var index = 1;
 
-					while (!reader.EndOfStream)
+					while (!reader.EndOfStream && index < 1000)
 					{
-						var line = await reader.ReadLineAsync();
+						var line = await reader.ReadLineAsync() + "  ";
 
-						if (StringIsDigitOnly(line))
+                        if (!dataLineFound)
+                        {
+                            if (StringIsDigitOnly(line))
+                            {
+                                dataLineFound = true;
+                                data.DataStartsFrom = index;
+                                data.ColumnCount = CountOfColumns(line);
+                            }
+                        }
+
+						if (dataLineFound)
 						{
 							for (int i = 1; i < line.Length - 2; i++)
 							{
@@ -90,18 +102,14 @@ namespace LoadingSystem.Model
 									builder.Append(currentChar);
 								}
 							}
-
-
-							data.Separator = separator;
-							data.DecimalRound = decimalRound;
-							data.DecimalSeparator = decimalSeparator;
 						}
-
-						
-
+                        index++;
 					}
 
-				}
+                    data.Separator = separator;
+                    data.DecimalRound = decimalRound;
+                    data.DecimalSeparator = decimalSeparator;
+                }
 			}
 
 			return data;
@@ -217,23 +225,50 @@ namespace LoadingSystem.Model
 		// TO DO: Check if sting validation is correct
 		private static bool StringIsDigitOnly(string text)
 		{
+            // If current string is null or contains only spaces
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                return false;
+            }
+
+            // If current string contains typical table symbols or numbers
 			for (int i = 0; i < text.Length; ++i)
 			{
 				var currentChar = text[i];
 				
-				if (!char.IsDigit(currentChar) || currentChar != '.' 
-					|| currentChar != ',' || currentChar != ';' || currentChar != ':')
-				{
-					return false;
-				}
-				else if (currentChar != ' ')
-				{
-					return false;
-				}
+                if (!char.IsDigit(currentChar) && currentChar != ' ' 
+                    && currentChar != '.' && currentChar != ',' 
+                    && currentChar != ';' && currentChar != ':')
+                {
+                    return false;
+                }
+
 			}
 
 			return true;
 		}
+
+
+
+        private static int CountOfColumns(string text)
+        {
+            var result = 0;
+
+            for (int i = 0; i < text.Length - 1; ++i)
+            {
+                if (i == 0 && char.IsDigit(text[0]))
+                {
+                    result++;
+                }
+
+                if ((text[i] == ' ') && (char.IsDigit(text[i + 1])))
+                {
+                    result++;
+                }
+            }
+
+            return result;
+        }
 	}
 
 

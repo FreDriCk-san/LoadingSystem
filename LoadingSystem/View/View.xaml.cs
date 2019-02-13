@@ -47,6 +47,8 @@ namespace LoadingSystem.View
 
 		private void ItemsSourceIsChanged(object sender, EventArgs e)
 		{
+            propertyPanel.Children.Clear();
+
 			for (int i = 1; i <= gridOfData.Columns.Count; ++i)
 			{
 				var innerPanel = new StackPanel()
