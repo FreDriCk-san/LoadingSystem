@@ -192,22 +192,6 @@ namespace LoadingSystem.Model
 
 
 
-		// TO DO: Check, from where read data (ReDo!!!!)
-		public static int GetDataIndex(string[] arrayOfText)
-		{
-			for (int i = 0; i < arrayOfText.Length; ++i)
-			{
-				if (arrayOfText[i].Contains("Log Data"))
-				{
-					return i + 1;
-				}
-			}
-
-			return 0;
-		}
-
-
-
 		private static double StringToDouble(string text)
 		{
 			double result;

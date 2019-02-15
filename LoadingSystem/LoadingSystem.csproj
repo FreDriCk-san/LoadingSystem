@@ -55,7 +55,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Model\TextModel.cs" />
     <Compile Include="ViewModel\ToggleCommand.cs" />
     <Compile Include="ViewModel\ViewModel.cs" />
     <Compile Include="View\View.xaml.cs">
@@ -79,7 +78,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Model\BusinessLogic.cs" />
     <Compile Include="Model\DataModel.cs" />
     <Compile Include="Model\DataGridModel.cs" />
     <Compile Include="Model\FileReader.cs" />

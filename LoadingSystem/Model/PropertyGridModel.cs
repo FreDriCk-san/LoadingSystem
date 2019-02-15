@@ -1,10 +1,14 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Windows;
+using System.Windows.Controls;
+using Xceed.Wpf.Toolkit.PropertyGrid;
 using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
+using Xceed.Wpf.Toolkit.PropertyGrid.Editors;
 
 namespace LoadingSystem.Model
 {
-    [Serializable]
+	[Serializable]
 	[DisplayName("Свойства файла")]
     public class PropertyGridModel
     {
@@ -18,26 +22,29 @@ namespace LoadingSystem.Model
 		[DisplayName("Тип")]
 		public PropertyGridType PropertyGridType { get; set; }
 
+		[ExpandableObject]
+		[Category("Свойства")]
+		[DisplayName("Вывод")]
+		public OutputDescription OutputDescription { get; set; }
+
 
 		public PropertyGridModel()
         {
 			PropertyGridCommon = new PropertyGridCommon();
 
 			PropertyGridType = new PropertyGridType();
+
+			OutputDescription = new OutputDescription();
         }
     }
 
+
 	public class PropertyGridCommon : INotifyPropertyChanged
 	{
-		private int textReadMaxLength = 1000;
-
 		private string wellName;
 		private string bushName;
 		private string fieldName;
 		private string dataSetName;
-		private int importFrom;
-		private int importTo;
-        private int dataStartsFrom;
 
 		#region Data Init
 		[DisplayName("Наименование скважины")]
@@ -94,55 +101,6 @@ namespace LoadingSystem.Model
 				OnPropertyChanged("DataSetName");
 			}
 		}
-
-
-		[DisplayName("Импорт из строки")]
-		[Description("С какой строки вывести текстовые данные\nПРИМЕЧАНИЕ:Можно вывести не более 1000 строк")]
-		public int ImportFrom
-		{
-			get { return importFrom; }
-
-			set
-			{
-				if (!(value <= importTo - textReadMaxLength) && value >= 0)
-				{
-					importFrom = value;
-					OnPropertyChanged("ImportFrom");
-				}
-			}
-		}
-
-
-		[DisplayName("Импорт до строки")]
-		[Description("До какой строки вывести текстовые данные\nПРИМЕЧАНИЕ:Можно вывести не более 1000 строк")]
-		public int ImportTo
-		{
-			get { return importTo; }
-
-			set
-			{
-				if (!(value >= importFrom + textReadMaxLength + 1) && value >= 0)
-				{
-					importTo = value;
-					OnPropertyChanged("ImportTo");
-				}
-			}
-		}
-
-
-        [DisplayName("Данные начинаются со строки")]
-        [Description("С какой строки начинается информация")]
-        [ReadOnly(true)]
-        public int DataStartsFrom
-        {
-            get { return dataStartsFrom; }
-
-            set
-            {
-                dataStartsFrom = value;
-                OnPropertyChanged("DataStartsFrom");
-            }
-        }
 		#endregion
 
 		public PropertyGridCommon()
@@ -151,9 +109,6 @@ namespace LoadingSystem.Model
 			bushName = "";
 			fieldName = "";
 			dataSetName = "";
-			importFrom = 0;
-			importTo = 100;
-            dataStartsFrom = 0;
 		}
 
 
@@ -211,6 +166,119 @@ namespace LoadingSystem.Model
 		{
 			var handler = PropertyChanged;
 			handler?.Invoke(this, new PropertyChangedEventArgs(name));
+		}
+	}
+
+
+	public class OutputDescription : INotifyPropertyChanged, ITypeEditor
+	{
+		private int textReadMaxLength = 1000;
+
+		private int importFrom;
+		private int importTo;
+		private int dataStartsFrom;
+		private Button changeText;
+		private ViewModel.ToggleCommand command;
+
+		#region Data init
+		[DisplayName("Импорт из строки")]
+		[Description("С какой строки вывести текстовые данные\nПРИМЕЧАНИЕ:Можно вывести не более 1000 строк")]
+		public int ImportFrom
+		{
+			get { return importFrom; }
+
+			set
+			{
+				if (!(value <= importTo - textReadMaxLength) && value >= 0)
+				{
+					importFrom = value;
+					OnPropertyChanged("ImportFrom");
+				}
+			}
+		}
+
+
+		[DisplayName("Импорт до строки")]
+		[Description("До какой строки вывести текстовые данные\nПРИМЕЧАНИЕ:Можно вывести не более 1000 строк")]
+		public int ImportTo
+		{
+			get { return importTo; }
+
+			set
+			{
+				if (!(value >= importFrom + textReadMaxLength) && value >= 0)
+				{
+					importTo = value;
+					OnPropertyChanged("ImportTo");
+				}
+			}
+		}
+
+
+		[DisplayName("Данные начинаются со строки")]
+		[Description("С какой строки начинается информация")]
+		[ReadOnly(true)]
+		public int DataStartsFrom
+		{
+			get { return dataStartsFrom; }
+
+			set
+			{
+				dataStartsFrom = value;
+				OnPropertyChanged("DataStartsFrom");
+			}
+		}
+
+
+		[Editor(typeof(OutputDescription), typeof(OutputDescription))]
+		public Button ChangeText
+		{
+			get { return changeText; }
+
+			set
+			{
+				changeText = value;
+				OnPropertyChanged("ChangeText");
+			}
+		}
+		#endregion
+
+		public ViewModel.ToggleCommand Command
+		{
+			get { return command; }
+
+			set
+			{
+				command = value;
+				OnPropertyChanged("Command");
+			}
+		}
+
+		public OutputDescription()
+		{
+			importFrom = 0;
+			importTo = 100;
+			dataStartsFrom = 0;
+			changeText = new Button()
+			{
+				Content = "Прочесть",
+				Command = command
+			};
+		}
+
+
+		public event PropertyChangedEventHandler PropertyChanged;
+		protected void OnPropertyChanged(string name)
+		{
+			var handler = PropertyChanged;
+			handler?.Invoke(this, new PropertyChangedEventArgs(name));
+		}
+
+
+		// For UI element
+		public FrameworkElement ResolveEditor(PropertyItem propertyItem)
+		{
+			return changeText;
 		}
 	}
 }

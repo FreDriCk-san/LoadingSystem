@@ -15,7 +15,9 @@
         </Menu>
 
 
-        <wpfTool:PropertyGrid x:Name="propGrid" Width="300" Margin="763,27,10,329" SelectedObject="{Binding PropertyGridModel, UpdateSourceTrigger=PropertyChanged}" />
+        <wpfTool:PropertyGrid x:Name="propGrid" Width="300" Margin="763,27,10,329" SelectedObject="{Binding PropertyGridModel, UpdateSourceTrigger=PropertyChanged}" >
+            
+        </wpfTool:PropertyGrid>
 
 
         <TextBox x:Name="textBoxInfo" IsReadOnly="True" 

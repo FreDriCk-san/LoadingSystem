@@ -5,6 +5,9 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Input;
 
 namespace LoadingSystem.ViewModel
 {
@@ -13,8 +16,8 @@ namespace LoadingSystem.ViewModel
 		private string filePath;
 
 		private ToggleCommand fileOpenCommand;
+		private ToggleCommand changeTextBoxCommand;
 
-		private Model.TextModel textModel;
 		private Model.PropertyGridModel propertyGridModel;
 		private Model.DataModel dataModel;
 		private DataTable dataGridTable;
@@ -51,7 +54,7 @@ namespace LoadingSystem.ViewModel
 
 							PropertyGridModel.PropertyGridType.Separator = DataModel.Separator;
 							PropertyGridModel.PropertyGridType.DecimalSeparator = DataModel.DecimalSeparator;
-                            PropertyGridModel.PropertyGridCommon.DataStartsFrom = DataModel.DataStartsFrom;
+                            PropertyGridModel.OutputDescription.DataStartsFrom = DataModel.DataStartsFrom;
 
 							EditTable();
 						}
@@ -62,20 +65,29 @@ namespace LoadingSystem.ViewModel
 		}
 
 
-
-
-		#region Data Init
-		public Model.TextModel TextModel
+		public ToggleCommand ChangeTextBoxCommand
 		{
-			get { return textModel; }
-
-			set
+			get
 			{
-				textModel = value;
-				OnPropertyChanged("TextModel");
+				return changeTextBoxCommand ??
+					(changeTextBoxCommand = new ToggleCommand(command =>
+					{
+						var readFrom = PropertyGridModel.OutputDescription.ImportFrom;
+						var readTo = PropertyGridModel.OutputDescription.ImportTo;
+
+						var textTask = Task.Run(async () =>
+						{
+							return await Model.FileReader.ReadLinesAsync(filePath, readFrom, readTo);
+						});
+
+						EditTextBox(textTask.Result, readFrom, readTo);
+					}));
 			}
 		}
 
+
+
+		#region Data Init
 		public DataTable DataGridTable
 		{
 			get { return dataGridTable; }
@@ -139,25 +151,10 @@ namespace LoadingSystem.ViewModel
 			PropertyGridModel = new Model.PropertyGridModel();
             DataModel = new Model.DataModel();
 
-			// TO DO: Resolve problem with changing itemValue by pressing "Enter" button
-			PropertyGridModel.PropertyGridCommon.PropertyChanged += PropertyGridCommon_PropertyChanged;
+			PropertyGridModel.OutputDescription.Command = ChangeTextBoxCommand;
 		}
 
-		private void PropertyGridCommon_PropertyChanged(object sender, PropertyChangedEventArgs e)
-		{
-			if (e.PropertyName == "ImportFrom" || e.PropertyName == "ImportTo")
-			{
-				var readFrom = PropertyGridModel.PropertyGridCommon.ImportFrom;
-				var readTo = PropertyGridModel.PropertyGridCommon.ImportTo;
 
-				var textTask = Task.Run(async () =>
-				{
-					return await Model.FileReader.ReadLinesAsync(filePath, readFrom, readTo);
-				});
-
-				EditTextBox(textTask.Result, readFrom, readTo);
-			}
-		}
 
 		private void EditTextBox(string[] data, int readFrom, int readTo)
 		{
@@ -170,6 +167,7 @@ namespace LoadingSystem.ViewModel
 
 			TextBoxData = textBuilder.ToString();
 		}
+
 
 
 		private void EditTable()
