@@ -48,6 +48,7 @@ namespace LoadingSystem.View
 		private void ItemsSourceIsChanged(object sender, EventArgs e)
 		{
             propertyPanel.Children.Clear();
+			buttonRead.IsEnabled = true;
 
 			for (int i = 1; i <= gridOfData.Columns.Count; ++i)
 			{
@@ -60,12 +61,14 @@ namespace LoadingSystem.View
 				{
 					Width = gridOfData.ColumnWidth.Value,
 					Text = $"H{i.ToString()}",
+					TextAlignment = TextAlignment.Center,
 					IsEnabled = false
 				};
 
 				var typeRow = new ComboBox()
 				{
 					Width = gridOfData.ColumnWidth.Value,
+					HorizontalContentAlignment = HorizontalAlignment.Center,
 					ItemsSource = new List<string>()
 					{
 						"Depth", "RadioWaves", "LinearWaves"
@@ -75,6 +78,7 @@ namespace LoadingSystem.View
 				var unitRow = new ComboBox()
 				{
 					Width = gridOfData.ColumnWidth.Value,
+					HorizontalContentAlignment = HorizontalAlignment.Center,
 					ItemsSource = new List<string>()
 					{
 						"Meter", "Kilometer", "Centimeter"

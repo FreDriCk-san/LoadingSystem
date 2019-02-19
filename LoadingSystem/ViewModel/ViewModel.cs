@@ -1,13 +1,9 @@
 ﻿using Microsoft.Win32;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Input;
 
 namespace LoadingSystem.ViewModel
 {
@@ -150,8 +146,6 @@ namespace LoadingSystem.ViewModel
 		{
 			PropertyGridModel = new Model.PropertyGridModel();
             DataModel = new Model.DataModel();
-
-			PropertyGridModel.OutputDescription.Command = ChangeTextBoxCommand;
 		}
 
 

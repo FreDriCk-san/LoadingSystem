@@ -170,15 +170,13 @@ namespace LoadingSystem.Model
 	}
 
 
-	public class OutputDescription : INotifyPropertyChanged, ITypeEditor
+	public class OutputDescription : INotifyPropertyChanged
 	{
 		private int textReadMaxLength = 1000;
 
 		private int importFrom;
 		private int importTo;
 		private int dataStartsFrom;
-		private Button changeText;
-		private ViewModel.ToggleCommand command;
 
 		#region Data init
 		[DisplayName("Импорт из строки")]
@@ -228,42 +226,13 @@ namespace LoadingSystem.Model
 				OnPropertyChanged("DataStartsFrom");
 			}
 		}
-
-
-		[Editor(typeof(OutputDescription), typeof(OutputDescription))]
-		public Button ChangeText
-		{
-			get { return changeText; }
-
-			set
-			{
-				changeText = value;
-				OnPropertyChanged("ChangeText");
-			}
-		}
 		#endregion
-
-		public ViewModel.ToggleCommand Command
-		{
-			get { return command; }
-
-			set
-			{
-				command = value;
-				OnPropertyChanged("Command");
-			}
-		}
 
 		public OutputDescription()
 		{
 			importFrom = 0;
 			importTo = 100;
 			dataStartsFrom = 0;
-			changeText = new Button()
-			{
-				Content = "Прочесть",
-				Command = command
-			};
 		}
 
 
@@ -272,13 +241,6 @@ namespace LoadingSystem.Model
 		{
 			var handler = PropertyChanged;
 			handler?.Invoke(this, new PropertyChangedEventArgs(name));
-		}
-
-
-		// For UI element
-		public FrameworkElement ResolveEditor(PropertyItem propertyItem)
-		{
-			return changeText;
 		}
 	}
 }
