@@ -36,10 +36,10 @@ namespace LoadingSystem.ViewModel
 
 							var textTasks = Task.Run(async () =>
 							{
-								return await Model.FileReader.ReadLinesAsync(filePath, 0, 100);
+								return await Model.FileReader.ReadLinesAsync(filePath, 100);
 							});
 
-							EditTextBox(textTasks.Result, 0, 100);
+							EditTextBox(textTasks.Result, 100);
 
 							var dataTask = Task.Run(async () =>
 							{
@@ -68,15 +68,14 @@ namespace LoadingSystem.ViewModel
 				return changeTextBoxCommand ??
 					(changeTextBoxCommand = new ToggleCommand(command =>
 					{
-						var readFrom = PropertyGridModel.OutputDescription.ImportFrom;
 						var readTo = PropertyGridModel.OutputDescription.ImportTo;
 
 						var textTask = Task.Run(async () =>
 						{
-							return await Model.FileReader.ReadLinesAsync(filePath, readFrom, readTo);
+							return await Model.FileReader.ReadLinesAsync(filePath, readTo);
 						});
 
-						EditTextBox(textTask.Result, readFrom, readTo);
+						EditTextBox(textTask.Result, readTo);
 					}));
 			}
 		}
@@ -150,11 +149,11 @@ namespace LoadingSystem.ViewModel
 
 
 
-		private void EditTextBox(string[] data, int readFrom, int readTo)
+		private void EditTextBox(string[] data, int readTo)
 		{
 			var textBuilder = new StringBuilder();
 
-			for (int i = readFrom; i < readTo; ++i)
+			for (int i = 0; i < readTo; ++i)
 			{
 				textBuilder.Append($"{data[i]} \n");
 			}
@@ -179,11 +178,16 @@ namespace LoadingSystem.ViewModel
 
 			var content = new object[columns];
 
-            for (int i = 0, j = 0; j < DataModel.ListOfNumbers.Count / columns; ++j, i += columns)
-            {
-                content = DataModel.ListOfNumbers.Skip(i).Take(columns).Cast<object>().ToArray();
-                DataGridTable.Rows.Add(content);
-            }
+			var existingElements = DataModel.ArrayOfNumbers.Where(c => c != null).ToArray();
+
+			for (int i = 0; i < existingElements.Length; ++i)
+			{
+				for (int j = 0; j < columns; ++j)
+				{
+					content[j] = DataModel.ArrayOfNumbers[i][j];
+				}
+				DataGridTable.Rows.Add(content);
+			}
 
 			DataGridTable.EndLoadData();
 			DefaultTableView = DataGridTable.DefaultView;

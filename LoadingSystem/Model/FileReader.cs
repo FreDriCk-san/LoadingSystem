@@ -29,8 +29,11 @@ namespace LoadingSystem.Model
 				{
                     var dataLineFound = false;
                     var index = 1;
+					var arrayOfNumbers = new double[4096][];
+					var arrayNumStep = 0;
+					
 
-					while (!reader.EndOfStream && index < 1000)
+					while (!reader.EndOfStream)
 					{
 						var line = await reader.ReadLineAsync() + "  ";
 
@@ -39,17 +42,20 @@ namespace LoadingSystem.Model
                             if (StringIsDigitOnly(line))
                             {
                                 dataLineFound = true;
-                                data.DataStartsFrom = index;
+                                data.DataStartsFrom = index - 1;
                                 data.ColumnCount = CountOfColumns(line);
                             }
                         }
 
 						if (dataLineFound)
 						{
-							for (int i = 1; i < line.Length - 2; i++)
+							var lineArray = new double[data.ColumnCount];
+							var arrayLineStep = 0;
+
+							for (int i = 0; i < line.Length - 2; i++)
 							{
-								var currentChar = line.ElementAt(i);
-								var nextChar = line.ElementAt(i + 1);
+								var currentChar = line[i];
+								var nextChar = line[i + 1];
 
 								// Check, if it's a header
 								if (currentChar == ':' || nextChar == ':')
@@ -59,10 +65,16 @@ namespace LoadingSystem.Model
 								}
 
 								// Check, if it's a separator
-								else if (currentChar == separator && char.IsDigit(line.ElementAt(i - 1)))
+								else if (currentChar == separator && char.IsDigit(line[i - 1]))
 								{
-									data.ListOfNumbers.Add(StringToDouble(builder.ToString()));
+									lineArray[arrayLineStep] = StringToDouble(builder.ToString());
 									builder.Clear();
+									arrayLineStep++;
+
+									if (arrayLineStep % 4096 == 0 && arrayLineStep > 0)
+									{
+										Array.Resize(ref lineArray, lineArray.Length + 4096);
+									}
 								}
 
 								// Check if it's a decimal separator
@@ -84,9 +96,16 @@ namespace LoadingSystem.Model
 									if (i == line.Length - 3)
 									{
 										builder.Append(currentChar);
-										data.ListOfNumbers.Add(StringToDouble(builder.ToString()));
+										lineArray[arrayLineStep] = StringToDouble(builder.ToString());
 										decimalRound = GetDecimalNumberCount(builder.ToString(), decimalSeparator, separator);
 										builder.Clear();
+										arrayLineStep++;
+
+										if (arrayLineStep % 4096 == 0 && arrayLineStep > 0)
+										{
+											Array.Resize(ref lineArray, lineArray.Length + 4096);
+										}
+
 										continue;
 									}
 
@@ -102,13 +121,23 @@ namespace LoadingSystem.Model
 									builder.Append(currentChar);
 								}
 							}
+
+							arrayOfNumbers[arrayNumStep] = lineArray;
+							arrayNumStep++;
+
+							if (arrayNumStep % 4096 == 0 && arrayNumStep > 0)
+							{
+								Array.Resize(ref arrayOfNumbers, arrayOfNumbers.Length + 4096);
+							}
 						}
+
                         index++;
 					}
 
                     data.Separator = separator;
                     data.DecimalRound = decimalRound;
                     data.DecimalSeparator = decimalSeparator;
+					data.ArrayOfNumbers = arrayOfNumbers;
                 }
 			}
 
@@ -117,31 +146,28 @@ namespace LoadingSystem.Model
 
 
 
-		public static async Task<string[]> ReadLinesAsync(string path, int fromString, int toString)
+		public static async Task<string[]> ReadLinesAsync(string path, int toString)
 		{
-			var lines = new List<string>();
-			var index = 1;
+			var result = new string[1024];
+			var index = 0;
 
 			using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, DefaultBufferSize, DefaultOptions))
 			{
 				using (var reader = new StreamReader(stream, CodepageDetector.getCyrillic(path)))
 				{
 
-					while (!reader.EndOfStream)
+					while (index <= toString)
 					{
-						var line = await reader.ReadLineAsync();
-						
-						if (index >= fromString && index <= toString)
-						{
-							lines.Add($"{index}:\t\t{line}");
-						}
+						var line = await reader.ReadLineAsync();	
+
+						result[index] = $"{index}:\t\t{line}";
 
 						index++;
 					}
 				}
 			}
 
-			return lines.ToArray();
+			return result;
 		}
 
 
@@ -199,6 +225,7 @@ namespace LoadingSystem.Model
 			if (!Double.TryParse(text, NumberStyles.Number | NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out result))
 			{
 				throw new Exception($"Cannot parse to double value {text}");
+				// return double.NaN;
 			}
 
 			return result;

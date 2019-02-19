@@ -1,10 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Windows;
-using System.Windows.Controls;
-using Xceed.Wpf.Toolkit.PropertyGrid;
 using Xceed.Wpf.Toolkit.PropertyGrid.Attributes;
-using Xceed.Wpf.Toolkit.PropertyGrid.Editors;
 
 namespace LoadingSystem.Model
 {
@@ -25,6 +21,7 @@ namespace LoadingSystem.Model
 		[ExpandableObject]
 		[Category("Свойства")]
 		[DisplayName("Вывод")]
+		[ParenthesizePropertyName(false)]
 		public OutputDescription OutputDescription { get; set; }
 
 
@@ -174,28 +171,10 @@ namespace LoadingSystem.Model
 	{
 		private int textReadMaxLength = 1000;
 
-		private int importFrom;
 		private int importTo;
 		private int dataStartsFrom;
 
 		#region Data init
-		[DisplayName("Импорт из строки")]
-		[Description("С какой строки вывести текстовые данные\nПРИМЕЧАНИЕ:Можно вывести не более 1000 строк")]
-		public int ImportFrom
-		{
-			get { return importFrom; }
-
-			set
-			{
-				if (!(value <= importTo - textReadMaxLength) && value >= 0)
-				{
-					importFrom = value;
-					OnPropertyChanged("ImportFrom");
-				}
-			}
-		}
-
-
 		[DisplayName("Импорт до строки")]
 		[Description("До какой строки вывести текстовые данные\nПРИМЕЧАНИЕ:Можно вывести не более 1000 строк")]
 		public int ImportTo
@@ -204,7 +183,7 @@ namespace LoadingSystem.Model
 
 			set
 			{
-				if (!(value >= importFrom + textReadMaxLength) && value >= 0)
+				if (value >= 0 && value <= textReadMaxLength)
 				{
 					importTo = value;
 					OnPropertyChanged("ImportTo");
@@ -230,7 +209,6 @@ namespace LoadingSystem.Model
 
 		public OutputDescription()
 		{
-			importFrom = 0;
 			importTo = 100;
 			dataStartsFrom = 0;
 		}

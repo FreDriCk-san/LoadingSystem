@@ -15,7 +15,7 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
-            <ColumnDefinition Width="Auto" MinWidth="300"/>
+            <ColumnDefinition Width="Auto" MinWidth="330" MaxWidth="330"/>
         </Grid.ColumnDefinitions>
         <Menu Height="21" VerticalAlignment="Top" Grid.ColumnSpan="2">
             <MenuItem Header="Файл">

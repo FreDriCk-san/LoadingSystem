@@ -5,7 +5,7 @@ namespace LoadingSystem.Model
 {
 	public class DataModel : INotifyPropertyChanged
 	{
-		private List<double> listOfNumbers;
+		private double[][] arrayOfNumbers;
 		private int decimalRound;
 		private char separator;
 		private char decimalSeparator;
@@ -13,14 +13,14 @@ namespace LoadingSystem.Model
 		private int dataStartsFrom;
 
 
-		public List<double> ListOfNumbers
+		public double[][] ArrayOfNumbers
 		{
-			get { return listOfNumbers; }
+			get { return arrayOfNumbers; }
 
 			set
 			{
-				listOfNumbers = value;
-				OnPropertyChanged("ListOfNumbers");
+				arrayOfNumbers = value;
+				OnPropertyChanged("ArrayOfNumbers");
 			}
 		}
 
@@ -81,7 +81,7 @@ namespace LoadingSystem.Model
 
         public DataModel()
         {
-            listOfNumbers = new List<double>();
+
         }
 
 
