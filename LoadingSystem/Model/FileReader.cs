@@ -28,111 +28,136 @@ namespace LoadingSystem.Model
 				using (var reader = new StreamReader(stream, CodepageDetector.getCyrillic(path)))
 				{
                     var dataLineFound = false;
+					var readColumnOnce = false;
                     var index = 1;
 					var arrayOfNumbers = new double[4096][];
 					var arrayNumStep = 0;
-					
 
-					while (!reader.EndOfStream)
+					try
 					{
-						var line = await reader.ReadLineAsync() + "  ";
-
-                        if (!dataLineFound)
-                        {
-                            if (StringIsDigitOnly(line))
-                            {
-                                dataLineFound = true;
-                                data.DataStartsFrom = index - 1;
-                                data.ColumnCount = CountOfColumns(line);
-                            }
-                        }
-
-						if (dataLineFound)
+						while (!reader.EndOfStream)
 						{
-							var lineArray = new double[data.ColumnCount];
-							var arrayLineStep = 0;
+							var line = await reader.ReadLineAsync();
 
-							for (int i = 0; i < line.Length - 2; i++)
+							if (!dataLineFound)
 							{
-								var currentChar = line[i];
-								var nextChar = line[i + 1];
-
-								// Check, if it's a header
-								if (currentChar == ':' || nextChar == ':')
+								if (StringIsASCII(line))
 								{
-									builder.Clear();
+									dataLineFound = true;
+									readColumnOnce = true;
+									data.DataStartsFrom = index;
 									continue;
 								}
 
-								// Check, if it's a separator
-								else if (currentChar == separator && char.IsDigit(line[i - 1]))
+								else if (StringIsDigitOnly(line))
 								{
-									lineArray[arrayLineStep] = StringToDouble(builder.ToString());
-									builder.Clear();
-									arrayLineStep++;
-
-									if (arrayLineStep % 4096 == 0 && arrayLineStep > 0)
-									{
-										Array.Resize(ref lineArray, lineArray.Length + 4096);
-									}
+									dataLineFound = true;
+									readColumnOnce = true;
+									data.DataStartsFrom = index;
 								}
+							}
 
-								// Check if it's a decimal separator
-								else if (currentChar == '.' || currentChar == ',')
+
+							if (readColumnOnce)
+							{
+								data.ColumnCount = CountOfColumns(line);
+								readColumnOnce = false;
+							}
+
+
+							if (dataLineFound)
+							{
+								var lineArray = new double[data.ColumnCount];
+								var arrayLineStep = 0;
+
+								for (int i = 0; i < line.Length - 2; i++)
 								{
-									// Get decimal separator
-									if (decimalSeparator == char.MinValue)
+									var currentChar = line[i];
+									var nextChar = line[i + 1];
+
+									// Check, if it's a header
+									if (currentChar == ':' || nextChar == ':')
 									{
-										decimalSeparator = currentChar;
+										builder.Clear();
+										continue;
 									}
 
-									builder.Append(currentChar);
-								}
-
-								// Check, if it's a number
-								else if (char.IsDigit(currentChar))
-								{
-									// If it is a last character without next spaces (symbols)
-									if (i == line.Length - 3)
+									// Check, if it's a separator
+									else if (currentChar == separator && char.IsDigit(line[i - 1]))
 									{
-										builder.Append(currentChar);
 										lineArray[arrayLineStep] = StringToDouble(builder.ToString());
-										decimalRound = GetDecimalNumberCount(builder.ToString(), decimalSeparator, separator);
 										builder.Clear();
 										arrayLineStep++;
 
+										//WHY!???!??!?!
 										if (arrayLineStep % 4096 == 0 && arrayLineStep > 0)
 										{
 											Array.Resize(ref lineArray, lineArray.Length + 4096);
 										}
-
-										continue;
 									}
 
-									// Get separator
-									if (!char.IsDigit(nextChar))
+									// Check if it's a decimal separator
+									else if (currentChar == '.' || currentChar == ',')
 									{
-										if (separator == char.MinValue && decimalSeparator != char.MinValue)
+										// Get decimal separator
+										if (decimalSeparator == char.MinValue)
 										{
-											separator = nextChar;
+											decimalSeparator = currentChar;
 										}
+
+										builder.Append(currentChar);
 									}
 
-									builder.Append(currentChar);
+									// Check, if it's a number
+									else if (char.IsDigit(currentChar))
+									{
+										// If it is a last character without next spaces (symbols)
+										if (i == line.Length - 3)
+										{
+											builder.Append(currentChar);
+											lineArray[arrayLineStep] = StringToDouble(builder.ToString());
+											decimalRound = GetDecimalNumberCount(builder.ToString(), decimalSeparator, separator);
+											builder.Clear();
+											arrayLineStep++;
+
+											if (arrayLineStep % 4096 == 0 && arrayLineStep > 0)
+											{
+												Array.Resize(ref lineArray, lineArray.Length + 4096);
+											}
+
+											continue;
+										}
+
+										// Get separator
+										if (!char.IsDigit(nextChar))
+										{
+											if (separator == char.MinValue && decimalSeparator != char.MinValue)
+											{
+												separator = nextChar;
+											}
+										}
+
+										builder.Append(currentChar);
+									}
+								}
+
+								arrayOfNumbers[arrayNumStep] = lineArray;
+								arrayNumStep++;
+
+								if (arrayNumStep % 4096 == 0 && arrayNumStep > 0)
+								{
+									Array.Resize(ref arrayOfNumbers, arrayOfNumbers.Length + 4096);
 								}
 							}
 
-							arrayOfNumbers[arrayNumStep] = lineArray;
-							arrayNumStep++;
-
-							if (arrayNumStep % 4096 == 0 && arrayNumStep > 0)
-							{
-								Array.Resize(ref arrayOfNumbers, arrayOfNumbers.Length + 4096);
-							}
+							index++;
 						}
-
-                        index++;
 					}
+					catch (Exception ex)
+					{
+						throw new Exception(ex.Message);
+					}
+					
 
                     data.Separator = separator;
                     data.DecimalRound = decimalRound;
@@ -259,6 +284,22 @@ namespace LoadingSystem.Model
 			return true;
 		}
 
+
+		private static bool StringIsASCII(string text)
+		{
+			// If current string is null or contains only spaces
+			if (string.IsNullOrWhiteSpace(text))
+			{
+				return false;
+			}
+
+			if (!text.Contains("~ASCII") && !text.Contains("~ascii") && !text.Contains("~Ascii"))
+			{
+				return false;
+			}
+
+			return true;
+		}
 
 
         private static int CountOfColumns(string text)
