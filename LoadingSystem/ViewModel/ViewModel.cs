@@ -178,9 +178,18 @@ namespace LoadingSystem.ViewModel
 
 			var content = new object[columns];
 
-			var existingElements = DataModel.ArrayOfNumbers.Where(c => c != null).ToArray();
+			var existingElements = 0;
 
-			for (int i = 0; i < existingElements.Length; ++i)
+			for (int i = 0; i < DataModel.ArrayOfNumbers.Length; ++i)
+			{
+				if (null == DataModel.ArrayOfNumbers[i])
+				{
+					existingElements = i;
+					break;
+				}
+			}
+
+			for (int i = 0; i < existingElements; ++i)
 			{
 				for (int j = 0; j < columns; ++j)
 				{

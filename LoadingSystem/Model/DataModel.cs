@@ -3,13 +3,19 @@ using System.ComponentModel;
 
 namespace LoadingSystem.Model
 {
-	public class DataModel : INotifyPropertyChanged
+	public class DataModel
 	{
+		// Массив массивов с числами
 		private double[][] arrayOfNumbers;
+		// Округление десятичного числа
 		private int decimalRound;
+		// Разделитель между значениями
 		private char separator;
+		// Разделитель десятичного числа
 		private char decimalSeparator;
+		// Количество столбцов
 		private int columnCount;
+		// Данные начинаются со строки...
 		private int dataStartsFrom;
 
 

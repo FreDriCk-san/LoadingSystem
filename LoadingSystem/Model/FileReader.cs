@@ -15,6 +15,7 @@ namespace LoadingSystem.Model
 
         private const FileOptions DefaultOptions = FileOptions.Asynchronous | FileOptions.SequentialScan;
 
+		// Считывание и обработка входных данных
         public static async Task<DataModel> ReadAllLinesAsync(string path)
         {
 			var data = new DataModel();
@@ -32,145 +33,191 @@ namespace LoadingSystem.Model
                     var index = 1;
 					var arrayOfNumbers = new double[4096][];
 					var arrayNumStep = 0;
+					var firstLineProcessed = false;
+					var arrayOfPositions = new int[0];
 
-					try
+					// Считывать, пока не конец потока
+					while (!reader.EndOfStream)
 					{
-						while (!reader.EndOfStream)
+						var line = await reader.ReadLineAsync();
+
+						// Если не найдена строка, с которой начинаются данные для обработки
+						if (!dataLineFound)
 						{
-							var line = await reader.ReadLineAsync();
-
-							if (!dataLineFound)
+							// Если текущая строка содержит слово ASCII
+							if (StringIsASCII(line))
 							{
-								if (StringIsASCII(line))
-								{
-									dataLineFound = true;
-									readColumnOnce = true;
-									data.DataStartsFrom = index;
-									continue;
-								}
-
-								else if (StringIsDigitOnly(line))
-								{
-									dataLineFound = true;
-									readColumnOnce = true;
-									data.DataStartsFrom = index;
-								}
+								dataLineFound = true;
+								readColumnOnce = true;
+								data.DataStartsFrom = index;
+								continue;
 							}
 
-
-							if (readColumnOnce)
+							// Если текущая строка состоит только из чисел и специяльных знаков (пробел, запятая, точка...)
+							else if (StringIsDigitOnly(line))
 							{
-								data.ColumnCount = CountOfColumns(line);
-								readColumnOnce = false;
+								dataLineFound = true;
+								readColumnOnce = true;
+								data.DataStartsFrom = index;
 							}
+						}
+
+						// Если нашлась строка с данными, считать один раз и определить количество столбцов
+						if (readColumnOnce)
+						{
+							data.ColumnCount = CountOfColumns(line);
+							readColumnOnce = false;
+						}
 
 
-							if (dataLineFound)
+						// Если найдена строка, с которой начинаются данные для обработки
+						if (dataLineFound)
+						{
+							var lineArray = new double[data.ColumnCount];
+							var arrayLineStep = 0;
+							var positionStep = 0;
+
+
+							// Обработка текущей строки по символам
+							for (int i = 0; i < line.Length - 1; i++)
 							{
-								var lineArray = new double[data.ColumnCount];
-								var arrayLineStep = 0;
+								var currentChar = line[i];
+								var nextChar = line[i + 1];
 
-								for (int i = 0; i < line.Length - 2; i++)
+								// Проверить, если встретился заголовок (Например 1:)
+								if (currentChar == ':' || nextChar == ':')
 								{
-									var currentChar = line[i];
-									var nextChar = line[i + 1];
+									builder.Clear();
+								}
+								
+								// Если встретилось отрицательное число
+								else if (currentChar == '-' && char.IsDigit(nextChar))
+								{
+									builder.Append(currentChar);
+								}
 
-									// Check, if it's a header
-									if (currentChar == ':' || nextChar == ':')
+								// Проверить, если встретился разделитель, перед которым стоит число
+								else if (currentChar == separator && char.IsDigit(line[i - 1]))
+								{
+									lineArray[arrayLineStep] = StringToDouble(builder.ToString());
+									builder.Clear();
+									arrayLineStep++;
+
+									if (arrayLineStep % 4096 == 0 && arrayLineStep > 0)
 									{
+										Array.Resize(ref lineArray, lineArray.Length + 4096);
+									}
+								}
+
+								// TO DO: Исправить расположение (if , else if)
+								// Проверить позицию, после прохода справа налево (данные о позициях разделителей хранятся в массиве)
+								if (firstLineProcessed)
+								{
+									if (arrayOfPositions[positionStep] == i && !char.IsDigit(line[i - 1]) && currentChar == separator)
+									{
+										lineArray[arrayLineStep] = double.NaN;
 										builder.Clear();
-										continue;
+										positionStep++;
+										arrayLineStep++;
+									}
+								}
+
+								// Проверить, если встретился разделитель десятичного числа
+								else if (currentChar == '.' || currentChar == ',')
+								{
+									// Определить разделитель десятичного числа
+									if (decimalSeparator == char.MinValue)
+									{
+										decimalSeparator = currentChar;
 									}
 
-									// Check, if it's a separator
-									else if (currentChar == separator && char.IsDigit(line[i - 1]))
+									builder.Append(currentChar);
+								}
+
+								// Проверить, если встретилось число
+								else if (char.IsDigit(currentChar))
+								{
+									// Если текущий символ является последним и не имеет пробелов
+									if (i == line.Length - 2)
 									{
+										builder.Append(currentChar);
 										lineArray[arrayLineStep] = StringToDouble(builder.ToString());
+										decimalRound = GetDecimalNumberCount(builder.ToString(), decimalSeparator, separator);
 										builder.Clear();
 										arrayLineStep++;
 
-										//WHY!???!??!?!
 										if (arrayLineStep % 4096 == 0 && arrayLineStep > 0)
 										{
 											Array.Resize(ref lineArray, lineArray.Length + 4096);
 										}
+
+										continue;
 									}
 
-									// Check if it's a decimal separator
-									else if (currentChar == '.' || currentChar == ',')
+									// Определить разделитель
+									if (!char.IsDigit(nextChar))
 									{
-										// Get decimal separator
-										if (decimalSeparator == char.MinValue)
+										if (separator == char.MinValue && decimalSeparator != char.MinValue)
 										{
-											decimalSeparator = currentChar;
+											separator = nextChar;
 										}
-
-										builder.Append(currentChar);
 									}
 
-									// Check, if it's a number
-									else if (char.IsDigit(currentChar))
-									{
-										// If it is a last character without next spaces (symbols)
-										if (i == line.Length - 3)
-										{
-											builder.Append(currentChar);
-											lineArray[arrayLineStep] = StringToDouble(builder.ToString());
-											decimalRound = GetDecimalNumberCount(builder.ToString(), decimalSeparator, separator);
-											builder.Clear();
-											arrayLineStep++;
-
-											if (arrayLineStep % 4096 == 0 && arrayLineStep > 0)
-											{
-												Array.Resize(ref lineArray, lineArray.Length + 4096);
-											}
-
-											continue;
-										}
-
-										// Get separator
-										if (!char.IsDigit(nextChar))
-										{
-											if (separator == char.MinValue && decimalSeparator != char.MinValue)
-											{
-												separator = nextChar;
-											}
-										}
-
-										builder.Append(currentChar);
-									}
+									builder.Append(currentChar);
 								}
 
-								arrayOfNumbers[arrayNumStep] = lineArray;
-								arrayNumStep++;
-
-								if (arrayNumStep % 4096 == 0 && arrayNumStep > 0)
+								else if (i == line.Length - 2 && !char.IsDigit(line[i - 1]))
 								{
-									Array.Resize(ref arrayOfNumbers, arrayOfNumbers.Length + 4096);
+									lineArray[arrayLineStep] = double.NaN;
+									builder.Clear();
+									arrayLineStep++;
 								}
 							}
 
-							index++;
-						}
-					}
-					catch (Exception ex)
-					{
-						throw new Exception(ex.Message);
-					}
-					
 
-                    data.Separator = separator;
-                    data.DecimalRound = decimalRound;
-                    data.DecimalSeparator = decimalSeparator;
+							// Получить с первой строки шаблон позиций разделителей значений
+							if (!firstLineProcessed)
+							{
+								arrayOfPositions = new int[data.ColumnCount - 1];
+								var arrayStep = 0;
+
+								for (int i = line.Length - 1; i >= 0; --i)
+								{
+									if (line[i] == separator && char.IsDigit(line[i - 1]))
+									{
+										arrayOfPositions[arrayStep] = i;
+										arrayStep++;
+									}
+								}
+
+								firstLineProcessed = true;
+							}
+
+							arrayOfNumbers[arrayNumStep] = lineArray;
+							arrayNumStep++;
+
+							if (arrayNumStep % 4096 == 0 && arrayNumStep > 0)
+							{
+								Array.Resize(ref arrayOfNumbers, arrayOfNumbers.Length + 4096);
+							}
+						}
+
+						index++;
+					}
+
+
+					data.Separator = separator;
+					data.DecimalRound = decimalRound;
+					data.DecimalSeparator = decimalSeparator;
 					data.ArrayOfNumbers = arrayOfNumbers;
-                }
+				}
 			}
 
 			return data;
         }
 
 
-
+		// Считать определённое количество строк
 		public static async Task<string[]> ReadLinesAsync(string path, int toString)
 		{
 			var result = new string[1024];
@@ -196,7 +243,7 @@ namespace LoadingSystem.Model
 		}
 
 
-
+		// Определить дробную часть числа
 		private static int GetDecimalNumberCount(string text, char decimalSeparator, char separator)
 		{
 			var counter = 0;
@@ -249,8 +296,8 @@ namespace LoadingSystem.Model
 
 			if (!Double.TryParse(text, NumberStyles.Number | NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out result))
 			{
-				throw new Exception($"Cannot parse to double value {text}");
-				// return double.NaN;
+				//throw new Exception($"Cannot parse to double value {text}");
+				 return double.NaN;
 			}
 
 			return result;
@@ -258,7 +305,7 @@ namespace LoadingSystem.Model
 
 
 
-		// TO DO: Check if sting validation is correct
+
 		private static bool StringIsDigitOnly(string text)
 		{
             // If current string is null or contains only spaces
@@ -302,25 +349,26 @@ namespace LoadingSystem.Model
 		}
 
 
-        private static int CountOfColumns(string text)
-        {
-            var result = 0;
 
-            for (int i = 0; i < text.Length - 1; ++i)
-            {
-                if (i == 0 && char.IsDigit(text[0]))
-                {
-                    result++;
-                }
+		private static int CountOfColumns(string text)
+		{
+			var result = 0;
 
-                if ((text[i] == ' ') && (char.IsDigit(text[i + 1])))
-                {
-                    result++;
-                }
-            }
+			for (int i = 0; i < text.Length - 1; ++i)
+			{
+				if (i == 0 && char.IsDigit(text[0]))
+				{
+					result++;
+				}
 
-            return result;
-        }
+				if ((text[i] == ' ') && (char.IsDigit(text[i + 1])))
+				{
+					result++;
+				}
+			}
+
+			return result;
+		}
 	}
 
 
