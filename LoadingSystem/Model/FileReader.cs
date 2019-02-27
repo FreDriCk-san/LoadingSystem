@@ -1,15 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
-using System.Reflection;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Linq;
-using System;
-using System.Globalization;
 
 namespace LoadingSystem.Model
 {
-    public static class FileReader
+	public static class FileReader
     {
         private const int DefaultBufferSize = 4096;
 
@@ -35,6 +34,7 @@ namespace LoadingSystem.Model
 					var arrayNumStep = 0;
 					var firstLineProcessed = false;
 					var arrayOfPositions = new int[0];
+					var prevLine = string.Empty;
 
 					// Считывать, пока не конец потока
 					while (!reader.EndOfStream)
@@ -75,7 +75,15 @@ namespace LoadingSystem.Model
 						{
 							var lineArray = new double[data.ColumnCount];
 							var arrayLineStep = 0;
-							var positionStep = 0;
+
+
+							if (prevLine != string.Empty)
+							{
+								if (prevLine.Length != line.Length)
+								{
+									arrayOfPositions = GetNumericPositions(line, data.ColumnCount, separator);
+								}
+							}
 
 
 							// Обработка текущей строки по символам
@@ -83,6 +91,11 @@ namespace LoadingSystem.Model
 							{
 								var currentChar = line[i];
 								var nextChar = line[i + 1];
+
+								if (index == 44558 && i == 783)
+								{
+
+								}
 
 								// Проверить, если встретился заголовок (Например 1:)
 								if (currentChar == ':' || nextChar == ':')
@@ -109,15 +122,12 @@ namespace LoadingSystem.Model
 									}
 								}
 
-								// TO DO: Исправить расположение (if , else if)
-								// Проверить позицию, после прохода справа налево (данные о позициях разделителей хранятся в массиве)
+								// Проверить позицию, после прохода (данные о позициях разделителей хранятся в массиве)
 								else if (firstLineProcessed && currentChar == separator)
 								{
-									if (arrayOfPositions[positionStep] == i && !char.IsDigit(line[i - 1]))
+									if (arrayOfPositions[arrayLineStep] == i && !char.IsDigit(line[i - 1]))
 									{
 										lineArray[arrayLineStep] = double.NaN;
-										builder.Clear();
-										positionStep++;
 										arrayLineStep++;
 									}
 								}
@@ -145,6 +155,7 @@ namespace LoadingSystem.Model
 										decimalRound = GetDecimalNumberCount(builder.ToString(), decimalSeparator, separator);
 										builder.Clear();
 										arrayLineStep++;
+										prevLine = line;
 
 										if (arrayLineStep % 4096 == 0 && arrayLineStep > 0)
 										{
@@ -175,21 +186,10 @@ namespace LoadingSystem.Model
 							}
 
 
-							// Получить с первой строки шаблон позиций разделителей значений (справа налево)
+							// Получить шаблон позиций разделителей значений
 							if (!firstLineProcessed)
 							{
-								arrayOfPositions = new int[data.ColumnCount - 1];
-								var arrayStep = 0;
-
-								for (int i = line.Length - 1; i > 0; --i)
-								{
-									if (line[i] == separator && char.IsDigit(line[i - 1]))
-									{
-										arrayOfPositions[arrayStep] = i;
-										arrayStep++;
-									}
-								}
-
+								arrayOfPositions = GetNumericPositions(line, data.ColumnCount, separator);
 								firstLineProcessed = true;
 							}
 
@@ -364,6 +364,25 @@ namespace LoadingSystem.Model
 				if ((text[i] == ' ') && (char.IsDigit(text[i + 1])))
 				{
 					result++;
+				}
+			}
+
+			return result;
+		}
+
+
+
+		private static int[] GetNumericPositions(string line, int columnCount, char separator)
+		{
+			var result = new int[columnCount];
+			var arrayStep = 0;
+
+			for (int i = 1; i < line.Length - 1; ++i)
+			{
+				if (line[i] == separator && char.IsDigit(line[i - 1]))
+				{
+					result[arrayStep] = i;
+					arrayStep++;
 				}
 			}
 
