@@ -96,8 +96,8 @@ namespace LoadingSystem.Model
 									builder.Append(currentChar);
 								}
 
-								// Проверить, если встретился разделитель, перед которым стоит число
-								else if (currentChar == separator && char.IsDigit(line[i - 1]))
+								// Проверить, если встретился разделитель, перед которым стоит число (если индекс не 0!!)
+								else if (currentChar == separator && i != 0 && char.IsDigit(line[i - 1]))
 								{
 									lineArray[arrayLineStep] = StringToDouble(builder.ToString());
 									builder.Clear();
@@ -111,9 +111,9 @@ namespace LoadingSystem.Model
 
 								// TO DO: Исправить расположение (if , else if)
 								// Проверить позицию, после прохода справа налево (данные о позициях разделителей хранятся в массиве)
-								if (firstLineProcessed)
+								else if (firstLineProcessed && currentChar == separator)
 								{
-									if (arrayOfPositions[positionStep] == i && !char.IsDigit(line[i - 1]) && currentChar == separator)
+									if (arrayOfPositions[positionStep] == i && !char.IsDigit(line[i - 1]))
 									{
 										lineArray[arrayLineStep] = double.NaN;
 										builder.Clear();
@@ -175,13 +175,13 @@ namespace LoadingSystem.Model
 							}
 
 
-							// Получить с первой строки шаблон позиций разделителей значений
+							// Получить с первой строки шаблон позиций разделителей значений (справа налево)
 							if (!firstLineProcessed)
 							{
 								arrayOfPositions = new int[data.ColumnCount - 1];
 								var arrayStep = 0;
 
-								for (int i = line.Length - 1; i >= 0; --i)
+								for (int i = line.Length - 1; i > 0; --i)
 								{
 									if (line[i] == separator && char.IsDigit(line[i - 1]))
 									{
