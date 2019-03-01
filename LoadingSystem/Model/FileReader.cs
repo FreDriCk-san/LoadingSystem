@@ -35,6 +35,7 @@ namespace LoadingSystem.Model
 					var firstLineProcessed = false;
 					var arrayOfPositions = new int[0];
 					var prevLine = string.Empty;
+					var prevPositions = new int[0];
 
 					// Считывать, пока не конец потока
 					while (!reader.EndOfStream)
@@ -76,7 +77,6 @@ namespace LoadingSystem.Model
 							var lineArray = new double[data.ColumnCount];
 							var arrayLineStep = 0;
 
-
 							if (prevLine != string.Empty)
 							{
 								if (prevLine.Length != line.Length)
@@ -85,17 +85,11 @@ namespace LoadingSystem.Model
 								}
 							}
 
-
 							// Обработка текущей строки по символам
 							for (int i = 0; i < line.Length - 1; i++)
 							{
 								var currentChar = line[i];
 								var nextChar = line[i + 1];
-
-								if (index == 44558 && i == 783)
-								{
-
-								}
 
 								// Проверить, если встретился заголовок (Например 1:)
 								if (currentChar == ':' || nextChar == ':')
@@ -122,9 +116,24 @@ namespace LoadingSystem.Model
 									}
 								}
 
+								// Если встретился посторонний символ или последний элемент не валиден
+								else if ((currentChar == separator && i != 0 && line[i - 1] != ' ')
+									|| (i == line.Length - 2 && !char.IsDigit(line[i - 1])))
+								{
+									lineArray[arrayLineStep] = double.NaN;
+									builder.Clear();
+									arrayLineStep++;
+								}
+
 								// Проверить позицию, после прохода (данные о позициях разделителей хранятся в массиве)
 								else if (firstLineProcessed && currentChar == separator)
 								{
+									// TO DO: Исправить, нужна причина для изменений массива
+									if (prevLine.Length == line.Length && (prevLine[i] == ' '))
+									{
+										arrayOfPositions = GetNumericPositions(line, data.ColumnCount, separator);
+									}
+
 									if (arrayOfPositions[arrayLineStep] == i && !char.IsDigit(line[i - 1]))
 									{
 										lineArray[arrayLineStep] = double.NaN;
@@ -156,6 +165,7 @@ namespace LoadingSystem.Model
 										builder.Clear();
 										arrayLineStep++;
 										prevLine = line;
+										prevPositions = arrayOfPositions;
 
 										if (arrayLineStep % 4096 == 0 && arrayLineStep > 0)
 										{
@@ -176,13 +186,6 @@ namespace LoadingSystem.Model
 
 									builder.Append(currentChar);
 								}
-
-								else if (i == line.Length - 2 && !char.IsDigit(line[i - 1]))
-								{
-									lineArray[arrayLineStep] = double.NaN;
-									builder.Clear();
-									arrayLineStep++;
-								}
 							}
 
 
@@ -190,6 +193,7 @@ namespace LoadingSystem.Model
 							if (!firstLineProcessed)
 							{
 								arrayOfPositions = GetNumericPositions(line, data.ColumnCount, separator);
+								prevPositions = arrayOfPositions;
 								firstLineProcessed = true;
 							}
 
@@ -361,7 +365,7 @@ namespace LoadingSystem.Model
 					result++;
 				}
 
-				if ((text[i] == ' ') && (char.IsDigit(text[i + 1])))
+				if ((text[i] == ' ') && (char.IsDigit(text[i + 1]) || text[i + 1] != ' '))
 				{
 					result++;
 				}
@@ -387,6 +391,51 @@ namespace LoadingSystem.Model
 			}
 
 			return result;
+		}
+
+
+
+		private static int CountElementsOfArray(int[] array, int element)
+		{
+			var result = 0;
+
+			foreach (var item in array)
+			{
+				if (item == element)
+				{
+					result++;
+				}
+			}
+
+			return result;
+		}
+
+
+
+		private static bool CountOfSpacesAreSame(char separator, string line, string previousLine)
+		{
+			var firstCounter = 0;
+			var secondCounter = 0;
+
+			for (int i = 0; i < line.Length - 1; ++i)
+			{
+				if (line[i] == separator || line[i] == ' ')
+				{
+					firstCounter++;
+				}
+
+				if (previousLine[i] == separator || previousLine[i] == ' ')
+				{
+					secondCounter++;
+				}
+			}
+
+			if (firstCounter == secondCounter)
+			{
+				return true;
+			}
+
+			return false;
 		}
 	}
 
