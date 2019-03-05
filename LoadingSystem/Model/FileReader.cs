@@ -77,13 +77,13 @@ namespace LoadingSystem.Model
 							var lineArray = new double[data.ColumnCount];
 							var arrayLineStep = 0;
 
-							if (prevLine != string.Empty)
-							{
-								if (prevLine.Length != line.Length)
-								{
-									arrayOfPositions = GetNumericPositions(line, data.ColumnCount, separator);
-								}
-							}
+							//if (prevLine != string.Empty)
+							//{
+							//	if (prevLine.Length != line.Length)
+							//	{
+							//		arrayOfPositions = GetNumericPositions(line, data.ColumnCount, separator);
+							//	}
+							//}
 
 							// Обработка текущей строки по символам
 							for (int i = 0; i < line.Length - 1; i++)
@@ -128,16 +128,18 @@ namespace LoadingSystem.Model
 								// Проверить позицию, после прохода (данные о позициях разделителей хранятся в массиве)
 								else if (firstLineProcessed && currentChar == separator)
 								{
-									// TO DO: Исправить, нужна причина для изменений массива
-									if (prevLine.Length == line.Length && (prevLine[i] == ' '))
+									// TO DO: Проработать ситуацию, где происходит изменение длины строки
+									if (arrayOfPositions[arrayLineStep] == i)
 									{
-										arrayOfPositions = GetNumericPositions(line, data.ColumnCount, separator);
-									}
-
-									if (arrayOfPositions[arrayLineStep] == i && !char.IsDigit(line[i - 1]))
-									{
-										lineArray[arrayLineStep] = double.NaN;
-										arrayLineStep++;
+										if (nextChar != separator && separator == ' ')
+										{
+											arrayOfPositions = GetNumericPositions(line, data.ColumnCount, separator);
+										}
+										else if (!char.IsDigit(line[i - 1]))
+										{
+											lineArray[arrayLineStep] = double.NaN;
+											arrayLineStep++;
+										}
 									}
 								}
 
@@ -391,51 +393,6 @@ namespace LoadingSystem.Model
 			}
 
 			return result;
-		}
-
-
-
-		private static int CountElementsOfArray(int[] array, int element)
-		{
-			var result = 0;
-
-			foreach (var item in array)
-			{
-				if (item == element)
-				{
-					result++;
-				}
-			}
-
-			return result;
-		}
-
-
-
-		private static bool CountOfSpacesAreSame(char separator, string line, string previousLine)
-		{
-			var firstCounter = 0;
-			var secondCounter = 0;
-
-			for (int i = 0; i < line.Length - 1; ++i)
-			{
-				if (line[i] == separator || line[i] == ' ')
-				{
-					firstCounter++;
-				}
-
-				if (previousLine[i] == separator || previousLine[i] == ' ')
-				{
-					secondCounter++;
-				}
-			}
-
-			if (firstCounter == secondCounter)
-			{
-				return true;
-			}
-
-			return false;
 		}
 	}
 

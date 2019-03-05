@@ -193,6 +193,14 @@ namespace LoadingSystem.ViewModel
 			{
 				for (int j = 0; j < columns; ++j)
 				{
+					// Check for count of NaN values
+					//var tmp = DataModel.ArrayOfNumbers[i][j];
+
+					//if (double.IsNaN(tmp))
+					//{
+
+					//}
+
 					content[j] = DataModel.ArrayOfNumbers[i][j];
 				}
 				DataGridTable.Rows.Add(content);

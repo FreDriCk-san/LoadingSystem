@@ -40,3 +40,24 @@ C:\TempFolder\LoadingSystem\LoadingSystem\obj\Debug\View\View.baml
 D:\Visual Studio Projects\C#\LoadingSystem\LoadingSystem\obj\Debug\View\View.g.cs
 D:\Visual Studio Projects\C#\LoadingSystem\LoadingSystem\obj\Debug\GeneratedInternalTypeHelper.g.cs
 D:\Visual Studio Projects\C#\LoadingSystem\LoadingSystem\obj\Debug\View\View.baml
+E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\bin\Debug\LoadingSystem.exe.config
+E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\bin\Debug\LoadingSystem.exe
+E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\bin\Debug\LoadingSystem.pdb
+E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\bin\Debug\Xceed.Wpf.Toolkit.dll
+E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\bin\Debug\Xceed.Wpf.Toolkit.pdb
+E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem.csprojAssemblyReference.cache
+E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\obj\Debug\MainWindow.g.cs
+E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\obj\Debug\View\View.g.cs
+E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\obj\Debug\App.g.cs
+E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\obj\Debug\GeneratedInternalTypeHelper.g.cs
+E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem_MarkupCompile.cache
+E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem_MarkupCompile.lref
+E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\obj\Debug\MainWindow.baml
+E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\obj\Debug\View\View.baml
+E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem.g.resources
+E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem.Properties.Resources.resources
+E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem.csproj.GenerateResource.cache
+E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem.csproj.CoreCompileInputs.cache
+E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem.csproj.CopyComplete
+E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem.exe
+E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem.pdb
