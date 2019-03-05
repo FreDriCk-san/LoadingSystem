@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 
 namespace LoadingSystem.Model
 {
@@ -17,8 +16,19 @@ namespace LoadingSystem.Model
 		private int columnCount;
 		// Данные начинаются со строки...
 		private int dataStartsFrom;
+		// Null значения таблицы
+		private double nullValue;
+		// Наименование скважины
+		private string wellName;
+		// Наименование месторождения
+		private string fieldName;
+		// Наименование дата-сета
+		private string dataSetName;
+		// Наименование куста
+		private string bushName;
 
 
+		#region Data Init
 		public double[][] ArrayOfNumbers
 		{
 			get { return arrayOfNumbers; }
@@ -85,7 +95,63 @@ namespace LoadingSystem.Model
 			}
 		}
 
-        public DataModel()
+		public double NullValue
+		{
+			get { return nullValue; }
+
+			set
+			{
+				nullValue = value;
+				OnPropertyChanged("NullValue");
+			}
+		}
+
+		public string WellName
+		{
+			get { return wellName; }
+
+			set
+			{
+				wellName = value;
+				OnPropertyChanged("WellName");
+			}
+		}
+
+		public string FieldName
+		{
+			get { return fieldName; }
+
+			set
+			{
+				fieldName = value;
+				OnPropertyChanged("FieldName");
+			}
+		}
+
+		public string DataSetName
+		{
+			get { return dataSetName; }
+
+			set
+			{
+				dataSetName = value;
+				OnPropertyChanged("DataSetName");
+			}
+		}
+
+		public string BushName
+		{
+			get { return bushName; }
+
+			set
+			{
+				bushName = value;
+				OnPropertyChanged("BushName");
+			}
+		}
+		#endregion
+
+		public DataModel()
         {
 
         }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LoadingSystem.Util;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -27,6 +28,8 @@ namespace LoadingSystem.Model
 			{
 				using (var reader = new StreamReader(stream, CodepageDetector.getCyrillic(path)))
 				{
+					var propertyLineFound = false;
+
                     var dataLineFound = false;
 					var readColumnOnce = false;
                     var index = 1;
@@ -42,6 +45,24 @@ namespace LoadingSystem.Model
 					{
 						var line = await reader.ReadLineAsync();
 
+						// Если не найдена строка, с которой начинаются свойства
+						//if (!propertyLineFound)
+						//{
+						//	if (StringIsProperty(line, "~WELL", "~well", "~Well"))
+						//	{
+						//		propertyLineFound = true;
+						//	}
+						//}
+						//else
+						//{
+						//	if (StringIsProperty(line, "NULL", "null", "Null"))
+						//	{
+						//		data.NullValue = StringToDouble(InspectPropertyLine(PropertyEnum.Null, line));
+						//	}
+						//}
+
+
+
 						// Если не найдена строка, с которой начинаются данные для обработки
 						if (!dataLineFound)
 						{
@@ -54,7 +75,7 @@ namespace LoadingSystem.Model
 								continue;
 							}
 
-							// Если текущая строка состоит только из чисел и специяльных знаков (пробел, запятая, точка...)
+							// Если текущая строка состоит только из чисел и специальных знаков (пробел, запятая, точка...)
 							else if (StringIsDigitOnly(line))
 							{
 								dataLineFound = true;
@@ -393,6 +414,62 @@ namespace LoadingSystem.Model
 			}
 
 			return result;
+		}
+
+
+
+		private static bool StringIsProperty(string text, string firstType, string secondType, string thirdType)
+		{
+			// If current string is null or contains only spaces
+			if (string.IsNullOrWhiteSpace(text))
+			{
+				return false;
+			}
+
+			if (!text.Contains(firstType) && !text.Contains(secondType) && !text.Contains(thirdType))
+			{
+				return false;
+			}
+
+			return true;
+		}
+
+
+
+		private static string InspectPropertyLine(PropertyEnum property, string line)
+		{
+			var builder = new StringBuilder();
+
+			if (property == PropertyEnum.Null)
+			{
+				foreach (var character in line)
+				{
+					if (char.IsDigit(character) || character == '-' || character == '.' || character == ',')
+					{
+						builder.Append(character);
+					}
+				}
+
+				return builder.ToString();
+			}
+			else
+			{
+				var startRead = false;
+
+				foreach (var character in line)
+				{
+					if (startRead)
+					{
+						builder.Append(character);
+					}
+					else if (character == ':')
+					{
+						startRead = true;
+					}
+				}
+
+				return builder.ToString();
+			}
 		}
 	}
 

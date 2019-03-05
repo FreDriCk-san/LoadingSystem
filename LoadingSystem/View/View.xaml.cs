@@ -49,6 +49,7 @@ namespace LoadingSystem.View
 		{
             propertyPanel.Children.Clear();
 			buttonRead.IsEnabled = true;
+			toExcel.IsEnabled = true;
 
 			for (int i = 1; i <= gridOfData.Columns.Count; ++i)
 			{

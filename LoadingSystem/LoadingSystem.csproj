@@ -55,6 +55,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Util\PropertyEnum.cs" />
     <Compile Include="ViewModel\ToggleCommand.cs" />
     <Compile Include="ViewModel\ViewModel.cs" />
     <Compile Include="View\View.xaml.cs">

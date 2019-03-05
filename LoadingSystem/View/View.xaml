@@ -20,6 +20,7 @@
         <Menu Height="21" VerticalAlignment="Top" Grid.ColumnSpan="2">
             <MenuItem Header="Файл">
                 <MenuItem Header="Открыть" Command="{Binding FileOpenCommand}"/>
+                <MenuItem Name="toExcel" Header="Перевод в Excel" IsEnabled="False" Command=""/>
             </MenuItem>
         </Menu>
 
