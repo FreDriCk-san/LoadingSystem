@@ -29,6 +29,7 @@ namespace LoadingSystem.Model
 				using (var reader = new StreamReader(stream, CodepageDetector.getCyrillic(path)))
 				{
 					var propertyLineFound = false;
+                    var readProperty = true;
 
                     var dataLineFound = false;
 					var readColumnOnce = false;
@@ -38,36 +39,46 @@ namespace LoadingSystem.Model
 					var firstLineProcessed = false;
 					var arrayOfPositions = new int[0];
 					var prevLine = string.Empty;
-					var prevPositions = new int[0];
 
 					// Считывать, пока не конец потока
 					while (!reader.EndOfStream)
 					{
 						var line = await reader.ReadLineAsync();
 
-						// Если не найдена строка, с которой начинаются свойства
-						//if (!propertyLineFound)
-						//{
-						//	if (StringIsProperty(line, "~WELL", "~well", "~Well"))
-						//	{
-						//		propertyLineFound = true;
-						//	}
-						//}
-						//else
-						//{
-						//	if (StringIsProperty(line, "NULL", "null", "Null"))
-						//	{
-						//		data.NullValue = StringToDouble(InspectPropertyLine(PropertyEnum.Null, line));
-						//	}
-						//}
 
-
-
-						// Если не найдена строка, с которой начинаются данные для обработки
-						if (!dataLineFound)
+                        // Если не найдена строка, с которой начинаются данные для обработки
+                        if (!dataLineFound)
 						{
-							// Если текущая строка содержит слово ASCII
-							if (StringIsASCII(line))
+                            // Если не найдена строка, с которой начинаются свойства
+                            if (!propertyLineFound)
+                            {
+                                if (StringIsProperty(line, "~WELL", "~well", "~Well"))
+                                {
+                                    propertyLineFound = true;
+                                }
+                            }
+                            else if (propertyLineFound && readProperty)
+                            {
+                                if (line.Length == 0)
+                                {
+                                    readProperty = false;
+                                }
+                                else if (StringIsProperty(line, "NULL", "null", "Null"))
+                                {
+                                    data.NullValue = StringToDouble(InspectPropertyLine(PropertyEnum.Null, line));
+                                }
+                                else if (StringIsProperty(line, "WELL", "well", "Well"))
+                                {
+                                    data.WellName = InspectPropertyLine(PropertyEnum.WellName, line);
+                                }
+                                else if (StringIsProperty(line, "FIELD", "field", "Field"))
+                                {
+                                    data.FieldName = InspectPropertyLine(PropertyEnum.FieldName, line);
+                                }
+                            }
+
+                            // Если текущая строка содержит слово ASCII
+                            if (StringIsASCII(line))
 							{
 								dataLineFound = true;
 								readColumnOnce = true;
@@ -188,7 +199,6 @@ namespace LoadingSystem.Model
 										builder.Clear();
 										arrayLineStep++;
 										prevLine = line;
-										prevPositions = arrayOfPositions;
 
 										if (arrayLineStep % 4096 == 0 && arrayLineStep > 0)
 										{
@@ -216,7 +226,6 @@ namespace LoadingSystem.Model
 							if (!firstLineProcessed)
 							{
 								arrayOfPositions = GetNumericPositions(line, data.ColumnCount, separator);
-								prevPositions = arrayOfPositions;
 								firstLineProcessed = true;
 							}
 
@@ -323,7 +332,6 @@ namespace LoadingSystem.Model
 
 			if (!Double.TryParse(text, NumberStyles.Number | NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out result))
 			{
-				//throw new Exception($"Cannot parse to double value {text}");
 				 return double.NaN;
 			}
 
@@ -442,13 +450,13 @@ namespace LoadingSystem.Model
 
 			if (property == PropertyEnum.Null)
 			{
-				foreach (var character in line)
-				{
-					if (char.IsDigit(character) || character == '-' || character == '.' || character == ',')
-					{
-						builder.Append(character);
-					}
-				}
+                for (int i = 1; i < line.Length; ++i)
+                {
+                    if (char.IsDigit(line[i]) || line[i] == '-' || line[i] == ',' || (line[i] == '.' && char.IsDigit(line[i - 1])))
+                    {
+                        builder.Append(line[i]);
+                    }
+                }
 
 				return builder.ToString();
 			}

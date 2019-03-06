@@ -51,6 +51,12 @@ namespace LoadingSystem.ViewModel
 							PropertyGridModel.PropertyGridType.DecimalSeparator = DataModel.DecimalSeparator;
                             PropertyGridModel.OutputDescription.DataStartsFrom = DataModel.DataStartsFrom;
 
+                            PropertyGridModel.PropertyGridCommon.WellName = DataModel.WellName;
+                            PropertyGridModel.PropertyGridCommon.FieldName = DataModel.FieldName;
+                            PropertyGridModel.PropertyGridCommon.DataSetName = DataModel.DataSetName;
+                            PropertyGridModel.PropertyGridCommon.BushName = DataModel.BushName;
+
+
 							EditTable();
 						}
 
