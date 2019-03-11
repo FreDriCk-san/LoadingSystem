@@ -6,6 +6,7 @@ using System.Data;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace LoadingSystem.ViewModel
 {
@@ -97,26 +98,34 @@ namespace LoadingSystem.ViewModel
 				return saveToExcelFormat ??
 					(saveToExcelFormat = new ToggleCommand(command =>
 					{
-						using (var excelPackage = new ExcelPackage())
+						if (DataGridTable.Columns.Count > 0)
 						{
-							var workSheets = excelPackage.Workbook.Worksheets.Add("ExampleDataTable");
-
-							// TO DO: Set style or format for output
-							workSheets.Cells["A1"].LoadFromDataTable(DataGridTable, true, OfficeOpenXml.Table.TableStyles.Medium9);
-
-							using (var dialog = new System.Windows.Forms.SaveFileDialog())
+							using (var excelPackage = new ExcelPackage())
 							{
-								// Set default extension types of file
-								dialog.Filter = "Excel files (*.xlsx)|*.xlsx|All files (*.*)|*.*";
+								var workSheets = excelPackage.Workbook.Worksheets.Add("ExampleDataTable");
 
-								if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+								// TO DO: Set style or format for output
+								workSheets.Cells["A1"].LoadFromDataTable(DataGridTable, true, OfficeOpenXml.Table.TableStyles.Medium9);
+
+								using (var dialog = new System.Windows.Forms.SaveFileDialog())
 								{
-									var path = new FileInfo(dialog.FileName);
+									// Set default extension types of file
+									dialog.Filter = "Excel files (*.xlsx)|*.xlsx|All files (*.*)|*.*";
 
-									excelPackage.SaveAs(path);
+									if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+									{
+										var path = new FileInfo(dialog.FileName);
+
+										excelPackage.SaveAs(path);
+									}
 								}
 							}
 						}
+						else
+						{
+							MessageBox.Show("Текущая таблица пуста!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+						}
+						
 
 					}));
 			}
