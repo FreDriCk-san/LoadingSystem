@@ -20,7 +20,7 @@
         <Menu Height="21" VerticalAlignment="Top" Grid.ColumnSpan="2">
             <MenuItem Header="Файл">
                 <MenuItem Header="Открыть" Command="{Binding FileOpenCommand}"/>
-                <MenuItem Name="toExcel" Header="Перевод в Excel" IsEnabled="False" Command=""/>
+                <MenuItem Name="toExcel" Header="Перевод в Excel" IsEnabled="False" Command="{Binding SaveToExcelFormat}"/>
             </MenuItem>
         </Menu>
 
@@ -35,9 +35,9 @@
 
 
         <Grid x:Name="gridOfProperties" Height="92" Margin="10,10,9,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Grid.Row="2">
-            <TextBox Text="Name" Margin="0,0,0,71" HorizontalAlignment="Left" Width="36"/>
-            <TextBox Text="Type" Margin="0,21,0,50" HorizontalAlignment="Left" Width="36"/>
-            <TextBox Text="Unit" Margin="0,42,0,29" HorizontalAlignment="Left" Width="36"/>
+            <TextBox IsReadOnly="True" Text="Имя" Margin="0,0,0,71" HorizontalAlignment="Left" Width="36"/>
+            <TextBox IsReadOnly="True" Text="Св-во" Margin="0,21,0,50" HorizontalAlignment="Left" Width="36"/>
+            <TextBox IsReadOnly="True" Text="Ед.изм." Margin="0,42,0,29" HorizontalAlignment="Left" Width="36"/>
             <ScrollViewer x:Name="stackPanelScroll" HorizontalScrollBarVisibility="Hidden" Margin="41,0,0,0">
                 <StackPanel x:Name="propertyPanel" Orientation="Horizontal"/>
             </ScrollViewer>
@@ -45,7 +45,7 @@
 
 
         <DataGrid x:Name="gridOfData" 
-                  Margin="10,118,9,10" 
+                  Margin="10,145,9,10" 
                   ColumnWidth="110" RowHeaderWidth="40" 
                   ItemsSource="{Binding DefaultTableView, UpdateSourceTrigger=PropertyChanged}" 
                   LoadingRow="DataGrid_LoadingRow" ScrollViewer.ScrollChanged="GridOfData_ScrollChanged" 
@@ -53,6 +53,10 @@
 
 
         <Button Name="buttonRead" Content="Перепечатать текст" Margin="7,3,9,5" IsEnabled="False" Command="{Binding ChangeTextBoxCommand}" Grid.Column="1" Grid.Row="1"/>
+        <Grid Grid.Column="1" Margin="10,107,10,0" Grid.Row="2" Height="33" VerticalAlignment="Top">
+            <ComboBox Name="nullComboBox" Margin="139,0,29,8" ItemsSource="{Binding CollectionOfNull}" SelectedItem="{Binding CurrentNull}"/>
+            <TextBox IsReadOnly="True" Margin="39,0,176,8" TextWrapping="Wrap" Text="Null-значение:" TextAlignment="Right" VerticalContentAlignment="Center"/>
+        </Grid>
 
     </Grid>
 </UserControl>

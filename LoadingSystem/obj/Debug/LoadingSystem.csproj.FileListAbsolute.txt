@@ -61,3 +61,6 @@ E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem.
 E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem.csproj.CopyComplete
 E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem.exe
 E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem.pdb
+C:\TempFolder\LoadingSystem\LoadingSystem\bin\Debug\EPPlus.dll
+C:\TempFolder\LoadingSystem\LoadingSystem\bin\Debug\EPPlus.pdb
+C:\TempFolder\LoadingSystem\LoadingSystem\bin\Debug\EPPlus.xml

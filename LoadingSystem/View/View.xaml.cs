@@ -11,6 +11,7 @@ namespace LoadingSystem.View
 	/// </summary>
 	public partial class View : UserControl
 	{
+
 		public View()
 		{
 			InitializeComponent();

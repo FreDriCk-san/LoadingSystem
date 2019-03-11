@@ -128,7 +128,7 @@ namespace LoadingSystem.Model
 								{
 									builder.Clear();
 								}
-								
+
 								// Если встретилось отрицательное число
 								else if (currentChar == '-' && char.IsDigit(nextChar))
 								{
@@ -150,7 +150,7 @@ namespace LoadingSystem.Model
 
 								// Если встретился посторонний символ или последний элемент не валиден
 								else if ((currentChar == separator && i != 0 && line[i - 1] != ' ')
-									|| (i == line.Length - 2 && !char.IsDigit(line[i - 1])))
+									|| (i == line.Length - 2 && (!char.IsDigit(line[i - 1]) && line[i - 1] != decimalSeparator) && arrayLineStep != lineArray.Length))
 								{
 									lineArray[arrayLineStep] = double.NaN;
 									builder.Clear();
@@ -158,7 +158,7 @@ namespace LoadingSystem.Model
 								}
 
 								// Проверить позицию, после прохода (данные о позициях разделителей хранятся в массиве)
-								else if (firstLineProcessed && currentChar == separator)
+								else if (firstLineProcessed && currentChar == separator && arrayLineStep != lineArray.Length)
 								{
 									// TO DO: Проработать ситуацию, где происходит изменение длины строки
 									if (arrayOfPositions[arrayLineStep] == i)
@@ -219,6 +219,7 @@ namespace LoadingSystem.Model
 
 									builder.Append(currentChar);
 								}
+
 							}
 
 
@@ -356,7 +357,8 @@ namespace LoadingSystem.Model
 				
                 if (!char.IsDigit(currentChar) && currentChar != ' ' 
                     && currentChar != '.' && currentChar != ',' 
-                    && currentChar != ';' && currentChar != ':')
+                    && currentChar != ';' && currentChar != ':'
+					&& currentChar != '-' && currentChar != '\t')
                 {
                     return false;
                 }
@@ -396,7 +398,7 @@ namespace LoadingSystem.Model
 					result++;
 				}
 
-				if ((text[i] == ' ') && (char.IsDigit(text[i + 1]) || text[i + 1] != ' '))
+				if ( ((text[i] == ' ') && (char.IsDigit(text[i + 1]) || text[i + 1] != ' ')) || (text[i] == '\t' && char.IsDigit(text[i + 1])))
 				{
 					result++;
 				}
