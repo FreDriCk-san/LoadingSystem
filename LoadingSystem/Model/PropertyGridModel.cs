@@ -21,7 +21,6 @@ namespace LoadingSystem.Model
 		[ExpandableObject]
 		[Category("Свойства")]
 		[DisplayName("Вывод")]
-		[ParenthesizePropertyName(false)]
 		public OutputDescription OutputDescription { get; set; }
 
 
@@ -173,6 +172,8 @@ namespace LoadingSystem.Model
 
 		private int importTo;
 		private int dataStartsFrom;
+		private int readFromRow;
+		private int readToRow;
 
 		#region Data init
 		[DisplayName("Импорт до строки")]
@@ -205,12 +206,48 @@ namespace LoadingSystem.Model
 				OnPropertyChanged("DataStartsFrom");
 			}
 		}
+
+
+		[DisplayName("Данные таблицы выводятся до строки")]
+		[Description("До какой строки выводятся данные в таблицу")]
+		public int ReadToRow
+		{
+			get { return readToRow; }
+
+			set
+			{
+				if (value >= 0)
+				{
+					readToRow = value;
+					OnPropertyChanged("ReadToRow");
+				}
+			}
+		}
+
+
+		[DisplayName("Данные таблицы выводятся со строки")]
+		[Description("С какой строки выводятся данные в таблицу")]
+		public int ReadFromRow
+		{
+			get { return readFromRow; }
+
+			set
+			{
+				if (value >= 0)
+				{
+					readFromRow = value;
+					OnPropertyChanged("ReadFromRow");
+				}
+			}
+		}
 		#endregion
 
 		public OutputDescription()
 		{
 			importTo = 100;
 			dataStartsFrom = 0;
+			readToRow = 0;
+			readFromRow = 0;
 		}
 
 

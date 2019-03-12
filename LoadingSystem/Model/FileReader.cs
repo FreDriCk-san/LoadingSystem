@@ -43,7 +43,7 @@ namespace LoadingSystem.Model
 					// Считывать, пока не конец потока
 					while (!reader.EndOfStream)
 					{
-						var line = await reader.ReadLineAsync();
+						var line = $"{await reader.ReadLineAsync()} ";
 
 
                         // Если не найдена строка, с которой начинаются данные для обработки

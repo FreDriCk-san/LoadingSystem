@@ -21,6 +21,7 @@
             <MenuItem Header="Файл">
                 <MenuItem Header="Открыть" Command="{Binding FileOpenCommand}"/>
                 <MenuItem Name="toExcel" Header="Перевод в Excel" IsEnabled="False" Command="{Binding SaveToExcelFormat}"/>
+                <MenuItem Name="toHTML" Header="Перевод в HTML" IsEnabled="False" Command="{Binding SaveToHTMLFormat}"/>
             </MenuItem>
         </Menu>
 
@@ -52,11 +53,14 @@
                   Loaded="GridOfData_Loaded" Grid.ColumnSpan="2" Grid.Row="2"/>
 
 
-        <Button Name="buttonRead" Content="Перепечатать текст" Margin="7,3,9,5" IsEnabled="False" Command="{Binding ChangeTextBoxCommand}" Grid.Column="1" Grid.Row="1"/>
+        <Button Name="buttonRead" Content="Перепечатать текст" Margin="0,3,9,5" IsEnabled="False" Command="{Binding ChangeTextBoxCommand}" Grid.Column="1" Grid.Row="1" HorizontalAlignment="Right" Width="164"/>
+
         <Grid Grid.Column="1" Margin="10,107,10,0" Grid.Row="2" Height="33" VerticalAlignment="Top">
             <ComboBox Name="nullComboBox" Margin="139,0,29,8" ItemsSource="{Binding CollectionOfNull}" SelectedItem="{Binding CurrentNull}"/>
             <TextBox IsReadOnly="True" Margin="39,0,176,8" TextWrapping="Wrap" Text="Null-значение:" TextAlignment="Right" VerticalContentAlignment="Center"/>
         </Grid>
+
+        <Button Name="buttonTable" IsEnabled="False" Content="Перепечатать таблицу" Grid.Column="1" Margin="7,3,0,5" Grid.Row="1" HorizontalAlignment="Left" Width="145" Command="{Binding ChangeTableCommand}"/>
 
     </Grid>
 </UserControl>

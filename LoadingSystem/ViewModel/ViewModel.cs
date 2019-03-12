@@ -13,10 +13,13 @@ namespace LoadingSystem.ViewModel
 	public class ViewModel : INotifyPropertyChanged
 	{
 		private string filePath;
+		private int countOfRows;
 
 		private ToggleCommand fileOpenCommand;
 		private ToggleCommand changeTextBoxCommand;
 		private ToggleCommand saveToExcelFormat;
+		private ToggleCommand saveToHTMLFormat;
+		private ToggleCommand changeTableCommand;
 
 		private Model.PropertyGridModel propertyGridModel;
 		private Model.DataModel dataModel;
@@ -26,7 +29,7 @@ namespace LoadingSystem.ViewModel
 		private string textBoxData;
 
 		private ObservableCollection<double> collectionOfNull;
-		private double currentNull;
+		private double currentNull = -999.00;
 		private bool canChangeNullValue = false;
 		
 		public ToggleCommand FileOpenCommand
@@ -58,11 +61,20 @@ namespace LoadingSystem.ViewModel
 
 							DataModel = dataTask.Result;
 
+							for (int i = 0; i < DataModel.ArrayOfNumbers.Length; ++i)
+							{
+								if (null == DataModel.ArrayOfNumbers[i])
+								{
+									countOfRows = i;
+									break;
+								}
+							}
+
 							SetPropertiesToPropertyGrid();
 
 							CheckDataNullValue();
 
-							EditTable();
+							EditTable(PropertyGridModel.OutputDescription.ReadFromRow, PropertyGridModel.OutputDescription.ReadToRow);
 						}
 
 
@@ -102,7 +114,7 @@ namespace LoadingSystem.ViewModel
 						{
 							using (var excelPackage = new ExcelPackage())
 							{
-								var workSheets = excelPackage.Workbook.Worksheets.Add("ExampleDataTable");
+								var workSheets = excelPackage.Workbook.Worksheets.Add("DataTable");
 
 								// TO DO: Set style or format for output
 								workSheets.Cells["A1"].LoadFromDataTable(DataGridTable, true, OfficeOpenXml.Table.TableStyles.Medium9);
@@ -110,13 +122,15 @@ namespace LoadingSystem.ViewModel
 								using (var dialog = new System.Windows.Forms.SaveFileDialog())
 								{
 									// Set default extension types of file
-									dialog.Filter = "Excel files (*.xlsx)|*.xlsx|All files (*.*)|*.*";
+									dialog.Filter = "Excel файлы (*.xlsx)|*.xlsx|Все файлы (*.*)|*.*";
 
 									if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
 									{
 										var path = new FileInfo(dialog.FileName);
 
 										excelPackage.SaveAs(path);
+
+										MessageBox.Show("Преобразовано");						
 									}
 								}
 							}
@@ -127,6 +141,69 @@ namespace LoadingSystem.ViewModel
 						}
 						
 
+					}));
+			}
+		}
+
+
+
+		public ToggleCommand SaveToHTMLFormat
+		{
+			get
+			{
+				return saveToHTMLFormat ??
+					(saveToHTMLFormat = new ToggleCommand(command =>
+					{
+						if (DataGridTable.Columns.Count > 0)
+						{
+							using (var dialog = new System.Windows.Forms.SaveFileDialog())
+							{
+								// Set default extension types of file
+								dialog.Filter = "HTML (*.html)|*.html";
+
+								if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+								{
+									var saveTask = Task.Run(async () =>
+									{
+										await Model.ConvertToHTML.ProceedDataTable(DataGridTable, DataModel.ColumnCount, dialog.FileName);
+									});
+
+									saveTask.ContinueWith(task => {
+										MessageBox.Show("Преобразовано в HTML");
+										saveTask.Dispose();
+									});
+
+								}
+							}
+								
+						}
+						else
+						{
+							MessageBox.Show("Текущая таблица пуста!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+						}
+					}));
+			}
+		}
+
+
+
+		public ToggleCommand ChangeTableCommand
+		{
+			get
+			{
+				return changeTableCommand ??
+					(changeTableCommand = new ToggleCommand(command =>
+					{
+						var readFrom = PropertyGridModel.OutputDescription.ReadFromRow;
+						var readTo = PropertyGridModel.OutputDescription.ReadToRow;
+
+						if (readTo > countOfRows)
+						{
+							PropertyGridModel.OutputDescription.ReadToRow = countOfRows;
+							readTo = countOfRows;
+						}
+
+						EditTable(readFrom, readTo);
 					}));
 			}
 		}
@@ -211,7 +288,7 @@ namespace LoadingSystem.ViewModel
 
 				if (canChangeNullValue)
 				{
-					EditTable();
+					EditTable(PropertyGridModel.OutputDescription.ReadFromRow, PropertyGridModel.OutputDescription.ReadToRow);
 				}
 			}
 		}
@@ -228,8 +305,6 @@ namespace LoadingSystem.ViewModel
 			{
 				-999.00, -9999.25
 			};
-
-			CurrentNull = -999.00;
 		}
 
 
@@ -248,9 +323,15 @@ namespace LoadingSystem.ViewModel
 
 
 
-		private void EditTable()
+		private void EditTable(int fromRow, int toRow)
 		{
 			var columns = DataModel.ColumnCount;
+
+			if (DataGridTable != null)
+			{
+				DataGridTable.Clear();
+			}
+
 			DataGridTable = new Model.DataGridModel().DataGridTable;
 			DefaultTableView = new DataView();
 			DataGridTable.Columns.Clear();
@@ -263,29 +344,11 @@ namespace LoadingSystem.ViewModel
 
 			var content = new object[columns];
 
-			var existingElements = 0;
-
-			for (int i = 0; i < DataModel.ArrayOfNumbers.Length; ++i)
-			{
-				if (null == DataModel.ArrayOfNumbers[i])
-				{
-					existingElements = i;
-					break;
-				}
-			}
-
-			for (int i = 0; i < existingElements; ++i)
+			for (int i = fromRow; i < toRow; ++i)
 			{
 				for (int j = 0; j < columns; ++j)
 				{
 					var currentValue = DataModel.ArrayOfNumbers[i][j];
-					// Check for count of NaN values
-					//var tmp = DataModel.ArrayOfNumbers[i][j];
-
-					//if (double.IsNaN(tmp))
-					//{
-
-					//}
 
 					if (currentValue == CurrentNull)
 					{
@@ -316,6 +379,8 @@ namespace LoadingSystem.ViewModel
 			PropertyGridModel.PropertyGridCommon.FieldName = DataModel.FieldName;
 			PropertyGridModel.PropertyGridCommon.DataSetName = DataModel.DataSetName;
 			PropertyGridModel.PropertyGridCommon.BushName = DataModel.BushName;
+
+			PropertyGridModel.OutputDescription.ReadToRow = countOfRows;
 		}
 
 
