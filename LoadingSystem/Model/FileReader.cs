@@ -149,10 +149,10 @@ namespace LoadingSystem.Model
 								}
 
 								// Если встретился посторонний символ или последний элемент не валиден
-								else if ((currentChar == separator && i != 0 && line[i - 1] != ' ')
+								else if ((currentChar == separator && i != 0 && (line[i - 1] != ' ' && line[i - 1] != '|'))
 									|| (i == line.Length - 2 && (!char.IsDigit(line[i - 1]) && line[i - 1] != decimalSeparator) && arrayLineStep != lineArray.Length))
 								{
-									lineArray[arrayLineStep] = double.NaN;
+									lineArray[arrayLineStep] = double.MinValue;
 									builder.Clear();
 									arrayLineStep++;
 								}
@@ -169,7 +169,7 @@ namespace LoadingSystem.Model
 										}
 										else if (!char.IsDigit(line[i - 1]))
 										{
-											lineArray[arrayLineStep] = double.NaN;
+											lineArray[arrayLineStep] = double.MinValue;
 											arrayLineStep++;
 										}
 									}
@@ -333,7 +333,7 @@ namespace LoadingSystem.Model
 
 			if (!Double.TryParse(text, NumberStyles.Number | NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out result))
 			{
-				 return double.NaN;
+				 return double.MinValue;
 			}
 
 			return result;
@@ -351,14 +351,20 @@ namespace LoadingSystem.Model
             }
 
             // If current string contains typical table symbols or numbers
-			for (int i = 0; i < text.Length; ++i)
+			for (int i = 0; i < text.Length - 1; ++i)
 			{
 				var currentChar = text[i];
 				
+				if (currentChar == '-' && text[i+1] == '-')
+				{
+					return false;
+				}
+
                 if (!char.IsDigit(currentChar) && currentChar != ' ' 
                     && currentChar != '.' && currentChar != ',' 
                     && currentChar != ';' && currentChar != ':'
-					&& currentChar != '-' && currentChar != '\t')
+					&& currentChar != '-' && currentChar != '\t'
+					&& currentChar != '|')
                 {
                     return false;
                 }
@@ -391,18 +397,33 @@ namespace LoadingSystem.Model
 		{
 			var result = 0;
 
-			for (int i = 0; i < text.Length - 1; ++i)
+			if (text.Contains('|'))
 			{
-				if (i == 0 && char.IsDigit(text[0]))
+				for (int i = 1; i < text.Length; ++i)
 				{
-					result++;
-				}
-
-				if ( ((text[i] == ' ') && (char.IsDigit(text[i + 1]) || text[i + 1] != ' ')) || (text[i] == '\t' && char.IsDigit(text[i + 1])))
-				{
-					result++;
+					if ((text[i]) == '|' && text[i - 1] == ' ')
+					{
+						result++;
+					}
 				}
 			}
+			else
+			{
+				for (int i = 0; i < text.Length - 1; ++i)
+				{
+					if (i == 0 && char.IsDigit(text[0]))
+					{
+						result++;
+					}
+
+					if (((text[i] == ' ') && (char.IsDigit(text[i + 1]) || text[i + 1] != ' '))
+						|| (text[i] == '\t' && char.IsDigit(text[i + 1])))
+					{
+						result++;
+					}
+				}
+			}
+
 
 			return result;
 		}
@@ -481,6 +502,20 @@ namespace LoadingSystem.Model
 				return builder.ToString();
 			}
 		}
+
+
+
+		//private static Tuple<int> FirstHeuristic()
+		//{
+		//	try
+		//	{
+
+		//	}
+		//	catch (Exception exception)
+		//	{
+
+		//	}
+		//}
 	}
 
 

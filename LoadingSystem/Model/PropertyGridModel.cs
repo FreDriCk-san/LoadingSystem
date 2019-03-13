@@ -108,6 +108,12 @@ namespace LoadingSystem.Model
 		}
 
 
+		public override string ToString()
+		{
+			return string.Empty;
+		}
+
+
 		public event PropertyChangedEventHandler PropertyChanged;
 		protected void OnPropertyChanged(string name)
 		{
@@ -157,6 +163,12 @@ namespace LoadingSystem.Model
 		}
 
 
+		public override string ToString()
+		{
+			return string.Empty;
+		}
+
+
 		public event PropertyChangedEventHandler PropertyChanged;
 		protected void OnPropertyChanged(string name)
 		{
@@ -176,7 +188,7 @@ namespace LoadingSystem.Model
 		private int readToRow;
 
 		#region Data init
-		[DisplayName("Импорт до строки")]
+		[DisplayName("Импорт текста до строки")]
 		[Description("До какой строки вывести текстовые данные\nПРИМЕЧАНИЕ:Можно вывести не более 1000 строк")]
 		public int ImportTo
 		{
@@ -248,6 +260,12 @@ namespace LoadingSystem.Model
 			dataStartsFrom = 0;
 			readToRow = 0;
 			readFromRow = 0;
+		}
+
+
+		public override string ToString()
+		{
+			return string.Empty;
 		}
 
 

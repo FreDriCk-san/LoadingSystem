@@ -354,6 +354,10 @@ namespace LoadingSystem.ViewModel
 					{
 						content[j] = double.NaN;
 					}
+					else if (currentValue == double.MinValue)
+					{
+						content[j] = string.Empty;
+					}
 					else
 					{
 						content[j] = currentValue;
