@@ -96,6 +96,36 @@ namespace LoadingSystem.View
 				propertyPanel.Children.Add(innerPanel);
 			}
 		}
+
+
+
+		private void Grid_Drop(object sender, DragEventArgs e)
+		{
+			// TO DO: Set progressbar
+
+			if (e.Data.GetDataPresent(DataFormats.FileDrop))
+			{
+				var files = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+				((ViewModel.ViewModel)this.DataContext).ProcessIncomingFile(files[0]);
+			}
+
+			dragDropImg.Visibility = Visibility.Hidden;
+		}
+
+
+
+		private void MainGrid_DragOver(object sender, DragEventArgs e)
+		{
+			dragDropImg.Visibility = Visibility.Visible;
+		}
+
+
+
+		private void MainGrid_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+		{
+			dragDropImg.Visibility = Visibility.Hidden;
+		}
 	}
 }
 

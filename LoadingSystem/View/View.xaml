@@ -7,7 +7,7 @@
              xmlns:local="clr-namespace:LoadingSystem.View"
              mc:Ignorable="d" 
              d:DesignHeight="757" d:DesignWidth="1081">
-    <Grid>
+    <Grid Name="mainGrid" Drop="Grid_Drop" AllowDrop="True" DragOver="MainGrid_DragOver" MouseDown="MainGrid_MouseDown">
         <Grid.RowDefinitions>
             <RowDefinition Height="367*"/>
             <RowDefinition Height="28*"/>
@@ -17,6 +17,7 @@
             <ColumnDefinition/>
             <ColumnDefinition Width="Auto" MinWidth="330" MaxWidth="330"/>
         </Grid.ColumnDefinitions>
+
         <Menu Height="21" VerticalAlignment="Top" Grid.ColumnSpan="2">
             <MenuItem Header="Файл">
                 <MenuItem Header="Открыть" Command="{Binding FileOpenCommand}"/>
@@ -62,5 +63,7 @@
 
         <Button Name="buttonTable" IsEnabled="False" Content="Перепечатать таблицу" Grid.Column="1" Margin="7,3,0,5" Grid.Row="1" HorizontalAlignment="Left" Width="145" Command="{Binding ChangeTableCommand}"/>
 
+        <Image Name="dragDropImg" Source="/Images/DragDrop.png" Stretch="Fill" Grid.ColumnSpan="2" Grid.RowSpan="3" Visibility="Hidden" />
+    
     </Grid>
 </UserControl>

@@ -43,38 +43,8 @@ namespace LoadingSystem.ViewModel
 
 						if (openFileDialog.ShowDialog() == true)
 						{
-							filePath = openFileDialog.FileName;
-
-							canChangeNullValue = true;
-
-							var textTasks = Task.Run(async () =>
-							{
-								return await Model.FileReader.ReadLinesAsync(filePath, 100);
-							});
-
-							EditTextBox(textTasks.Result, 100);
-
-							var dataTask = Task.Run(async () =>
-							{
-								return await Model.FileReader.ReadAllLinesAsync(filePath);
-							});
-
-							DataModel = dataTask.Result;
-
-							for (int i = 0; i < DataModel.ArrayOfNumbers.Length; ++i)
-							{
-								if (null == DataModel.ArrayOfNumbers[i])
-								{
-									countOfRows = i;
-									break;
-								}
-							}
-
-							SetPropertiesToPropertyGrid();
-
-							CheckDataNullValue();
-
-							EditTable(PropertyGridModel.OutputDescription.ReadFromRow, PropertyGridModel.OutputDescription.ReadToRow);
+							// TO DO: Set progressbar
+							ProcessIncomingFile(openFileDialog.FileName);
 						}
 
 
@@ -165,7 +135,7 @@ namespace LoadingSystem.ViewModel
 								{
 									var saveTask = Task.Run(async () =>
 									{
-										await Model.ConvertToHTML.ProceedDataTable(DataGridTable, DataModel.ColumnCount, dialog.FileName);
+										await Model.ConvertToHTML.ProceedDataTableAsync(DataGridTable, DataModel.ColumnCount, dialog.FileName);
 									});
 
 									saveTask.ContinueWith(task => {
@@ -372,6 +342,44 @@ namespace LoadingSystem.ViewModel
 
 
 
+		public void ProcessIncomingFile(string path)
+		{
+			filePath = path;
+
+			canChangeNullValue = true;
+
+			var textTasks = Task.Run(async () =>
+			{
+				return await Model.FileReader.ReadLinesAsync(filePath, 100);
+			});
+
+			EditTextBox(textTasks.Result, 100);
+
+			var dataTask = Task.Run(async () =>
+			{
+				return await Model.FileReader.ReadAllLinesAsync(filePath);
+			});
+
+			DataModel = dataTask.Result;
+
+			for (int i = 0; i < DataModel.ArrayOfNumbers.Length; ++i)
+			{
+				if (null == DataModel.ArrayOfNumbers[i])
+				{
+					countOfRows = i;
+					break;
+				}
+			}
+
+			SetPropertiesToPropertyGrid();
+
+			CheckDataNullValue();
+
+			EditTable(PropertyGridModel.OutputDescription.ReadFromRow, PropertyGridModel.OutputDescription.ReadToRow);
+		}
+
+
+
 		private void SetPropertiesToPropertyGrid()
 		{
 			PropertyGridModel.PropertyGridType.Separator = DataModel.Separator;
@@ -386,6 +394,25 @@ namespace LoadingSystem.ViewModel
 
 			PropertyGridModel.OutputDescription.ReadToRow = countOfRows;
 		}
+
+
+
+		//private int SearchDepthColumn(double[][] arrayOfNumbers)
+		//{
+		//	var temp = 0;
+		//	var result = 0;
+
+		//	for (int i = 0; i < countOfRows; ++i)
+		//	{
+		//		for (int j = 0; j < arrayOfNumbers[i].Length - 1; ++j)
+		//		{
+		//			if (arrayOfNumbers[i][j] > arrayOfNumbers[i][j + 1])
+		//			{
+
+		//			}
+		//		}
+		//	}
+		//}
 
 
 

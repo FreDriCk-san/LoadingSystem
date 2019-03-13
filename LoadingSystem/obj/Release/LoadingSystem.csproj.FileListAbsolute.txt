@@ -19,3 +19,6 @@ C:\TempFolder\LoadingSystem\LoadingSystem\obj\Release\LoadingSystem.csproj.CoreC
 C:\TempFolder\LoadingSystem\LoadingSystem\obj\Release\LoadingSystem.csproj.CopyComplete
 C:\TempFolder\LoadingSystem\LoadingSystem\obj\Release\LoadingSystem.exe
 C:\TempFolder\LoadingSystem\LoadingSystem\obj\Release\LoadingSystem.pdb
+C:\TempFolder\LoadingSystem\LoadingSystem\bin\Release\EPPlus.dll
+C:\TempFolder\LoadingSystem\LoadingSystem\bin\Release\EPPlus.pdb
+C:\TempFolder\LoadingSystem\LoadingSystem\bin\Release\EPPlus.xml

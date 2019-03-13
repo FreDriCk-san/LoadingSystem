@@ -13,7 +13,7 @@ namespace LoadingSystem.Model
 
 		}
 
-		public static async Task ProceedDataTable(DataTable dataTable, int columns, string path)
+		public static async Task ProceedDataTableAsync(DataTable dataTable, int columns, string path)
 		{
 			var headerBuilder = new StringBuilder();
 			headerBuilder.AppendLine("<!DOCTYPE html>");

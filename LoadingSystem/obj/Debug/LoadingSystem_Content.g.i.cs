@@ -8,6 +8,6 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("resources/asd.txt")]
+[assembly: System.Windows.Resources.AssemblyAssociatedContentFileAttribute("images/dragdrop.png")]
 
 
