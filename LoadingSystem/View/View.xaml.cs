@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 
 namespace LoadingSystem.View
 {
@@ -48,13 +49,15 @@ namespace LoadingSystem.View
 
 		private void ItemsSourceIsChanged(object sender, EventArgs e)
 		{
-            propertyPanel.Children.Clear();
+			var depthValue = ((ViewModel.ViewModel)this.DataContext).DepthValue;
+
+			propertyPanel.Children.Clear();
 			buttonRead.IsEnabled = true;
 			buttonTable.IsEnabled = true;
 			toExcel.IsEnabled = true;
 			toHTML.IsEnabled = true;
 
-			for (int i = 1; i <= gridOfData.Columns.Count; ++i)
+			for (int i = 0; i < gridOfData.Columns.Count; ++i)
 			{
 				var innerPanel = new StackPanel()
 				{
@@ -78,6 +81,12 @@ namespace LoadingSystem.View
 						"Depth", "RadioWaves", "LinearWaves"
 					}
 				};
+
+				// Change, when "normal" itemsource will be added!
+				if (i == depthValue)
+				{
+					typeRow.SelectedItem = "Depth";
+				}
 
 				var unitRow = new ComboBox()
 				{

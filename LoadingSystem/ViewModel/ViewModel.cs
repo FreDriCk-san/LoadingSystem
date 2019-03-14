@@ -31,6 +31,8 @@ namespace LoadingSystem.ViewModel
 		private ObservableCollection<double> collectionOfNull;
 		private double currentNull = -999.00;
 		private bool canChangeNullValue = false;
+
+		private int depthValue;
 		
 		public ToggleCommand FileOpenCommand
 		{
@@ -262,6 +264,17 @@ namespace LoadingSystem.ViewModel
 				}
 			}
 		}
+
+		public int DepthValue
+		{
+			get { return depthValue; }
+
+			set
+			{
+				depthValue = value;
+				OnPropertyChanged("DepthValue");
+			}
+		}
 		#endregion
 
 
@@ -371,6 +384,8 @@ namespace LoadingSystem.ViewModel
 				}
 			}
 
+			DepthValue = SearchDepthColumn(DataModel.ArrayOfNumbers);
+
 			SetPropertiesToPropertyGrid();
 
 			CheckDataNullValue();
@@ -397,22 +412,44 @@ namespace LoadingSystem.ViewModel
 
 
 
-		//private int SearchDepthColumn(double[][] arrayOfNumbers)
-		//{
-		//	var temp = 0;
-		//	var result = 0;
+		private int SearchDepthColumn(double[][] arrayOfNumbers)
+		{
+			var length = arrayOfNumbers[0].Length;
 
-		//	for (int i = 0; i < countOfRows; ++i)
-		//	{
-		//		for (int j = 0; j < arrayOfNumbers[i].Length - 1; ++j)
-		//		{
-		//			if (arrayOfNumbers[i][j] > arrayOfNumbers[i][j + 1])
-		//			{
+			for (int i = 0; i < length; ++i)
+			{
+				var min = 0;
+				var max = 0;
 
-		//			}
-		//		}
-		//	}
-		//}
+				for (int j = 0; j < countOfRows - 1; ++j)
+				{
+					var currentValue = arrayOfNumbers[j][i];
+					var nextValue = arrayOfNumbers[j + 1][i];
+
+					if (currentValue == double.MinValue || currentValue == double.NaN
+						|| nextValue == double.MinValue || nextValue == double.NaN)
+					{
+						min++;
+						max++;
+					}
+					else if (currentValue <= nextValue)
+					{
+						max++;
+					}
+					else if (currentValue >= nextValue)
+					{
+						min++;
+					}
+				}
+
+				if (max == countOfRows - 1 || min == countOfRows - 1)
+				{
+					return i;
+				}
+			}
+
+			return 0;
+		}
 
 
 

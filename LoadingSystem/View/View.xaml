@@ -38,7 +38,7 @@
 
         <Grid x:Name="gridOfProperties" Height="92" Margin="10,10,9,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Grid.Row="2">
             <TextBox IsReadOnly="True" Text="Имя" Margin="0,0,0,71" HorizontalAlignment="Left" Width="36"/>
-            <TextBox IsReadOnly="True" Text="Св-во" Margin="0,21,0,50" HorizontalAlignment="Left" Width="36"/>
+            <TextBox IsReadOnly="True" Text="Тип" Margin="0,21,0,50" HorizontalAlignment="Left" Width="36"/>
             <TextBox IsReadOnly="True" Text="Ед.изм." Margin="0,42,0,29" HorizontalAlignment="Left" Width="36"/>
             <ScrollViewer x:Name="stackPanelScroll" HorizontalScrollBarVisibility="Hidden" Margin="41,0,0,0">
                 <StackPanel x:Name="propertyPanel" Orientation="Horizontal"/>

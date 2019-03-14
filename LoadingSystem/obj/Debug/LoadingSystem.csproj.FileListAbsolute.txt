@@ -64,3 +64,6 @@ E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\obj\Debug\LoadingSystem.
 C:\TempFolder\LoadingSystem\LoadingSystem\bin\Debug\EPPlus.dll
 C:\TempFolder\LoadingSystem\LoadingSystem\bin\Debug\EPPlus.pdb
 C:\TempFolder\LoadingSystem\LoadingSystem\bin\Debug\EPPlus.xml
+E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\bin\Debug\EPPlus.dll
+E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\bin\Debug\EPPlus.pdb
+E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\bin\Debug\EPPlus.xml
