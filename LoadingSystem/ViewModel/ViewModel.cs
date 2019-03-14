@@ -33,6 +33,7 @@ namespace LoadingSystem.ViewModel
 		private bool canChangeNullValue = false;
 
 		private int depthValue;
+		private double progressValue;
 		
 		public ToggleCommand FileOpenCommand
 		{
@@ -73,6 +74,7 @@ namespace LoadingSystem.ViewModel
 					}));
 			}
 		}
+
 
 
 		public ToggleCommand SaveToExcelFormat
@@ -275,6 +277,17 @@ namespace LoadingSystem.ViewModel
 				OnPropertyChanged("DepthValue");
 			}
 		}
+
+		public double ProgressValue
+		{
+			get { return progressValue; }
+
+			set
+			{
+				progressValue = value;
+				OnPropertyChanged("ProgressValue");
+			}
+		}
 		#endregion
 
 
@@ -350,47 +363,68 @@ namespace LoadingSystem.ViewModel
 			}
 
 			DataGridTable.EndLoadData();
-			DefaultTableView = DataGridTable.DefaultView;
+
+			Application.Current.Dispatcher.Invoke(() =>
+			{
+				DefaultTableView = DataGridTable.DefaultView;
+			});
+			
 		}
 
 
 
 		public void ProcessIncomingFile(string path)
 		{
-			filePath = path;
 
-			canChangeNullValue = true;
-
-			var textTasks = Task.Run(async () =>
+			Task.Factory.StartNew(() =>
 			{
-				return await Model.FileReader.ReadLinesAsync(filePath, 100);
-			});
+				ProgressValue = 0;
 
-			EditTextBox(textTasks.Result, 100);
+				filePath = path;
 
-			var dataTask = Task.Run(async () =>
-			{
-				return await Model.FileReader.ReadAllLinesAsync(filePath);
-			});
+				canChangeNullValue = true;
 
-			DataModel = dataTask.Result;
-
-			for (int i = 0; i < DataModel.ArrayOfNumbers.Length; ++i)
-			{
-				if (null == DataModel.ArrayOfNumbers[i])
+				var textTasks = Task.Run(async () =>
 				{
-					countOfRows = i;
-					break;
+					return await Model.FileReader.ReadLinesAsync(filePath, 100);
+				});
+				ProgressValue++;
+
+				EditTextBox(textTasks.Result, 100);
+				ProgressValue++;
+
+				var dataTask = Task.Run(async () =>
+				{
+					return await Model.FileReader.ReadAllLinesAsync(filePath);
+				});
+				ProgressValue++;
+
+				DataModel = dataTask.Result;
+
+				for (int i = 0; i < DataModel.ArrayOfNumbers.Length; ++i)
+				{
+					if (null == DataModel.ArrayOfNumbers[i])
+					{
+						countOfRows = i;
+						break;
+					}
 				}
-			}
+				ProgressValue++;
 
-			DepthValue = SearchDepthColumn(DataModel.ArrayOfNumbers);
+				DepthValue = SearchDepthColumn(DataModel.ArrayOfNumbers);
+				ProgressValue++;
 
-			SetPropertiesToPropertyGrid();
+				SetPropertiesToPropertyGrid();
+				ProgressValue++;
 
-			CheckDataNullValue();
+				CheckDataNullValue();
+				ProgressValue++;
 
-			EditTable(PropertyGridModel.OutputDescription.ReadFromRow, PropertyGridModel.OutputDescription.ReadToRow);
+				EditTable(PropertyGridModel.OutputDescription.ReadFromRow, PropertyGridModel.OutputDescription.ReadToRow);
+				ProgressValue++;
+			});
+			
+			
 		}
 
 
@@ -471,7 +505,11 @@ namespace LoadingSystem.ViewModel
 
 				if (!isPresent)
 				{
-					CollectionOfNull.Add(nullValue);
+					Application.Current.Dispatcher.Invoke(() =>
+					{
+						CollectionOfNull.Add(nullValue);
+					});
+					
 				}
 
 				CurrentNull = nullValue;

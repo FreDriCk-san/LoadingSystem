@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 
 namespace LoadingSystem.View
 {
@@ -111,6 +110,7 @@ namespace LoadingSystem.View
 		private void Grid_Drop(object sender, DragEventArgs e)
 		{
 			// TO DO: Set progressbar
+			loadingGrid.Visibility = Visibility.Visible;
 
 			if (e.Data.GetDataPresent(DataFormats.FileDrop))
 			{
@@ -134,6 +134,24 @@ namespace LoadingSystem.View
 		private void MainGrid_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
 		{
 			dragDropImg.Visibility = Visibility.Hidden;
+		}
+
+
+
+		private void ProgressBar_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+		{
+			if (e.NewValue == progressBar.Maximum)
+			{
+				loadingGrid.Visibility = Visibility.Hidden;
+			}
+		}
+
+
+
+		private void MenuItem_Click(object sender, RoutedEventArgs e)
+		{
+			((ViewModel.ViewModel)this.DataContext).ProgressValue = 0;
+			loadingGrid.Visibility = Visibility.Visible;
 		}
 	}
 }
