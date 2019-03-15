@@ -150,7 +150,6 @@ namespace LoadingSystem.View
 
 		private void MenuItem_Click(object sender, RoutedEventArgs e)
 		{
-			((ViewModel.ViewModel)this.DataContext).ProgressValue = 0;
 			loadingGrid.Visibility = Visibility.Visible;
 		}
 	}

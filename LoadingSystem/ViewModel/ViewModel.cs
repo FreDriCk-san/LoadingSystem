@@ -1,10 +1,12 @@
 ﻿using Microsoft.Win32;
 using OfficeOpenXml;
+using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -12,6 +14,7 @@ namespace LoadingSystem.ViewModel
 {
 	public class ViewModel : INotifyPropertyChanged
 	{
+        private ConcurrentBag<Task> tasks;
 		private string filePath;
 		private int countOfRows;
 
@@ -20,6 +23,7 @@ namespace LoadingSystem.ViewModel
 		private ToggleCommand saveToExcelFormat;
 		private ToggleCommand saveToHTMLFormat;
 		private ToggleCommand changeTableCommand;
+        private ToggleCommand cancelLoading;
 
 		private Model.PropertyGridModel propertyGridModel;
 		private Model.DataModel dataModel;
@@ -34,6 +38,8 @@ namespace LoadingSystem.ViewModel
 
 		private int depthValue;
 		private double progressValue;
+        private CancellationTokenSource tokenSource;
+        private CancellationToken cancellationToken;
 		
 		public ToggleCommand FileOpenCommand
 		{
@@ -184,6 +190,20 @@ namespace LoadingSystem.ViewModel
 
 
 
+        public ToggleCommand CancelLoading
+        {
+            get
+            {
+                return cancelLoading ??
+                    (cancelLoading = new ToggleCommand(command =>
+                    {
+                        tokenSource.Cancel();
+                    }));
+            }
+        }
+
+
+
 		#region Data Init
 		public DataTable DataGridTable
 		{
@@ -294,7 +314,9 @@ namespace LoadingSystem.ViewModel
 
 		public ViewModel()
 		{
-			PropertyGridModel = new Model.PropertyGridModel();
+            tasks = new ConcurrentBag<Task>();
+
+            PropertyGridModel = new Model.PropertyGridModel();
 			DataModel = new Model.DataModel();
 
 			CollectionOfNull = new ObservableCollection<double>
@@ -373,63 +395,106 @@ namespace LoadingSystem.ViewModel
 
 
 
-		public void ProcessIncomingFile(string path)
-		{
+        public void ProcessIncomingFile(string path)
+        {
+            InitCancelToken();
 
-			Task.Factory.StartNew(() =>
-			{
-				ProgressValue = 0;
+            var process = Task.Factory.StartNew(() =>
+            {
+                try
+                {
+                    ProgressValue = 0;
 
-				filePath = path;
+                    filePath = path;
 
-				canChangeNullValue = true;
+                    canChangeNullValue = true;
 
-				var textTasks = Task.Run(async () =>
-				{
-					return await Model.FileReader.ReadLinesAsync(filePath, 100);
-				});
-				ProgressValue++;
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+                    }
+                    var textTasks = Task.Run(async () =>
+                    {
+                        return await Model.FileReader.ReadLinesAsync(filePath, 100);
+                    });
+                    tasks.Add(textTasks);
+                    ProgressValue++;
 
-				EditTextBox(textTasks.Result, 100);
-				ProgressValue++;
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+                    }
+                    EditTextBox(textTasks.Result, 100);
+                    ProgressValue++;
 
-				var dataTask = Task.Run(async () =>
-				{
-					return await Model.FileReader.ReadAllLinesAsync(filePath);
-				});
-				ProgressValue++;
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+                    }
+                    var dataTask = Task.Run(async () =>
+                    {
+                        return await Model.FileReader.ReadAllLinesAsync(filePath);
+                    });
+                    tasks.Add(dataTask);
+                    ProgressValue++;
 
-				DataModel = dataTask.Result;
+                    DataModel = dataTask.Result;
 
-				for (int i = 0; i < DataModel.ArrayOfNumbers.Length; ++i)
-				{
-					if (null == DataModel.ArrayOfNumbers[i])
-					{
-						countOfRows = i;
-						break;
-					}
-				}
-				ProgressValue++;
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+                    }
+                    for (int i = 0; i < DataModel.ArrayOfNumbers.Length; ++i)
+                    {
+                        if (null == DataModel.ArrayOfNumbers[i])
+                        {
+                            countOfRows = i;
+                            break;
+                        }
+                    }
+                    ProgressValue++;
 
-				DepthValue = SearchDepthColumn(DataModel.ArrayOfNumbers);
-				ProgressValue++;
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+                    }
+                    DepthValue = SearchDepthColumn(DataModel.ArrayOfNumbers);
+                    ProgressValue++;
 
-				SetPropertiesToPropertyGrid();
-				ProgressValue++;
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+                    }
+                    SetPropertiesToPropertyGrid();
+                    ProgressValue++;
 
-				CheckDataNullValue();
-				ProgressValue++;
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+                    }
+                    CheckDataNullValue();
+                    ProgressValue++;
 
-				EditTable(PropertyGridModel.OutputDescription.ReadFromRow, PropertyGridModel.OutputDescription.ReadToRow);
-				ProgressValue++;
-			});
-			
-			
-		}
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+                    }
+                    EditTable(PropertyGridModel.OutputDescription.ReadFromRow, PropertyGridModel.OutputDescription.ReadToRow);
+                    ProgressValue++;
+                }
+                catch (System.OperationCanceledException exception)
+                {
+                    
+                }
+               
+            }, cancellationToken);
+
+            tasks.Add(process);
+        }
 
 
 
-		private void SetPropertiesToPropertyGrid()
+        private void SetPropertiesToPropertyGrid()
 		{
 			PropertyGridModel.PropertyGridType.Separator = DataModel.Separator;
 			PropertyGridModel.PropertyGridType.DecimalSeparator = DataModel.DecimalSeparator;
@@ -515,6 +580,13 @@ namespace LoadingSystem.ViewModel
 				CurrentNull = nullValue;
 			}
 		}
+
+
+        private void InitCancelToken()
+        {
+            tokenSource = new CancellationTokenSource();
+            cancellationToken = tokenSource.Token;
+        }
 
 
 		public event PropertyChangedEventHandler PropertyChanged;
