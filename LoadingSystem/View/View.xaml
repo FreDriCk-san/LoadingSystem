@@ -8,6 +8,10 @@
              mc:Ignorable="d" 
              d:DesignHeight="757" d:DesignWidth="1081">
     <Grid>
+        <Grid.Resources>
+            <BooleanToVisibilityConverter x:Key="boolToVisibility"/>
+        </Grid.Resources>
+
         <Grid Name="mainGrid" Drop="Grid_Drop" AllowDrop="True" DragOver="MainGrid_DragOver" MouseDown="MainGrid_MouseDown">
             <Grid.RowDefinitions>
                 <RowDefinition Height="367*"/>
@@ -21,7 +25,7 @@
 
             <Menu Height="21" VerticalAlignment="Top" Grid.ColumnSpan="2">
                 <MenuItem Header="Файл">
-                    <MenuItem Header="Открыть" Command="{Binding FileOpenCommand}" Click="MenuItem_Click"/>
+                    <MenuItem Header="Открыть" Command="{Binding FileOpenCommand}"/>
                     <MenuItem Name="toExcel" Header="Перевод в Excel" IsEnabled="False" Command="{Binding SaveToExcelFormat}"/>
                     <MenuItem Name="toHTML" Header="Перевод в HTML" IsEnabled="False" Command="{Binding SaveToHTMLFormat}"/>
                 </MenuItem>
@@ -68,9 +72,9 @@
 
         </Grid>
 
-        <Grid Name="loadingGrid" Visibility="Hidden" Background="#FFCBCBCB" Margin="375,329,0,0" HorizontalAlignment="Left" Width="389" Height="130" VerticalAlignment="Top">
+        <Grid Name="loadingGrid" Visibility="{Binding LoadingGridVisible, Converter={StaticResource boolToVisibility}}" Background="#FFCBCBCB" Margin="375,329,0,0" HorizontalAlignment="Left" Width="389" Height="130" VerticalAlignment="Top">
             <Label Content="Загрузка..." Margin="104,22,103,78" FontFamily="Times New Roman" FontSize="18" HorizontalContentAlignment="Center" FontStyle="Italic"/>
-            <ProgressBar Name="progressBar" Margin="0,0,49,46" Value="{Binding ProgressValue, Mode=OneWay}" Maximum="8" ValueChanged="ProgressBar_ValueChanged" Height="32" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="297"/>
+            <ProgressBar Name="progressBar" Margin="0,0,49,46" Value="{Binding ProgressValue, Mode=OneWay}" Maximum="8" Height="32" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="297"/>
             <Button Content="Отмена" Margin="0,0,10,10" HorizontalAlignment="Right" Width="78" Height="21" VerticalAlignment="Bottom" Command="{Binding CancelLoading}"/>
         </Grid>
     </Grid>

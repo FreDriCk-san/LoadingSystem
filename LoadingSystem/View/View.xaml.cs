@@ -109,9 +109,6 @@ namespace LoadingSystem.View
 
 		private void Grid_Drop(object sender, DragEventArgs e)
 		{
-			// TO DO: Set progressbar
-			loadingGrid.Visibility = Visibility.Visible;
-
 			if (e.Data.GetDataPresent(DataFormats.FileDrop))
 			{
 				var files = (string[])e.Data.GetData(DataFormats.FileDrop);
@@ -134,23 +131,6 @@ namespace LoadingSystem.View
 		private void MainGrid_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
 		{
 			dragDropImg.Visibility = Visibility.Hidden;
-		}
-
-
-
-		private void ProgressBar_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-		{
-			if (e.NewValue == progressBar.Maximum)
-			{
-				loadingGrid.Visibility = Visibility.Hidden;
-			}
-		}
-
-
-
-		private void MenuItem_Click(object sender, RoutedEventArgs e)
-		{
-			loadingGrid.Visibility = Visibility.Visible;
 		}
 	}
 }

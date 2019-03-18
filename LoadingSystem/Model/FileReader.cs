@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace LoadingSystem.Model
@@ -16,7 +17,7 @@ namespace LoadingSystem.Model
         private const FileOptions DefaultOptions = FileOptions.Asynchronous | FileOptions.SequentialScan;
 
 		// Считывание и обработка входных данных
-        public static async Task<DataModel> ReadAllLinesAsync(string path)
+        public static async Task<DataModel> ReadAllLinesAsync(string path, CancellationToken cancellationToken)
         {
 			var data = new DataModel();
 			var builder = new StringBuilder();
@@ -41,7 +42,7 @@ namespace LoadingSystem.Model
 					var prevLine = string.Empty;
 
 					// Считывать, пока не конец потока
-					while (!reader.EndOfStream)
+					while (!reader.EndOfStream && !cancellationToken.IsCancellationRequested)
 					{
 						var line = $"{await reader.ReadLineAsync()} ";
 
@@ -255,7 +256,7 @@ namespace LoadingSystem.Model
 
 
 		// Считать определённое количество строк
-		public static async Task<string[]> ReadLinesAsync(string path, int toString)
+		public static async Task<string[]> ReadLinesAsync(string path, int toString, CancellationToken cancellationToken)
 		{
 			var result = new string[1024];
 			var index = 0;
@@ -267,6 +268,11 @@ namespace LoadingSystem.Model
 
 					while (index <= toString)
 					{
+						if (cancellationToken.IsCancellationRequested)
+						{
+							break;
+						}
+
 						var line = await reader.ReadLineAsync();	
 
 						result[index] = $"{index}:\t\t{line}";
