@@ -161,7 +161,6 @@ namespace LoadingSystem.Model
 								// Проверить позицию, после прохода (данные о позициях разделителей хранятся в массиве)
 								else if (firstLineProcessed && currentChar == separator && arrayLineStep != lineArray.Length)
 								{
-									// TO DO: Проработать ситуацию, где происходит изменение длины строки
 									if (arrayOfPositions[arrayLineStep] == i)
 									{
 										if (nextChar != separator && separator == ' ')
