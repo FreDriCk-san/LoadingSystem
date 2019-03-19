@@ -51,6 +51,7 @@ namespace LoadingSystem.View
 			var depthValue = ((ViewModel.ViewModel)this.DataContext).DepthValue;
 
 			propertyPanel.Children.Clear();
+			textBoxInfo.IsEnabled = true;
 			buttonRead.IsEnabled = true;
 			buttonTable.IsEnabled = true;
 			toExcel.IsEnabled = true;
@@ -109,14 +110,7 @@ namespace LoadingSystem.View
 
 		private void Grid_Drop(object sender, DragEventArgs e)
 		{
-			if (e.Data.GetDataPresent(DataFormats.FileDrop))
-			{
-				var files = (string[])e.Data.GetData(DataFormats.FileDrop);
-
-				((ViewModel.ViewModel)this.DataContext).ProcessIncomingFile(files[0]);
-			}
-
-			dragDropImg.Visibility = Visibility.Hidden;
+			LoadDropedFile(e);
 		}
 
 
@@ -131,6 +125,27 @@ namespace LoadingSystem.View
 		private void MainGrid_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
 		{
 			dragDropImg.Visibility = Visibility.Hidden;
+		}
+
+
+
+		protected void LoadDropedFile(DragEventArgs eventArgs)
+		{
+			if (eventArgs.Data.GetDataPresent(DataFormats.FileDrop))
+			{
+				var files = (string[])eventArgs.Data.GetData(DataFormats.FileDrop);
+
+				((ViewModel.ViewModel)this.DataContext).ProcessIncomingFile(files[0]);
+			}
+
+			dragDropImg.Visibility = Visibility.Hidden;
+		}
+
+
+
+		private void TextBoxInfo_PreviewDragOver(object sender, DragEventArgs e)
+		{
+			textBoxInfo.IsEnabled = false;
 		}
 	}
 }

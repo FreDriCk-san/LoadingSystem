@@ -347,7 +347,6 @@ namespace LoadingSystem.Model
 
 
 
-
 		private static bool StringIsDigitOnly(string text)
 		{
             // If current string is null or contains only spaces
@@ -379,6 +378,7 @@ namespace LoadingSystem.Model
 
 			return true;
 		}
+
 
 
 		private static bool StringIsASCII(string text)
