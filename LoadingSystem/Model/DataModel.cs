@@ -6,8 +6,6 @@ namespace LoadingSystem.Model
 	{
 		// Массив массивов с числами
 		private double[][] arrayOfNumbers;
-		// Округление десятичного числа
-		private int decimalRound;
 		// Разделитель между значениями
 		private char separator;
 		// Разделитель десятичного числа
@@ -37,17 +35,6 @@ namespace LoadingSystem.Model
 			{
 				arrayOfNumbers = value;
 				OnPropertyChanged("ArrayOfNumbers");
-			}
-		}
-
-		public int DecimalRound
-		{
-			get { return decimalRound; }
-
-			set
-			{
-				decimalRound = value;
-				OnPropertyChanged("DecimalRound");
 			}
 		}
 

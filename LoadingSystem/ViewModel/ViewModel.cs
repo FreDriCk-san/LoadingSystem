@@ -15,7 +15,7 @@ namespace LoadingSystem.ViewModel
 	public class ViewModel : INotifyPropertyChanged
 	{
         private ConcurrentBag<Task> tasks;
-		private string filePath;
+		private FileInfo fileInfo;
 		private int countOfRows;
 
 		private ToggleCommand fileOpenCommand;
@@ -77,7 +77,7 @@ namespace LoadingSystem.ViewModel
 
 						var textTask = Task.Run(async () =>
 						{
-							return await Model.FileReader.ReadLinesAsync(filePath, readTo, cancellationToken);
+							return await Model.FileReader.ReadLinesAsync(fileInfo.FullName, readTo, cancellationToken);
 						});
 
 						EditTextBox(textTask.Result, readTo);
@@ -98,7 +98,7 @@ namespace LoadingSystem.ViewModel
 						{
 							using (var excelPackage = new ExcelPackage())
 							{
-								var workSheets = excelPackage.Workbook.Worksheets.Add("DataTable");
+								var workSheets = excelPackage.Workbook.Worksheets.Add("ImportData");
 
 								// TO DO: Set style or format for output
 								workSheets.Cells["A1"].LoadFromDataTable(DataGridTable, true, OfficeOpenXml.Table.TableStyles.Medium9);
@@ -420,14 +420,19 @@ namespace LoadingSystem.ViewModel
 
 				ProgressValue = 0;
 
-				filePath = path;
+				fileInfo = new FileInfo(path);
 
 				canChangeNullValue = true;
+
+				if (fileInfo.FullName.EndsWith(".xlsx"))
+				{
+					Model.FileReader.ReadAsXLSXAsync(fileInfo.FullName, cancellationToken);
+				}
 
 
 				var textTasks = Task.Run(async () =>
 				{
-					return await Model.FileReader.ReadLinesAsync(filePath, 100, cancellationToken);
+					return await Model.FileReader.ReadLinesAsync(fileInfo.FullName, 100, cancellationToken);
 				});
 				tasks.Add(textTasks);
 				ProgressValue++;
@@ -439,7 +444,7 @@ namespace LoadingSystem.ViewModel
 
 				var dataTask = Task.Run(async () =>
 				{
-					return await Model.FileReader.ReadAllLinesAsync(filePath, cancellationToken);
+					return await Model.FileReader.ReadAllLinesAsync(fileInfo.FullName, cancellationToken);
 				});
 				tasks.Add(dataTask);
 				ProgressValue++;

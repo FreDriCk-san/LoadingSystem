@@ -1,6 +1,6 @@
 ﻿using LoadingSystem.Util;
+using OfficeOpenXml;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -20,10 +20,8 @@ namespace LoadingSystem.Model
         public static async Task<DataModel> ReadAllLinesAsync(string path, CancellationToken cancellationToken)
         {
 			var data = new DataModel();
-			var builder = new StringBuilder();
 			var decimalSeparator = char.MinValue;
 			var separator = char.MinValue;
-			var decimalRound = 0;
 
 			using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, DefaultBufferSize, DefaultOptions))
 			{
@@ -35,11 +33,11 @@ namespace LoadingSystem.Model
                     var dataLineFound = false;
 					var readColumnOnce = false;
                     var index = 1;
+
 					var arrayOfNumbers = new double[4096][];
+					var arrayOfPositions = new int[0];
 					var arrayNumStep = 0;
 					var firstLineProcessed = false;
-					var arrayOfPositions = new int[0];
-					var prevLine = string.Empty;
 
 					// Считывать, пока не конец потока
 					while (!reader.EndOfStream && !cancellationToken.IsCancellationRequested)
@@ -107,130 +105,13 @@ namespace LoadingSystem.Model
 						// Если найдена строка, с которой начинаются данные для обработки
 						if (dataLineFound)
 						{
-							var lineArray = new double[data.ColumnCount];
-							var arrayLineStep = 0;
+							var firstHeuristic = FirstHeuristic(line, separator, decimalSeparator, data.ColumnCount, firstLineProcessed, arrayOfPositions);
+							firstLineProcessed = firstHeuristic.Item2;
+							arrayOfPositions = firstHeuristic.Item3;
+							separator = firstHeuristic.Item4;
+							decimalSeparator = firstHeuristic.Item5;
 
-							//if (prevLine != string.Empty)
-							//{
-							//	if (prevLine.Length != line.Length)
-							//	{
-							//		arrayOfPositions = GetNumericPositions(line, data.ColumnCount, separator);
-							//	}
-							//}
-
-							// Обработка текущей строки по символам
-							for (int i = 0; i < line.Length - 1; i++)
-							{
-								var currentChar = line[i];
-								var nextChar = line[i + 1];
-
-								// Проверить, если встретился заголовок (Например 1:)
-								if (currentChar == ':' || nextChar == ':')
-								{
-									builder.Clear();
-								}
-
-								// Если встретилось отрицательное число
-								else if (currentChar == '-' && char.IsDigit(nextChar))
-								{
-									builder.Append(currentChar);
-								}
-
-								// Проверить, если встретился разделитель, перед которым стоит число (если индекс не 0!!)
-								else if (currentChar == separator && i != 0 && char.IsDigit(line[i - 1]))
-								{
-									lineArray[arrayLineStep] = StringToDouble(builder.ToString());
-									builder.Clear();
-									arrayLineStep++;
-
-									if (arrayLineStep % 4096 == 0 && arrayLineStep > 0)
-									{
-										Array.Resize(ref lineArray, lineArray.Length + 4096);
-									}
-								}
-
-								// Если встретился посторонний символ или последний элемент не валиден
-								else if ((currentChar == separator && i != 0 && (line[i - 1] != ' ' && line[i - 1] != '|'))
-									|| (i == line.Length - 2 && (!char.IsDigit(line[i - 1]) && line[i - 1] != decimalSeparator) && arrayLineStep != lineArray.Length))
-								{
-									lineArray[arrayLineStep] = double.MinValue;
-									builder.Clear();
-									arrayLineStep++;
-								}
-
-								// Проверить позицию, после прохода (данные о позициях разделителей хранятся в массиве)
-								else if (firstLineProcessed && currentChar == separator && arrayLineStep != lineArray.Length)
-								{
-									if (arrayOfPositions[arrayLineStep] == i)
-									{
-										if (nextChar != separator && separator == ' ')
-										{
-											arrayOfPositions = GetNumericPositions(line, data.ColumnCount, separator);
-										}
-										else if (!char.IsDigit(line[i - 1]))
-										{
-											lineArray[arrayLineStep] = double.MinValue;
-											arrayLineStep++;
-										}
-									}
-								}
-
-								// Проверить, если встретился разделитель десятичного числа
-								else if (currentChar == '.' || currentChar == ',')
-								{
-									// Определить разделитель десятичного числа
-									if (decimalSeparator == char.MinValue)
-									{
-										decimalSeparator = currentChar;
-									}
-
-									builder.Append(currentChar);
-								}
-
-								// Проверить, если встретилось число
-								else if (char.IsDigit(currentChar))
-								{
-									// Если текущий символ является последним и не имеет пробелов
-									if (i == line.Length - 2)
-									{
-										builder.Append(currentChar);
-										lineArray[arrayLineStep] = StringToDouble(builder.ToString());
-										decimalRound = GetDecimalNumberCount(builder.ToString(), decimalSeparator, separator);
-										builder.Clear();
-										arrayLineStep++;
-										prevLine = line;
-
-										if (arrayLineStep % 4096 == 0 && arrayLineStep > 0)
-										{
-											Array.Resize(ref lineArray, lineArray.Length + 4096);
-										}
-
-										continue;
-									}
-
-									// Определить разделитель
-									if (!char.IsDigit(nextChar))
-									{
-										if (separator == char.MinValue && decimalSeparator != char.MinValue)
-										{
-											separator = nextChar;
-										}
-									}
-
-									builder.Append(currentChar);
-								}
-
-							}
-
-
-							// Получить шаблон позиций разделителей значений
-							if (!firstLineProcessed)
-							{
-								arrayOfPositions = GetNumericPositions(line, data.ColumnCount, separator);
-								firstLineProcessed = true;
-							}
-
-							arrayOfNumbers[arrayNumStep] = lineArray;
+							arrayOfNumbers[arrayNumStep] = firstHeuristic.Item1;
 							arrayNumStep++;
 
 							if (arrayNumStep % 4096 == 0 && arrayNumStep > 0)
@@ -244,7 +125,6 @@ namespace LoadingSystem.Model
 
 
 					data.Separator = separator;
-					data.DecimalRound = decimalRound;
 					data.DecimalSeparator = decimalSeparator;
 					data.ArrayOfNumbers = arrayOfNumbers;
 				}
@@ -285,49 +165,30 @@ namespace LoadingSystem.Model
 		}
 
 
-		// Определить дробную часть числа
-		private static int GetDecimalNumberCount(string text, char decimalSeparator, char separator)
+
+		public static void ReadAsXLSXAsync(string path, CancellationToken cancellationToken)
 		{
-			var counter = 0;
-			var flag = false;
-			var listOfValues = new List<int>();
-
-			for (int i = 0; i < text.Length; ++i)
+			using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, DefaultBufferSize, DefaultOptions))
 			{
-				if (text.ElementAt(i) == decimalSeparator)
+				using (var package = new ExcelPackage(stream))
 				{
-					flag = true;
-					counter--;
-				}
-				else if (text.ElementAt(i) == separator)
-				{
-					listOfValues.Add(counter);
-					flag = false;
-					counter = 0;
-				}
-
-				if (flag)
-				{
-					counter++;
-
-					if (i == text.Length - 1)
+					// loop all worksheets
+					foreach(var workSheet in package.Workbook.Worksheets)
 					{
-						listOfValues.Add(counter);
+						// loop all rows
+						for (int i = workSheet.Dimension.Start.Row; i <= workSheet.Dimension.End.Row; ++i)
+						{
+							// loop all columns in a row
+							for (int j = workSheet.Dimension.Start.Column; j <= workSheet.Dimension.End.Column; ++j)
+							{
+								var tmp = workSheet.Cells[i, j].Value;
+							}
+						}
 					}
 				}
 			}
 
-			var maxCount = 0;
 
-			for (int i = 0; i < listOfValues.Count; ++i)
-			{
-				if (listOfValues.ElementAt(i) > maxCount)
-				{
-					maxCount = listOfValues.ElementAt(i);
-				}
-			}
-
-			return maxCount;
 		}
 
 
@@ -510,17 +371,132 @@ namespace LoadingSystem.Model
 
 
 
-		//private static Tuple<int> FirstHeuristic()
-		//{
-		//	try
-		//	{
+		private static Tuple<double[], bool, int[], char, char> FirstHeuristic(string line, char separator, char decimalSeparator, int columnCount, bool firstLineProcessed, int[] positions)
+		{
+			try
+			{
+				var builder = new StringBuilder();
+				var lineArray = new double[columnCount];
+				var arrayLineStep = 0;
+				var arrayOfPositions = positions;
 
-		//	}
-		//	catch (Exception exception)
-		//	{
 
-		//	}
-		//}
+				// Обработка текущей строки по символам
+				for (int i = 0; i < line.Length - 1; i++)
+				{
+					var currentChar = line[i];
+					var nextChar = line[i + 1];
+
+					// Проверить, если встретился заголовок (Например 1:)
+					if (currentChar == ':' || nextChar == ':')
+					{
+						builder.Clear();
+					}
+
+					// Если встретилось отрицательное число
+					else if (currentChar == '-' && char.IsDigit(nextChar))
+					{
+						builder.Append(currentChar);
+					}
+
+					// Проверить, если встретился разделитель, перед которым стоит число (если индекс не 0!!)
+					else if (currentChar == separator && i != 0 && char.IsDigit(line[i - 1]))
+					{
+						lineArray[arrayLineStep] = StringToDouble(builder.ToString());
+						builder.Clear();
+						arrayLineStep++;
+
+						if (arrayLineStep % 4096 == 0 && arrayLineStep > 0)
+						{
+							Array.Resize(ref lineArray, lineArray.Length + 4096);
+						}
+					}
+
+					// Если встретился посторонний символ или последний элемент не валиден
+					else if ((currentChar == separator && i != 0 && (line[i - 1] != ' ' && line[i - 1] != '|'))
+						|| (i == line.Length - 2 && (!char.IsDigit(line[i - 1]) && line[i - 1] != decimalSeparator) && arrayLineStep != lineArray.Length))
+					{
+						lineArray[arrayLineStep] = double.MinValue;
+						builder.Clear();
+						arrayLineStep++;
+					}
+
+					// Проверить позицию, после прохода (данные о позициях разделителей хранятся в массиве)
+					else if (firstLineProcessed && currentChar == separator && arrayLineStep != lineArray.Length)
+					{
+						if (arrayOfPositions[arrayLineStep] == i)
+						{
+							if (nextChar != separator && separator == ' ')
+							{
+								arrayOfPositions = GetNumericPositions(line, columnCount, separator);
+							}
+							else if (!char.IsDigit(line[i - 1]))
+							{
+								lineArray[arrayLineStep] = double.MinValue;
+								arrayLineStep++;
+							}
+						}
+					}
+
+					// Проверить, если встретился разделитель десятичного числа
+					else if (currentChar == '.' || currentChar == ',')
+					{
+						// Определить разделитель десятичного числа
+						if (decimalSeparator == char.MinValue)
+						{
+							decimalSeparator = currentChar;
+						}
+
+						builder.Append(currentChar);
+					}
+
+					// Проверить, если встретилось число
+					else if (char.IsDigit(currentChar))
+					{
+						// Если текущий символ является последним и не имеет пробелов
+						if (i == line.Length - 2)
+						{
+							builder.Append(currentChar);
+							lineArray[arrayLineStep] = StringToDouble(builder.ToString());
+							builder.Clear();
+							arrayLineStep++;
+
+							if (arrayLineStep % 4096 == 0 && arrayLineStep > 0)
+							{
+								Array.Resize(ref lineArray, lineArray.Length + 4096);
+							}
+
+							continue;
+						}
+
+						// Определить разделитель
+						if (!char.IsDigit(nextChar))
+						{
+							if (separator == char.MinValue && decimalSeparator != char.MinValue)
+							{
+								separator = nextChar;
+							}
+						}
+
+						builder.Append(currentChar);
+					}
+
+				}
+
+				// Получить шаблон позиций разделителей значений
+				if (!firstLineProcessed)
+				{
+					arrayOfPositions = GetNumericPositions(line, columnCount, separator);
+					firstLineProcessed = true;
+				}
+
+				return new Tuple<double[], bool, int[], char, char>(lineArray, firstLineProcessed, arrayOfPositions, separator, decimalSeparator);
+			}
+			catch (Exception exception)
+			{
+				throw new Exception($"First Heuristic exception:{exception.Message}");
+			}
+		}
 	}
 
 
