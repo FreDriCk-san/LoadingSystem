@@ -70,3 +70,7 @@ E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\bin\Debug\EPPlus.xml
 D:\Visual Studio Projects\C#\LoadingSystem\LoadingSystem\bin\Debug\EPPlus.dll
 D:\Visual Studio Projects\C#\LoadingSystem\LoadingSystem\bin\Debug\EPPlus.pdb
 D:\Visual Studio Projects\C#\LoadingSystem\LoadingSystem\bin\Debug\EPPlus.xml
+E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\bin\Debug\NPOI.dll
+E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\bin\Debug\ICSharpCode.SharpZipLib.dll
+E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\bin\Debug\NPOI.pdb
+E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\bin\Debug\NPOI.xml

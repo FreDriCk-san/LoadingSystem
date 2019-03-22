@@ -367,7 +367,6 @@ namespace LoadingSystem.ViewModel
 
 			DataGridTable = new Model.DataGridModel().DataGridTable;
 			DefaultTableView = new DataView();
-			DataGridTable.Columns.Clear();
 			DataGridTable.BeginLoadData();
 
 			for (int i = 1; i <= columns; ++i)
@@ -424,33 +423,41 @@ namespace LoadingSystem.ViewModel
 
 				canChangeNullValue = true;
 
+				// If excel file 2007-2010
 				if (fileInfo.FullName.EndsWith(".xlsx"))
 				{
-					Model.FileReader.ReadAsXLSXAsync(fileInfo.FullName, cancellationToken);
+					Model.FileReader.ReadAsXLSX(fileInfo.FullName, cancellationToken);
 				}
-
-
-				var textTasks = Task.Run(async () =>
+				// If excel file 2003-2007
+				else if (fileInfo.FullName.EndsWith(".xls"))
 				{
-					return await Model.FileReader.ReadLinesAsync(fileInfo.FullName, 100, cancellationToken);
-				});
-				tasks.Add(textTasks);
-				ProgressValue++;
-
-
-				EditTextBox(textTasks.Result, 100);
-				ProgressValue++;
-
-
-				var dataTask = Task.Run(async () =>
+					DataModel = Model.FileReader.ReadAsXLS(fileInfo.FullName, cancellationToken);
+					ProgressValue += 3;
+				}
+				// If text file (or .csv)
+				else
 				{
-					return await Model.FileReader.ReadAllLinesAsync(fileInfo.FullName, cancellationToken);
-				});
-				tasks.Add(dataTask);
-				ProgressValue++;
+					var textTasks = Task.Run(async () =>
+					{
+						return await Model.FileReader.ReadLinesAsync(fileInfo.FullName, 100, cancellationToken);
+					});
+					tasks.Add(textTasks);
+					ProgressValue++;
 
-				DataModel = dataTask.Result;
 
+					EditTextBox(textTasks.Result, 100);
+					ProgressValue++;
+
+
+					var dataTask = Task.Run(async () =>
+					{
+						return await Model.FileReader.ReadAllLinesAsync(fileInfo.FullName, cancellationToken);
+					});
+					tasks.Add(dataTask);
+					ProgressValue++;
+
+					DataModel = dataTask.Result;
+				}
 
 				for (int i = 0; i < DataModel.ArrayOfNumbers.Length; ++i)
 				{
@@ -477,7 +484,6 @@ namespace LoadingSystem.ViewModel
 
 				EditTable(PropertyGridModel.OutputDescription.ReadFromRow, PropertyGridModel.OutputDescription.ReadToRow);
 				ProgressValue++;
-
 
 			}, cancellationToken).ContinueWith(task =>
 			{

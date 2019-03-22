@@ -118,6 +118,10 @@
       <Project>{be4a6343-f411-44a3-8d6f-f40747ed7ba5}</Project>
       <Name>EPPlus</Name>
     </ProjectReference>
+    <ProjectReference Include="..\npoi\NPOI.csproj">
+      <Project>{10FA8538-157A-4380-A4F6-8E2C3EE92CAE}</Project>
+      <Name>NPOI</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Xceed.Wpf.Toolkit\Xceed.Wpf.Toolkit.csproj">
       <Project>{72e591d6-8f83-4d8c-8f67-9c325e623234}</Project>
       <Name>Xceed.Wpf.Toolkit</Name>

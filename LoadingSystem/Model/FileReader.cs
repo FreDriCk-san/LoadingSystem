@@ -1,4 +1,5 @@
 ﻿using LoadingSystem.Util;
+using NPOI.HSSF.UserModel;
 using OfficeOpenXml;
 using System;
 using System.Globalization;
@@ -165,8 +166,8 @@ namespace LoadingSystem.Model
 		}
 
 
-
-		public static void ReadAsXLSXAsync(string path, CancellationToken cancellationToken)
+		// TO DO: Create algorithm
+		public static void ReadAsXLSX(string path, CancellationToken cancellationToken)
 		{
 			using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, DefaultBufferSize, DefaultOptions))
 			{
@@ -192,12 +193,73 @@ namespace LoadingSystem.Model
 		}
 
 
+		// TO DO: FIX BUGS!!!
+		public static DataModel ReadAsXLS(string path, CancellationToken cancellationToken)
+		{
+			var arrayOfNumbers = new double[4096][];
+			var data = new DataModel();
+			HSSFWorkbook hssfWorkBook;
+
+			using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, DefaultBufferSize, DefaultOptions))
+			{
+				hssfWorkBook = new HSSFWorkbook(stream);
+			}
+
+			for (int i = 0; i < hssfWorkBook.NumberOfSheets; ++i)
+			{
+				var workSheet = hssfWorkBook.GetSheetAt(i);
+				var rows = workSheet.GetEnumerator();
+				var rowIndex = 0;
+
+				while (rows.MoveNext() && !cancellationToken.IsCancellationRequested)
+				{
+					var row = (HSSFRow)rows.Current;
+					var lineOfNumbersFound = false;
+					var lineArray = new double[15];
+					var lineStep = 0;
+
+					for (int j = 0; j < row.LastCellNum; ++j)
+					{
+						var cell = row.GetCell(j);
+
+						if (null != cell)
+						{
+							if (lineOfNumbersFound)
+							{
+								lineArray[lineStep] = StringToDouble(cell.ToString());
+								lineStep++;
+							}
+							else if (StringToDouble(cell.ToString()) != double.MinValue)
+							{
+								lineArray[lineStep] = StringToDouble(cell.ToString());
+								lineStep++;
+								lineOfNumbersFound = true;
+							}
+						}
+
+					}
+
+					if (lineOfNumbersFound)
+					{
+						arrayOfNumbers[rowIndex] = lineArray;
+						rowIndex++;
+					}
+				}
+			}
+
+			data.ArrayOfNumbers = arrayOfNumbers;
+			data.ColumnCount = 15;
+
+			return data;
+		}
+
+
 
 		private static double StringToDouble(string text)
 		{
 			double result;
 
-			if (!Double.TryParse(text, NumberStyles.Number | NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out result))
+			if (!Double.TryParse(text.Replace(',','.'), NumberStyles.Number | NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out result))
 			{
 				 return double.MinValue;
 			}
