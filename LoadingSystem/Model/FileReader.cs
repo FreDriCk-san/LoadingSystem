@@ -167,36 +167,100 @@ namespace LoadingSystem.Model
 
 
 		// TO DO: Create algorithm
-		public static void ReadAsXLSX(string path, CancellationToken cancellationToken)
+		public static DataModel ReadAsXLSX(string path, CancellationToken cancellationToken)
 		{
 			// Max row count:	 ~1048576
-			// Max column count: ~256
+			// Max column count: ~16384
+
+			var arrayOfNumbers = new double[4096][];
+			var data = new DataModel();
+			var maxColumnCount = 0;
+			var rowIndex = 0;
 
 			using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, DefaultBufferSize, DefaultOptions))
 			{
 				using (var package = new ExcelPackage(stream))
 				{
 					// loop all worksheets
-					foreach(var workSheet in package.Workbook.Worksheets)
+					foreach (var workSheet in package.Workbook.Worksheets)
 					{
+						var lineOfNumbersFound = false;
+
 						// loop all rows
-						for (int i = workSheet.Dimension.Start.Row; i <= workSheet.Dimension.End.Row; ++i)
+						for (int i = workSheet.Dimension.Start.Row + 1; i <= workSheet.Dimension.End.Row; ++i)
 						{
+							var lineArray = new double[4096];
+							var lineStep = 0;
+
 							// loop all columns in a row
 							for (int j = workSheet.Dimension.Start.Column; j <= workSheet.Dimension.End.Column; ++j)
 							{
-								var tmp = workSheet.Cells[i, j].Value;
+								var cellValue = workSheet.Cells[i, j].Value;
+
+								if (null != cellValue)
+								{
+									if (lineOfNumbersFound)
+									{
+										lineArray[lineStep] = StringToDouble(cellValue.ToString());
+										lineStep++;
+									}
+									else if (double.MinValue != StringToDouble(cellValue.ToString()))
+									{
+										lineArray[lineStep] = StringToDouble(cellValue.ToString());
+										lineStep++;
+										lineOfNumbersFound = true;
+									}
+								}
+								else
+								{
+									lineArray[lineStep] = double.MinValue;
+									lineStep++;
+								}
+
+								if (lineStep % 4096 == 0 && lineStep > 0)
+								{
+									Array.Resize(ref lineArray, lineArray.Length + 4096);
+								}
+							}
+
+							if (lineOfNumbersFound)
+							{
+								if (lineStep > maxColumnCount)
+								{
+									maxColumnCount = lineStep;
+								}
+
+								if (rowIndex % 4096 == 0 && rowIndex > 0)
+								{
+									Array.Resize(ref arrayOfNumbers, arrayOfNumbers.Length + 4096);
+								}
+
+								arrayOfNumbers[rowIndex] = lineArray;
+								rowIndex++;
 							}
 						}
+
+						// Temp separator for next (existing) sheet
+						var tempSeparator = new double[4096];
+						for (int t = 0; t < tempSeparator.Length; ++t)
+						{
+							tempSeparator[t] = double.MinValue;
+						}
+						arrayOfNumbers[rowIndex] = tempSeparator;
+						rowIndex++;
 					}
 				}
+
 			}
 
+			data.ArrayOfNumbers = arrayOfNumbers;
+			data.ColumnCount = maxColumnCount;
 
+			return data;
 		}
 
 
-		// TO DO: FIX BUGS!!!
+		// TO DO: Get position of row with information
 		public static DataModel ReadAsXLS(string path, CancellationToken cancellationToken)
 		{
 			// Max row count:	 ~65536
@@ -213,13 +277,14 @@ namespace LoadingSystem.Model
 				hssfWorkBook = new HSSFWorkbook(stream);
 			}
 
+
 			for (int i = 0; i < hssfWorkBook.NumberOfSheets; ++i)
 			{
 				var workSheet = hssfWorkBook.GetSheetAt(i);
 				var rows = workSheet.GetEnumerator();
-				
 
-				while (rows.MoveNext() && !cancellationToken.IsCancellationRequested)
+
+				while (rows.MoveNext())
 				{
 					var row = (HSSFRow)rows.Current;
 					var lineOfNumbersFound = false;
@@ -228,21 +293,26 @@ namespace LoadingSystem.Model
 
 					for (int j = 0; j < row.LastCellNum; ++j)
 					{
-						var cell = row.GetCell(j);
+						var cellValue = row.GetCell(j);
 
-						if (null != cell)
+						if (null != cellValue)
 						{
 							if (lineOfNumbersFound)
 							{
-								lineArray[lineStep] = StringToDouble(cell.ToString());
+								lineArray[lineStep] = StringToDouble(cellValue.ToString());
 								lineStep++;
 							}
-							else if (StringToDouble(cell.ToString()) != double.MinValue)
+							else if (StringToDouble(cellValue.ToString()) != double.MinValue)
 							{
-								lineArray[lineStep] = StringToDouble(cell.ToString());
+								lineArray[lineStep] = StringToDouble(cellValue.ToString());
 								lineStep++;
 								lineOfNumbersFound = true;
 							}
+						}
+						else
+						{
+							lineArray[lineStep] = double.MinValue;
+							lineStep++;
 						}
 
 					}
@@ -274,6 +344,8 @@ namespace LoadingSystem.Model
 				arrayOfNumbers[rowIndex] = tempSeparator;
 				rowIndex++;
 			}
+
+
 
 			data.ArrayOfNumbers = arrayOfNumbers;
 			data.ColumnCount = maxColumnCount;
