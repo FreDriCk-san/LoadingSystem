@@ -166,7 +166,7 @@ namespace LoadingSystem.Model
 		}
 
 
-		// TO DO: Create algorithm
+		// TO DO: Optimize reading data
 		public static DataModel ReadAsXLSX(string path, CancellationToken cancellationToken)
 		{
 			// Max row count:	 ~1048576
@@ -186,68 +186,77 @@ namespace LoadingSystem.Model
 					{
 						var lineOfNumbersFound = false;
 
-						// loop all rows
-						for (int i = workSheet.Dimension.Start.Row + 1; i <= workSheet.Dimension.End.Row; ++i)
+						if (null != workSheet.Dimension)
 						{
-							var lineArray = new double[4096];
-							var lineStep = 0;
-
-							// loop all columns in a row
-							for (int j = workSheet.Dimension.Start.Column; j <= workSheet.Dimension.End.Column; ++j)
+							// loop all rows
+							var startRow = workSheet.Dimension.Start.Row;
+							var endRow = workSheet.Dimension.End.Row;
+							for (int i = startRow; i <= endRow; ++i)
 							{
-								var cellValue = workSheet.Cells[i, j].Value;
+								var lineArray = new double[4096];
+								var lineStep = 0;
 
-								if (null != cellValue)
+								// loop all columns in a row
+								var startColumn = workSheet.Dimension.Start.Column;
+								var endColumn = workSheet.Dimension.End.Column;
+								for (int j = startColumn; j <= endColumn; ++j)
 								{
-									if (lineOfNumbersFound)
+									var cellValue = workSheet.Cells[i, j].Value;
+
+									if (null != cellValue)
 									{
-										lineArray[lineStep] = StringToDouble(cellValue.ToString());
+										if (lineOfNumbersFound)
+										{
+											lineArray[lineStep] = StringToDouble(cellValue.ToString());
+											lineStep++;
+										}
+										else if (double.MinValue != StringToDouble(cellValue.ToString()))
+										{
+											lineArray[lineStep] = StringToDouble(cellValue.ToString());
+											lineStep++;
+											lineOfNumbersFound = true;
+										}
+									}
+									else
+									{
+										lineArray[lineStep] = double.MinValue;
 										lineStep++;
 									}
-									else if (double.MinValue != StringToDouble(cellValue.ToString()))
+
+									if (lineStep % 4096 == 0 && lineStep > 0)
 									{
-										lineArray[lineStep] = StringToDouble(cellValue.ToString());
-										lineStep++;
-										lineOfNumbersFound = true;
+										Array.Resize(ref lineArray, lineArray.Length + 4096);
 									}
 								}
-								else
-								{
-									lineArray[lineStep] = double.MinValue;
-									lineStep++;
-								}
 
-								if (lineStep % 4096 == 0 && lineStep > 0)
+								if (lineOfNumbersFound)
 								{
-									Array.Resize(ref lineArray, lineArray.Length + 4096);
+									if (lineStep > maxColumnCount)
+									{
+										maxColumnCount = lineStep;
+									}
+
+									if (rowIndex % 4096 == 0 && rowIndex > 0)
+									{
+										Array.Resize(ref arrayOfNumbers, arrayOfNumbers.Length + 4096);
+									}
+
+									arrayOfNumbers[rowIndex] = lineArray;
+									rowIndex++;
 								}
 							}
 
-							if (lineOfNumbersFound)
+							// Temp separator for next (existing) sheet
+							var tempSeparator = new double[4096];
+							for (int t = 0; t < tempSeparator.Length; ++t)
 							{
-								if (lineStep > maxColumnCount)
-								{
-									maxColumnCount = lineStep;
-								}
-
-								if (rowIndex % 4096 == 0 && rowIndex > 0)
-								{
-									Array.Resize(ref arrayOfNumbers, arrayOfNumbers.Length + 4096);
-								}
-
-								arrayOfNumbers[rowIndex] = lineArray;
-								rowIndex++;
+								tempSeparator[t] = double.MinValue;
 							}
+							arrayOfNumbers[rowIndex] = tempSeparator;
+							rowIndex++;
 						}
 
-						// Temp separator for next (existing) sheet
-						var tempSeparator = new double[4096];
-						for (int t = 0; t < tempSeparator.Length; ++t)
-						{
-							tempSeparator[t] = double.MinValue;
-						}
-						arrayOfNumbers[rowIndex] = tempSeparator;
-						rowIndex++;
+						
 					}
 				}
 
