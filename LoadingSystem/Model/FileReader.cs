@@ -169,6 +169,9 @@ namespace LoadingSystem.Model
 		// TO DO: Create algorithm
 		public static void ReadAsXLSX(string path, CancellationToken cancellationToken)
 		{
+			// Max row count:	 ~1048576
+			// Max column count: ~256
+
 			using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, DefaultBufferSize, DefaultOptions))
 			{
 				using (var package = new ExcelPackage(stream))
@@ -196,8 +199,13 @@ namespace LoadingSystem.Model
 		// TO DO: FIX BUGS!!!
 		public static DataModel ReadAsXLS(string path, CancellationToken cancellationToken)
 		{
+			// Max row count:	 ~65536
+			// Max column count: ~256
+
 			var arrayOfNumbers = new double[4096][];
 			var data = new DataModel();
+			var maxColumnCount = 0;
+			var rowIndex = 0;
 			HSSFWorkbook hssfWorkBook;
 
 			using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, DefaultBufferSize, DefaultOptions))
@@ -209,13 +217,13 @@ namespace LoadingSystem.Model
 			{
 				var workSheet = hssfWorkBook.GetSheetAt(i);
 				var rows = workSheet.GetEnumerator();
-				var rowIndex = 0;
+				
 
 				while (rows.MoveNext() && !cancellationToken.IsCancellationRequested)
 				{
 					var row = (HSSFRow)rows.Current;
 					var lineOfNumbersFound = false;
-					var lineArray = new double[15];
+					var lineArray = new double[256];
 					var lineStep = 0;
 
 					for (int j = 0; j < row.LastCellNum; ++j)
@@ -241,14 +249,34 @@ namespace LoadingSystem.Model
 
 					if (lineOfNumbersFound)
 					{
+						if (lineStep > maxColumnCount)
+						{
+							maxColumnCount = lineStep;
+						}
+
+						if (rowIndex % 4096 == 0 && rowIndex > 0)
+						{
+							Array.Resize(ref arrayOfNumbers, arrayOfNumbers.Length + 4096);
+						}
+
 						arrayOfNumbers[rowIndex] = lineArray;
 						rowIndex++;
 					}
+
 				}
+
+				// If next sheet is available, create separator between sheets (blank space)
+				var tempSeparator = new double[256];
+				for (int t = 0; t < tempSeparator.Length; ++t)
+				{
+					tempSeparator[t] = double.MinValue;
+				}
+				arrayOfNumbers[rowIndex] = tempSeparator;
+				rowIndex++;
 			}
 
 			data.ArrayOfNumbers = arrayOfNumbers;
-			data.ColumnCount = 15;
+			data.ColumnCount = maxColumnCount;
 
 			return data;
 		}

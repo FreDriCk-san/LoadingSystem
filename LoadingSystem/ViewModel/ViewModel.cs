@@ -427,6 +427,7 @@ namespace LoadingSystem.ViewModel
 				if (fileInfo.FullName.EndsWith(".xlsx"))
 				{
 					Model.FileReader.ReadAsXLSX(fileInfo.FullName, cancellationToken);
+					ProgressValue += 3;
 				}
 				// If excel file 2003-2007
 				else if (fileInfo.FullName.EndsWith(".xls"))
