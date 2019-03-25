@@ -1,5 +1,4 @@
 ﻿using Microsoft.Win32;
-using OfficeOpenXml;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -21,7 +20,6 @@ namespace LoadingSystem.ViewModel
 		private ToggleCommand fileOpenCommand;
 		private ToggleCommand changeTextBoxCommand;
 		private ToggleCommand saveToExcelFormat;
-		private ToggleCommand saveToHTMLFormat;
 		private ToggleCommand changeTableCommand;
         private ToggleCommand cancelLoading;
 
@@ -92,16 +90,13 @@ namespace LoadingSystem.ViewModel
 			get
 			{
 				return saveToExcelFormat ??
-					(saveToExcelFormat = new ToggleCommand(command =>
+					(saveToExcelFormat = new ToggleCommand(async command =>
 					{
 						if (DataGridTable.Columns.Count > 0)
 						{
-							using (var excelPackage = new ExcelPackage())
+							using (var excelPackage = new OfficeOpenXml.ExcelPackage())
 							{
-								var workSheets = excelPackage.Workbook.Worksheets.Add("ImportData");
-
-								// TO DO: Set style or format for output
-								workSheets.Cells["A1"].LoadFromDataTable(DataGridTable, true, OfficeOpenXml.Table.TableStyles.Medium9);
+								var isRead = await Model.ConvertToExcel.ReadData(DataGridTable, excelPackage);
 
 								using (var dialog = new System.Windows.Forms.SaveFileDialog())
 								{
@@ -110,9 +105,7 @@ namespace LoadingSystem.ViewModel
 
 									if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
 									{
-										var path = new FileInfo(dialog.FileName);
-
-										excelPackage.SaveAs(path);
+										var isSaved = await Model.ConvertToExcel.SaveAsExcel(dialog.FileName, excelPackage);
 
 										MessageBox.Show("Преобразовано");						
 									}
@@ -125,46 +118,6 @@ namespace LoadingSystem.ViewModel
 						}
 						
 
-					}));
-			}
-		}
-
-
-
-		public ToggleCommand SaveToHTMLFormat
-		{
-			get
-			{
-				return saveToHTMLFormat ??
-					(saveToHTMLFormat = new ToggleCommand(command =>
-					{
-						if (DataGridTable.Columns.Count > 0)
-						{
-							using (var dialog = new System.Windows.Forms.SaveFileDialog())
-							{
-								// Set default extension types of file
-								dialog.Filter = "HTML (*.html)|*.html";
-
-								if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-								{
-									var saveTask = Task.Run(async () =>
-									{
-										await Model.ConvertToHTML.ProceedDataTableAsync(DataGridTable, DataModel.ColumnCount, dialog.FileName);
-									});
-
-									saveTask.ContinueWith(task => {
-										MessageBox.Show("Преобразовано в HTML");
-										saveTask.Dispose();
-									});
-
-								}
-							}
-								
-						}
-						else
-						{
-							MessageBox.Show("Текущая таблица пуста!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-						}
 					}));
 			}
 		}

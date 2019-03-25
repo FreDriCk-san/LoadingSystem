@@ -27,7 +27,6 @@
                 <MenuItem Header="Файл">
                     <MenuItem Header="Открыть" Command="{Binding FileOpenCommand}"/>
                     <MenuItem Name="toExcel" Header="Перевод в Excel" IsEnabled="False" Command="{Binding SaveToExcelFormat}"/>
-                    <MenuItem Name="toHTML" Header="Перевод в HTML" IsEnabled="False" Command="{Binding SaveToHTMLFormat}"/>
                 </MenuItem>
             </Menu>
 

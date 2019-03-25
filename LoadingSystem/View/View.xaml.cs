@@ -55,7 +55,6 @@ namespace LoadingSystem.View
 			buttonRead.IsEnabled = true;
 			buttonTable.IsEnabled = true;
 			toExcel.IsEnabled = true;
-			toHTML.IsEnabled = true;
 
 			for (int i = 0; i < gridOfData.Columns.Count; ++i)
 			{

@@ -56,7 +56,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Model\ConvertToHTML.cs" />
+    <Compile Include="Model\ConvertToExcel.cs" />
     <Compile Include="Util\PropertyEnum.cs" />
     <Compile Include="ViewModel\ToggleCommand.cs" />
     <Compile Include="ViewModel\ViewModel.cs" />
