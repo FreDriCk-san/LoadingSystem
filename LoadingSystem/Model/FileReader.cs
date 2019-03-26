@@ -470,7 +470,7 @@ namespace LoadingSystem.Model
 		{
 			double result;
 
-			if (!Double.TryParse(text.Replace(',','.'), NumberStyles.Number | NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out result))
+			if (!Double.TryParse(text.Replace(',','.'), NumberStyles.Number | NumberStyles.AllowDecimalPoint | NumberStyles.AllowExponent, CultureInfo.InvariantCulture, out result))
 			{
 				 return double.MinValue;
 			}
