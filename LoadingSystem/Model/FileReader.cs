@@ -279,17 +279,17 @@ namespace LoadingSystem.Model
 			var data = new DataModel();
 			var maxColumnCount = 0;
 			var rowIndex = 0;
-			HSSFWorkbook hssfWorkBook;
+			HSSFWorkbook workBook;
 
-			using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, DefaultBufferSize, DefaultOptions))
+			using (var file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, DefaultBufferSize, DefaultOptions))
 			{
-				hssfWorkBook = new HSSFWorkbook(stream);
+				workBook = new HSSFWorkbook(file);
 			}
 
 
-			for (int i = 0; i < hssfWorkBook.NumberOfSheets; ++i)
+			for (int i = 0; i < workBook.NumberOfSheets; ++i)
 			{
-				var workSheet = hssfWorkBook.GetSheetAt(i);
+				var workSheet = workBook.GetSheetAt(i);
 				var rows = workSheet.GetEnumerator();
 
 
@@ -360,6 +360,108 @@ namespace LoadingSystem.Model
 			data.ColumnCount = maxColumnCount;
 
 			return data;
+		}
+
+
+
+		public static Task<string[]> ReadLinesFromXLSX(string path, int toRow, CancellationToken cancellationToken)
+		{
+			return Task<string[]>.Factory.StartNew(() =>
+			{
+				var result = new string[1024];
+				var index = 0;
+
+				using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, DefaultBufferSize, DefaultOptions))
+				{
+					using (var package = new ExcelPackage(stream))
+					{
+
+						// loop all worksheets
+						foreach (var workSheet in package.Workbook.Worksheets)
+						{
+							if (null != workSheet.Dimension)
+							{
+
+								// loop all rows
+								var startRow = workSheet.Dimension.Start.Row;
+								var endRow = workSheet.Dimension.End.Row;
+								for (int i = startRow; i <= endRow; ++i)
+								{
+									if (index > toRow)
+									{
+										return result;
+									}
+
+									var builder = new StringBuilder();
+									// loop all columns in a row
+									var startColumn = workSheet.Dimension.Start.Column;
+									var endColumn = workSheet.Dimension.End.Column;
+									for (int j = startColumn; j <= endColumn; ++j)
+									{
+										var cellValue = workSheet.Cells[i, j].Value;
+
+										if (null != cellValue)
+										{
+											builder.Append($"|{cellValue.ToString()}|\t");
+										}
+									}
+
+									result[index] = $"{index}:\t\t{builder.ToString()}";
+									index++;
+								}
+							}
+
+						}
+					}
+				}
+
+				return result;
+			});
+			
+		}
+
+
+
+		public static Task<string[]> ReadLinesFromXLS(string path, int toRow, CancellationToken cancellationToken)
+		{
+			return Task<string[]>.Factory.StartNew(() =>
+			{
+				var result = new string[1024];
+				var index = 0;
+				HSSFWorkbook workBook;
+
+				using (var file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, DefaultBufferSize, DefaultOptions))
+				{
+					workBook = new HSSFWorkbook(file);
+				}
+
+				for (int i = 0; i < workBook.NumberOfSheets; ++i)
+				{
+					var workSheet = workBook.GetSheetAt(i);
+					var rows = workSheet.GetEnumerator();
+
+					while (rows.MoveNext() && index < toRow)
+					{
+						var builder = new StringBuilder();
+						var row = (HSSFRow)rows.Current;
+
+						for (int j = 0; j < row.LastCellNum; ++j)
+						{
+							var cellValue = row.GetCell(j);
+
+							if (null != cellValue)
+							{
+								builder.Append($"|{cellValue.ToString()}|\t");
+							}
+						}
+
+						result[index] = $"{index}:\t\t{builder.ToString()}";
+						index++;
+					}
+				}
+
+				return result;
+			});
 		}
 
 

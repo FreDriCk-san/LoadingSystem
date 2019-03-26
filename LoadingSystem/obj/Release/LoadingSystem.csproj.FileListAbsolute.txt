@@ -22,3 +22,7 @@ C:\TempFolder\LoadingSystem\LoadingSystem\obj\Release\LoadingSystem.pdb
 C:\TempFolder\LoadingSystem\LoadingSystem\bin\Release\EPPlus.dll
 C:\TempFolder\LoadingSystem\LoadingSystem\bin\Release\EPPlus.pdb
 C:\TempFolder\LoadingSystem\LoadingSystem\bin\Release\EPPlus.xml
+C:\TempFolder\LoadingSystem\LoadingSystem\bin\Release\NPOI.dll
+C:\TempFolder\LoadingSystem\LoadingSystem\bin\Release\ICSharpCode.SharpZipLib.dll
+C:\TempFolder\LoadingSystem\LoadingSystem\bin\Release\NPOI.pdb
+C:\TempFolder\LoadingSystem\LoadingSystem\bin\Release\NPOI.xml

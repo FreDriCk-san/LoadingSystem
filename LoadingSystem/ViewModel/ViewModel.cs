@@ -67,18 +67,34 @@ namespace LoadingSystem.ViewModel
 			get
 			{
 				return changeTextBoxCommand ??
-					(changeTextBoxCommand = new ToggleCommand(command =>
+					(changeTextBoxCommand = new ToggleCommand(async command =>
 					{
 						InitCancelToken();
 
 						var readTo = PropertyGridModel.OutputDescription.ImportTo;
 
-						var textTask = Task.Run(async () =>
+						if (fileInfo.FullName.EndsWith(".xlsx"))
 						{
-							return await Model.FileReader.ReadLinesAsync(fileInfo.FullName, readTo, cancellationToken);
-						});
+							var text = await Model.FileReader.ReadLinesFromXLSX(fileInfo.FullName, readTo, cancellationToken);
 
-						EditTextBox(textTask.Result, readTo);
+							EditTextBox(text, readTo);
+						}
+						else if (fileInfo.FullName.EndsWith(".xls"))
+						{
+							var text = await Model.FileReader.ReadLinesFromXLS(fileInfo.FullName, readTo, cancellationToken);
+
+							EditTextBox(text, readTo);
+						}
+						else
+						{
+							var textTask = Task.Run(async () =>
+							{
+								return await Model.FileReader.ReadLinesAsync(fileInfo.FullName, readTo, cancellationToken);
+							});
+
+							EditTextBox(textTask.Result, readTo);
+						}
+
 					}));
 			}
 		}
@@ -94,6 +110,9 @@ namespace LoadingSystem.ViewModel
 					{
 						if (DataGridTable.Columns.Count > 0)
 						{
+							ProgressValue = 0;
+							LoadingGridVisible = true;
+
 							using (var excelPackage = new OfficeOpenXml.ExcelPackage())
 							{
 								var isRead = await Model.ConvertToExcel.ReadData(DataGridTable, excelPackage);
@@ -105,9 +124,7 @@ namespace LoadingSystem.ViewModel
 
 									if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
 									{
-										var isSaved = await Model.ConvertToExcel.SaveAsExcel(dialog.FileName, excelPackage);
-
-										MessageBox.Show("Преобразовано");						
+										var isSaved = await Model.ConvertToExcel.SaveAsExcel(dialog.FileName, excelPackage);				
 									}
 								}
 							}
@@ -116,8 +133,9 @@ namespace LoadingSystem.ViewModel
 						{
 							MessageBox.Show("Текущая таблица пуста!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
 						}
-						
 
+						ProgressValue += 5;
+						LoadingGridVisible = false;
 					}));
 			}
 		}
@@ -376,19 +394,43 @@ namespace LoadingSystem.ViewModel
 
 				canChangeNullValue = true;
 
-				// If excel file 2007-2010
+				// If excel file 2007+ (BIFF 12)
 				if (fileInfo.FullName.EndsWith(".xlsx"))
 				{
+					var text = Task.Run(async () =>
+					{
+						return await Model.FileReader.ReadLinesFromXLSX(fileInfo.FullName, 100, cancellationToken);
+					});
+					ProgressValue++;
+
+					EditTextBox(text.Result, 100);
+					ProgressValue++;
+
 					DataModel = Model.FileReader.ReadAsXLSX(fileInfo.FullName, cancellationToken);
-					ProgressValue += 3;
+					ProgressValue++;
 				}
-				// If excel file 2003-2007
+				// TO DO: Make normal verification
+				else if (fileInfo.FullName.EndsWith(".XLS"))
+				{
+					MessageBox.Show("Недопустимый формат файла!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+					Thread.CurrentThread.Abort();
+				}
+				// If excel file 1997-2003 (BIFF 8)
 				else if (fileInfo.FullName.EndsWith(".xls"))
 				{
+					var text = Task.Run(async () =>
+					{
+						return await Model.FileReader.ReadLinesFromXLS(fileInfo.FullName, 100, cancellationToken);
+					});
+					ProgressValue++;
+
+					EditTextBox(text.Result, 100);
+					ProgressValue++;
+
 					DataModel = Model.FileReader.ReadAsXLS(fileInfo.FullName, cancellationToken);
-					ProgressValue += 3;
+					ProgressValue++;
 				}
-				// If text file (or .csv)
+				// If text file
 				else
 				{
 					var textTasks = Task.Run(async () =>
@@ -537,11 +579,13 @@ namespace LoadingSystem.ViewModel
 		}
 
 
+
         private void InitCancelToken()
         {
             tokenSource = new CancellationTokenSource();
             cancellationToken = tokenSource.Token;
         }
+
 
 
 		public event PropertyChangedEventHandler PropertyChanged;

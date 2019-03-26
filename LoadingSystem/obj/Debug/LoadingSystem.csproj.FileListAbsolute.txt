@@ -74,3 +74,7 @@ E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\bin\Debug\NPOI.dll
 E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\bin\Debug\ICSharpCode.SharpZipLib.dll
 E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\bin\Debug\NPOI.pdb
 E:\TempFolder\LoadingSystem\LoadingSystem\LoadingSystem\bin\Debug\NPOI.xml
+C:\TempFolder\LoadingSystem\LoadingSystem\bin\Debug\NPOI.dll
+C:\TempFolder\LoadingSystem\LoadingSystem\bin\Debug\ICSharpCode.SharpZipLib.dll
+C:\TempFolder\LoadingSystem\LoadingSystem\bin\Debug\NPOI.pdb
+C:\TempFolder\LoadingSystem\LoadingSystem\bin\Debug\NPOI.xml

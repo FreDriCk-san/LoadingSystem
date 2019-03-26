@@ -34,3 +34,12 @@ E:\TempFolder\LoadingSystem\LoadingSystem\npoi\LocalLib\NPOI.XML
 E:\TempFolder\LoadingSystem\LoadingSystem\npoi\LocalLib\NPOI.dll
 E:\TempFolder\LoadingSystem\LoadingSystem\npoi\LocalLib\NPOI.pdb
 E:\TempFolder\LoadingSystem\LoadingSystem\npoi\LocalLib\ICSharpCode.SharpZipLib.dll
+C:\TempFolder\LoadingSystem\npoi\LocalLib\NPOI.XML
+C:\TempFolder\LoadingSystem\npoi\LocalLib\NPOI.dll
+C:\TempFolder\LoadingSystem\npoi\LocalLib\NPOI.pdb
+C:\TempFolder\LoadingSystem\npoi\LocalLib\ICSharpCode.SharpZipLib.dll
+C:\TempFolder\LoadingSystem\npoi\obj\Debug\NPOI.csprojResolveAssemblyReference.cache
+C:\TempFolder\LoadingSystem\npoi\obj\Debug\NPOI.csproj.CoreCompileInputs.cache
+C:\TempFolder\LoadingSystem\npoi\obj\Debug\NPOI.csproj.CopyComplete
+C:\TempFolder\LoadingSystem\npoi\obj\Debug\NPOI.dll
+C:\TempFolder\LoadingSystem\npoi\obj\Debug\NPOI.pdb

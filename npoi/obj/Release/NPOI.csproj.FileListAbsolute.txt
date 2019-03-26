@@ -1,0 +1,8 @@
+C:\TempFolder\LoadingSystem\solution\Lib\NPOI.XML
+C:\TempFolder\LoadingSystem\solution\Lib\NPOI.dll
+C:\TempFolder\LoadingSystem\solution\Lib\NPOI.pdb
+C:\TempFolder\LoadingSystem\npoi\obj\Release\NPOI.csprojResolveAssemblyReference.cache
+C:\TempFolder\LoadingSystem\npoi\obj\Release\NPOI.csproj.CoreCompileInputs.cache
+C:\TempFolder\LoadingSystem\npoi\obj\Release\NPOI.csproj.CopyComplete
+C:\TempFolder\LoadingSystem\npoi\obj\Release\NPOI.dll
+C:\TempFolder\LoadingSystem\npoi\obj\Release\NPOI.pdb
