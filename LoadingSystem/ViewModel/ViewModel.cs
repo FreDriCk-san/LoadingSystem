@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace LoadingSystem.ViewModel
 {
@@ -16,6 +17,7 @@ namespace LoadingSystem.ViewModel
         private ConcurrentBag<Task> tasks;
 		private FileInfo fileInfo;
 		private int countOfRows;
+		private int currentTab;
 
 		private ToggleCommand fileOpenCommand;
 		private ToggleCommand changeTextBoxCommand;
@@ -40,6 +42,9 @@ namespace LoadingSystem.ViewModel
         private CancellationToken cancellationToken;
 
 		private bool loadingGridVisible;
+		private string fullFilePath;
+
+		private ObservableCollection<TabItem> tabCollection;
 
 		
 		public ToggleCommand FileOpenCommand
@@ -75,13 +80,13 @@ namespace LoadingSystem.ViewModel
 
 						if (fileInfo.FullName.EndsWith(".xlsx"))
 						{
-							var text = await Model.FileReader.ReadLinesFromXLSX(fileInfo.FullName, readTo, cancellationToken);
+							var text = await Model.FileReader.ReadLinesFromXLSX(fileInfo.FullName, readTo, currentTab, cancellationToken);
 
 							EditTextBox(text, readTo);
 						}
 						else if (fileInfo.FullName.EndsWith(".xls"))
 						{
-							var text = await Model.FileReader.ReadLinesFromXLS(fileInfo.FullName, readTo, cancellationToken);
+							var text = await Model.FileReader.ReadLinesFromXLS(fileInfo.FullName, readTo, currentTab, cancellationToken);
 
 							EditTextBox(text, readTo);
 						}
@@ -294,6 +299,28 @@ namespace LoadingSystem.ViewModel
 				OnPropertyChanged("LoadingGridVisible");
 			}
 		}
+
+		public string FullFilePath
+		{
+			get { return fullFilePath; }
+
+			set
+			{
+				fullFilePath = value;
+				OnPropertyChanged("FullFilePath");
+			}
+		}
+
+		public ObservableCollection<TabItem> TabCollection
+		{
+			get { return tabCollection; }
+
+			set
+			{
+				tabCollection = value;
+				OnPropertyChanged("TabCollection");
+			}
+		}
 		#endregion
 
 
@@ -309,6 +336,8 @@ namespace LoadingSystem.ViewModel
 			{
 				-999.00, -9999.25
 			};
+
+			TabCollection = new ObservableCollection<TabItem>();
 		}
 
 
@@ -366,6 +395,7 @@ namespace LoadingSystem.ViewModel
 						content[j] = currentValue;
 					}
 				}
+
 				DataGridTable.Rows.Add(content);
 			}
 
@@ -375,7 +405,6 @@ namespace LoadingSystem.ViewModel
 			{
 				DefaultTableView = DataGridTable.DefaultView;
 			});
-			
 		}
 
 
@@ -383,6 +412,8 @@ namespace LoadingSystem.ViewModel
         public void ProcessIncomingFile(string path)
         {
 			LoadingGridVisible = true;
+			FullFilePath = path;
+			currentTab = 0;
             InitCancelToken();
 
 			var process = Task.Factory.StartNew(() =>
@@ -399,14 +430,14 @@ namespace LoadingSystem.ViewModel
 				{
 					var text = Task.Run(async () =>
 					{
-						return await Model.FileReader.ReadLinesFromXLSX(fileInfo.FullName, 100, cancellationToken);
+						return await Model.FileReader.ReadLinesFromXLSX(fileInfo.FullName, 100, 0, cancellationToken);
 					});
 					ProgressValue++;
 
 					EditTextBox(text.Result, 100);
 					ProgressValue++;
 
-					DataModel = Model.FileReader.ReadAsXLSX(fileInfo.FullName, cancellationToken);
+					DataModel = Model.FileReader.ReadAsXLSX(fileInfo.FullName, 0, cancellationToken);
 					ProgressValue++;
 				}
 				// TO DO: Make normal verification
@@ -420,14 +451,14 @@ namespace LoadingSystem.ViewModel
 				{
 					var text = Task.Run(async () =>
 					{
-						return await Model.FileReader.ReadLinesFromXLS(fileInfo.FullName, 100, cancellationToken);
+						return await Model.FileReader.ReadLinesFromXLS(fileInfo.FullName, 100, 0, cancellationToken);
 					});
 					ProgressValue++;
 
 					EditTextBox(text.Result, 100);
 					ProgressValue++;
 
-					DataModel = Model.FileReader.ReadAsXLS(fileInfo.FullName, cancellationToken);
+					DataModel = Model.FileReader.ReadAsXLS(fileInfo.FullName, 0, cancellationToken);
 					ProgressValue++;
 				}
 				// If text file
@@ -465,6 +496,7 @@ namespace LoadingSystem.ViewModel
 				}
 				ProgressValue++;
 
+				InitTabs();
 
 				DepthValue = SearchDepthColumn(DataModel.ArrayOfNumbers);
 				ProgressValue++;
@@ -488,6 +520,94 @@ namespace LoadingSystem.ViewModel
 
 			tasks.Add(process);
         }
+
+
+
+		public void UpdatedTab(int tabNum)
+		{
+			currentTab = tabNum;
+
+			var process = Task.Factory.StartNew(() =>
+			{
+				// If excel file 2007+ (BIFF 12)
+				if (fileInfo.FullName.EndsWith(".xlsx"))
+				{
+					var text = Task.Run(async () =>
+					{
+						return await Model.FileReader.ReadLinesFromXLSX(fileInfo.FullName, 100, tabNum, cancellationToken);
+					});
+
+					EditTextBox(text.Result, 100);
+
+					DataModel = Model.FileReader.ReadAsXLSX(fileInfo.FullName, tabNum, cancellationToken);
+				}
+				// TO DO: Make normal verification
+				else if (fileInfo.FullName.EndsWith(".XLS"))
+				{
+					MessageBox.Show("Недопустимый формат файла!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+					Thread.CurrentThread.Abort();
+				}
+				// If excel file 1997-2003 (BIFF 8)
+				else if (fileInfo.FullName.EndsWith(".xls"))
+				{
+					var text = Task.Run(async () =>
+					{
+						return await Model.FileReader.ReadLinesFromXLS(fileInfo.FullName, 100, tabNum, cancellationToken);
+					});
+
+					EditTextBox(text.Result, 100);
+
+					DataModel = Model.FileReader.ReadAsXLS(fileInfo.FullName, tabNum, cancellationToken);
+				}
+				// If text file
+				else
+				{
+					var textTasks = Task.Run(async () =>
+					{
+						return await Model.FileReader.ReadLinesAsync(fileInfo.FullName, 100, cancellationToken);
+					});
+					tasks.Add(textTasks);
+
+
+					EditTextBox(textTasks.Result, 100);
+
+
+					var dataTask = Task.Run(async () =>
+					{
+						return await Model.FileReader.ReadAllLinesAsync(fileInfo.FullName, cancellationToken);
+					});
+					tasks.Add(dataTask);
+
+					DataModel = dataTask.Result;
+				}
+
+				for (int i = 0; i < DataModel.ArrayOfNumbers.Length; ++i)
+				{
+					if (null == DataModel.ArrayOfNumbers[i])
+					{
+						countOfRows = i;
+						break;
+					}
+				}
+
+				DepthValue = SearchDepthColumn(DataModel.ArrayOfNumbers);
+
+
+				SetPropertiesToPropertyGrid();
+
+
+				CheckDataNullValue();
+
+
+				EditTable(PropertyGridModel.OutputDescription.ReadFromRow, PropertyGridModel.OutputDescription.ReadToRow);
+
+			}, cancellationToken).ContinueWith(task =>
+			{
+				LoadingGridVisible = false;
+			});
+
+			tasks.Add(process);
+		}
 
 
 
@@ -585,6 +705,26 @@ namespace LoadingSystem.ViewModel
             tokenSource = new CancellationTokenSource();
             cancellationToken = tokenSource.Token;
         }
+
+
+		private void InitTabs()
+		{
+			Application.Current.Dispatcher.Invoke(() =>
+			{
+				TabCollection.Clear();
+			});
+
+			for (int i = 0; i < DataModel.CountOfWorkSpaces; ++i)
+			{
+				Application.Current.Dispatcher.Invoke(() =>
+				{
+					TabCollection.Add(new TabItem
+					{
+						Header = i.ToString()
+					});
+				});
+			}
+		}
 
 
 

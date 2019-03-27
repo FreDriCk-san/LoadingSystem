@@ -167,7 +167,7 @@ namespace LoadingSystem.Model
 
 
 		// TO DO: Optimize reading data
-		public static DataModel ReadAsXLSX(string path, CancellationToken cancellationToken)
+		public static DataModel ReadAsXLSX(string path, int numOfWorkSheet, CancellationToken cancellationToken)
 		{
 			// Max row count:	 ~1048576
 			// Max column count: ~16384
@@ -176,87 +176,90 @@ namespace LoadingSystem.Model
 			var data = new DataModel();
 			var maxColumnCount = 0;
 			var rowIndex = 0;
+			var countOfWorkSheets = 0;
 
 			using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, DefaultBufferSize, DefaultOptions))
 			{
 				using (var package = new ExcelPackage(stream))
 				{
+
 					// loop all worksheets
-					foreach (var workSheet in package.Workbook.Worksheets)
+					foreach (var sheets in package.Workbook.Worksheets)
 					{
-						var lineOfNumbersFound = false;
+						countOfWorkSheets++;
+					}
 
-						if (null != workSheet.Dimension)
+					var workSheet = package.Workbook.Worksheets[numOfWorkSheet];
+					var lineOfNumbersFound = false;
+
+					if (null != workSheet.Dimension)
+					{
+						// loop all rows
+						var startRow = workSheet.Dimension.Start.Row;
+						var endRow = workSheet.Dimension.End.Row;
+						for (int i = startRow; i <= endRow; ++i)
 						{
-							// loop all rows
-							var startRow = workSheet.Dimension.Start.Row;
-							var endRow = workSheet.Dimension.End.Row;
-							for (int i = startRow; i <= endRow; ++i)
+							var lineArray = new double[4096];
+							var lineStep = 0;
+
+							// loop all columns in a row
+							var startColumn = workSheet.Dimension.Start.Column;
+							var endColumn = workSheet.Dimension.End.Column;
+							for (int j = startColumn; j <= endColumn; ++j)
 							{
-								var lineArray = new double[4096];
-								var lineStep = 0;
+								var cellValue = workSheet.Cells[i, j].Value;
 
-								// loop all columns in a row
-								var startColumn = workSheet.Dimension.Start.Column;
-								var endColumn = workSheet.Dimension.End.Column;
-								for (int j = startColumn; j <= endColumn; ++j)
+								if (null != cellValue)
 								{
-									var cellValue = workSheet.Cells[i, j].Value;
-
-									if (null != cellValue)
+									if (lineOfNumbersFound)
 									{
-										if (lineOfNumbersFound)
-										{
-											lineArray[lineStep] = StringToDouble(cellValue.ToString());
-											lineStep++;
-										}
-										else if (double.MinValue != StringToDouble(cellValue.ToString()))
-										{
-											lineArray[lineStep] = StringToDouble(cellValue.ToString());
-											lineStep++;
-											lineOfNumbersFound = true;
-										}
-									}
-									else
-									{
-										lineArray[lineStep] = double.MinValue;
+										lineArray[lineStep] = StringToDouble(cellValue.ToString());
 										lineStep++;
 									}
-
-									if (lineStep % 4096 == 0 && lineStep > 0)
+									else if (double.MinValue != StringToDouble(cellValue.ToString()))
 									{
-										Array.Resize(ref lineArray, lineArray.Length + 4096);
+										lineArray[lineStep] = StringToDouble(cellValue.ToString());
+										lineStep++;
+										lineOfNumbersFound = true;
 									}
 								}
+								//else
+								//{
+								//	lineArray[lineStep] = double.MinValue;
+								//	lineStep++;
+								//}
 
-								if (lineOfNumbersFound)
+								if (lineStep % 4096 == 0 && lineStep > 0)
 								{
-									if (lineStep > maxColumnCount)
-									{
-										maxColumnCount = lineStep;
-									}
-
-									if (rowIndex % 4096 == 0 && rowIndex > 0)
-									{
-										Array.Resize(ref arrayOfNumbers, arrayOfNumbers.Length + 4096);
-									}
-
-									arrayOfNumbers[rowIndex] = lineArray;
-									rowIndex++;
+									Array.Resize(ref lineArray, lineArray.Length + 4096);
 								}
 							}
 
-							// Temp separator for next (existing) sheet
-							var tempSeparator = new double[4096];
-							for (int t = 0; t < tempSeparator.Length; ++t)
+							if (lineOfNumbersFound)
 							{
-								tempSeparator[t] = double.MinValue;
+								if (lineStep > maxColumnCount)
+								{
+									maxColumnCount = lineStep;
+								}
+
+								if (rowIndex % 4096 == 0 && rowIndex > 0)
+								{
+									Array.Resize(ref arrayOfNumbers, arrayOfNumbers.Length + 4096);
+								}
+
+								arrayOfNumbers[rowIndex] = lineArray;
+								rowIndex++;
 							}
-							arrayOfNumbers[rowIndex] = tempSeparator;
-							rowIndex++;
 						}
 
-						
+						// Temp separator for next (existing) sheet
+						var tempSeparator = new double[4096];
+						for (int t = 0; t < tempSeparator.Length; ++t)
+						{
+							tempSeparator[t] = double.MinValue;
+						}
+						arrayOfNumbers[rowIndex] = tempSeparator;
+						rowIndex++;
 					}
 				}
 
@@ -264,13 +267,14 @@ namespace LoadingSystem.Model
 
 			data.ArrayOfNumbers = arrayOfNumbers;
 			data.ColumnCount = maxColumnCount;
+			data.CountOfWorkSpaces = countOfWorkSheets;
 
 			return data;
 		}
 
 
 		// TO DO: Get position of row with information
-		public static DataModel ReadAsXLS(string path, CancellationToken cancellationToken)
+		public static DataModel ReadAsXLS(string path, int numOfWorkSheet, CancellationToken cancellationToken)
 		{
 			// Max row count:	 ~65536
 			// Max column count: ~256
@@ -286,85 +290,86 @@ namespace LoadingSystem.Model
 				workBook = new HSSFWorkbook(file);
 			}
 
+			var workSheet = workBook.GetSheetAt(numOfWorkSheet);
+			var rows = workSheet.GetEnumerator();
 
-			for (int i = 0; i < workBook.NumberOfSheets; ++i)
+			while (rows.MoveNext())
 			{
-				var workSheet = workBook.GetSheetAt(i);
-				var rows = workSheet.GetEnumerator();
+				var row = (HSSFRow)rows.Current;
+				var lineOfNumbersFound = false;
+				var lineArray = new double[256];
+				var lineStep = 0;
 
-
-				while (rows.MoveNext())
+				for (int j = 0; j < row.LastCellNum; ++j)
 				{
-					var row = (HSSFRow)rows.Current;
-					var lineOfNumbersFound = false;
-					var lineArray = new double[256];
-					var lineStep = 0;
+					var cellValue = row.GetCell(j);
 
-					for (int j = 0; j < row.LastCellNum; ++j)
+					if (null != cellValue)
 					{
-						var cellValue = row.GetCell(j);
-
-						if (null != cellValue)
+						if (StringIsProperty(cellValue.ToString(), "WELL", "well", "Well"))
 						{
-							if (lineOfNumbersFound)
-							{
-								lineArray[lineStep] = StringToDouble(cellValue.ToString());
-								lineStep++;
-							}
-							else if (StringToDouble(cellValue.ToString()) != double.MinValue)
-							{
-								lineArray[lineStep] = StringToDouble(cellValue.ToString());
-								lineStep++;
-								lineOfNumbersFound = true;
-							}
+							data.WellName = cellValue.ToString();
 						}
-						else
+
+						if (lineOfNumbersFound)
 						{
-							lineArray[lineStep] = double.MinValue;
+							lineArray[lineStep] = StringToDouble(cellValue.ToString());
 							lineStep++;
 						}
-
-					}
-
-					if (lineOfNumbersFound)
-					{
-						if (lineStep > maxColumnCount)
+						else if (StringToDouble(cellValue.ToString()) != double.MinValue)
 						{
-							maxColumnCount = lineStep;
+							lineArray[lineStep] = StringToDouble(cellValue.ToString());
+							lineStep++;
+							lineOfNumbersFound = true;
 						}
-
-						if (rowIndex % 4096 == 0 && rowIndex > 0)
-						{
-							Array.Resize(ref arrayOfNumbers, arrayOfNumbers.Length + 4096);
-						}
-
-						arrayOfNumbers[rowIndex] = lineArray;
-						rowIndex++;
 					}
+					//else
+					//{
+					//	lineArray[lineStep] = double.MinValue;
+					//	lineStep++;
+					//}
 
 				}
 
-				// If next sheet is available, create separator between sheets (blank space)
-				var tempSeparator = new double[256];
-				for (int t = 0; t < tempSeparator.Length; ++t)
+				if (lineOfNumbersFound)
 				{
-					tempSeparator[t] = double.MinValue;
+					if (lineStep > maxColumnCount)
+					{
+						maxColumnCount = lineStep;
+					}
+
+					if (rowIndex % 4096 == 0 && rowIndex > 0)
+					{
+						Array.Resize(ref arrayOfNumbers, arrayOfNumbers.Length + 4096);
+					}
+
+					arrayOfNumbers[rowIndex] = lineArray;
+					rowIndex++;
 				}
-				arrayOfNumbers[rowIndex] = tempSeparator;
-				rowIndex++;
+
 			}
+
+			// If next sheet is available, create separator between sheets (blank space)
+			var tempSeparator = new double[256];
+			for (int t = 0; t < tempSeparator.Length; ++t)
+			{
+				tempSeparator[t] = double.MinValue;
+			}
+			arrayOfNumbers[rowIndex] = tempSeparator;
+			rowIndex++;
 
 
 
 			data.ArrayOfNumbers = arrayOfNumbers;
 			data.ColumnCount = maxColumnCount;
+			data.CountOfWorkSpaces = workBook.NumberOfSheets;
 
 			return data;
 		}
 
 
 
-		public static Task<string[]> ReadLinesFromXLSX(string path, int toRow, CancellationToken cancellationToken)
+		public static Task<string[]> ReadLinesFromXLSX(string path, int toRow, int numOfWorkSheet, CancellationToken cancellationToken)
 		{
 			return Task<string[]>.Factory.StartNew(() =>
 			{
@@ -375,42 +380,38 @@ namespace LoadingSystem.Model
 				{
 					using (var package = new ExcelPackage(stream))
 					{
+						var workSheet = package.Workbook.Worksheets[numOfWorkSheet];
 
-						// loop all worksheets
-						foreach (var workSheet in package.Workbook.Worksheets)
+						if (null != workSheet.Dimension)
 						{
-							if (null != workSheet.Dimension)
+
+							// loop all rows
+							var startRow = workSheet.Dimension.Start.Row;
+							var endRow = workSheet.Dimension.End.Row;
+							for (int i = startRow; i <= endRow; ++i)
 							{
-
-								// loop all rows
-								var startRow = workSheet.Dimension.Start.Row;
-								var endRow = workSheet.Dimension.End.Row;
-								for (int i = startRow; i <= endRow; ++i)
+								if (index > toRow)
 								{
-									if (index > toRow)
-									{
-										return result;
-									}
-
-									var builder = new StringBuilder();
-									// loop all columns in a row
-									var startColumn = workSheet.Dimension.Start.Column;
-									var endColumn = workSheet.Dimension.End.Column;
-									for (int j = startColumn; j <= endColumn; ++j)
-									{
-										var cellValue = workSheet.Cells[i, j].Value;
-
-										if (null != cellValue)
-										{
-											builder.Append($"|{cellValue.ToString()}|\t");
-										}
-									}
-
-									result[index] = $"{index}:\t\t{builder.ToString()}";
-									index++;
+									return result;
 								}
-							}
 
+								var builder = new StringBuilder();
+								// loop all columns in a row
+								var startColumn = workSheet.Dimension.Start.Column;
+								var endColumn = workSheet.Dimension.End.Column;
+								for (int j = startColumn; j <= endColumn; ++j)
+								{
+									var cellValue = workSheet.Cells[i, j].Value;
+
+									if (null != cellValue)
+									{
+										builder.Append($"|{cellValue.ToString()}|\t");
+									}
+								}
+
+								result[index] = $"{index}:\t\t{builder.ToString()}";
+								index++;
+							}
 						}
 					}
 				}
@@ -422,7 +423,7 @@ namespace LoadingSystem.Model
 
 
 
-		public static Task<string[]> ReadLinesFromXLS(string path, int toRow, CancellationToken cancellationToken)
+		public static Task<string[]> ReadLinesFromXLS(string path, int toRow, int numOfWorkSheet, CancellationToken cancellationToken)
 		{
 			return Task<string[]>.Factory.StartNew(() =>
 			{
@@ -435,29 +436,26 @@ namespace LoadingSystem.Model
 					workBook = new HSSFWorkbook(file);
 				}
 
-				for (int i = 0; i < workBook.NumberOfSheets; ++i)
+				var workSheet = workBook.GetSheetAt(numOfWorkSheet);
+				var rows = workSheet.GetEnumerator();
+
+				while (rows.MoveNext() && index < toRow)
 				{
-					var workSheet = workBook.GetSheetAt(i);
-					var rows = workSheet.GetEnumerator();
+					var builder = new StringBuilder();
+					var row = (HSSFRow)rows.Current;
 
-					while (rows.MoveNext() && index < toRow)
+					for (int j = 0; j < row.LastCellNum; ++j)
 					{
-						var builder = new StringBuilder();
-						var row = (HSSFRow)rows.Current;
+						var cellValue = row.GetCell(j);
 
-						for (int j = 0; j < row.LastCellNum; ++j)
+						if (null != cellValue)
 						{
-							var cellValue = row.GetCell(j);
-
-							if (null != cellValue)
-							{
-								builder.Append($"|{cellValue.ToString()}|\t");
-							}
+							builder.Append($"|{cellValue.ToString()}|\t");
 						}
-
-						result[index] = $"{index}:\t\t{builder.ToString()}";
-						index++;
 					}
+
+					result[index] = $"{index}:\t\t{builder.ToString()}";
+					index++;
 				}
 
 				return result;

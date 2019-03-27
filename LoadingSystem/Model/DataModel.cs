@@ -24,6 +24,8 @@ namespace LoadingSystem.Model
 		private string dataSetName;
 		// Наименование куста
 		private string bushName;
+		// Кол-во рабочих областей
+		private int countOfWorkSpaces;
 
 
 		#region Data Init
@@ -134,6 +136,17 @@ namespace LoadingSystem.Model
 			{
 				bushName = value;
 				OnPropertyChanged("BushName");
+			}
+		}
+
+		public int CountOfWorkSpaces
+		{
+			get { return countOfWorkSpaces; }
+
+			set
+			{
+				countOfWorkSpaces = value;
+				OnPropertyChanged("CountOfWorkSpaces");
 			}
 		}
 		#endregion

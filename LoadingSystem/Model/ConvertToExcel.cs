@@ -19,7 +19,15 @@ namespace LoadingSystem.Model
 				var workSheets = excelPackage.Workbook.Worksheets.Add("ImportData");
 
 				// TO DO: Set style or format for output
-				workSheets.Cells["A1"].LoadFromDataTable(dataTable, true, OfficeOpenXml.Table.TableStyles.Medium9);
+				for (int i = 1; i <= dataTable.Columns.Count; ++i)
+				{
+					workSheets.SetValue(1, i, $"H{i}");
+					workSheets.Cells[1, i].Style.Font.Bold = true;
+					workSheets.Cells[1, i].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+					workSheets.Cells[1, i].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.RoyalBlue);
+					workSheets.Cells[1, i].Style.Font.Color.SetColor(System.Drawing.Color.White);
+				}
+				workSheets.Cells["A2"].LoadFromDataTable(dataTable, false, OfficeOpenXml.Table.TableStyles.Medium9);
 
 				return true;
 			});

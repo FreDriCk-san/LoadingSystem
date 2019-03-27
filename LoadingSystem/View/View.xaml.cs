@@ -144,101 +144,24 @@ namespace LoadingSystem.View
 
 		private void TextBoxInfo_PreviewDragOver(object sender, DragEventArgs e)
 		{
-			textBoxInfo.IsEnabled = false;
+			if (!e.Data.GetDataPresent(DataFormats.Text))
+			{
+				textBoxInfo.IsEnabled = false;
+			}
+		}
+
+
+
+		private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			var tab = tabControl.SelectedItem as TabItem;
+
+			if (tab != null)
+			{
+				var numOfTab = Int32.Parse(tab.Header.ToString());
+
+				((ViewModel.ViewModel)this.DataContext).UpdatedTab(numOfTab);
+			}
 		}
 	}
 }
-
-#region Previous version
-//private void OpenClick(object sender, RoutedEventArgs e)
-//{
-//	var openFileDialog = new OpenFileDialog();
-
-//	if (openFileDialog.ShowDialog() == true)
-//	{
-//		var textTask = Task.Run(async () =>
-//		{
-//			return await Model.FileReader.ReadAllLinesAsync(openFileDialog.FileName);
-//		});
-
-//		var arrayOfData = textTask.Result;
-//		var dataIndex = Model.BusinessLogic.GetDataIndex(arrayOfData);
-//		var textBuilder = new StringBuilder();
-//		var take = 2000;
-
-//		for (int i = 0; i < dataIndex + take; ++i)
-//		{
-//			textBuilder.Append($"{arrayOfData[i]} \n");
-//		}
-
-//		textBoxInfo.Text = textBuilder.ToString();
-
-//		var task = Task.Run(() =>
-//		{
-//			return Model.BusinessLogic.ReadData(arrayOfData, dataIndex, take);
-//		});
-
-//		var data = task.Result;
-
-//		var columns = data[0].ListOfNumbers.Count;
-//		var table = new Model.DataGridModel().DataGridTable;
-//		table.Columns.Clear();
-//		propertyPanel.Children.Clear();
-//		table.BeginLoadData();
-
-//		for (int i = 1; i <= columns; ++i)
-//		{
-//			table.Columns.Add(i.ToString());
-
-//			var innerPanel = new StackPanel()
-//			{
-//				Orientation = Orientation.Vertical
-//			};
-
-//			var nameRow = new TextBox()
-//			{
-//				Width = gridOfData.ColumnWidth.Value,
-//				Text = $"H{i.ToString()}",
-//				IsEnabled = false
-//			};
-
-//			var typeRow = new ComboBox()
-//			{
-//				Width = gridOfData.ColumnWidth.Value,
-//				ItemsSource = new List<string>()
-//				{
-//					"Depth", "RadioWaves", "LinearWaves"
-//				}
-//			};
-
-//			var unitRow = new ComboBox()
-//			{
-//				Width = gridOfData.ColumnWidth.Value,
-//				ItemsSource = new List<string>()
-//				{
-//					"Meter", "Kilometer", "Centimeter"
-//				}
-//			};
-
-//			innerPanel.Children.Add(nameRow);
-//			innerPanel.Children.Add(typeRow);
-//			innerPanel.Children.Add(unitRow);
-
-//			propertyPanel.Children.Add(innerPanel);
-//		}
-
-//		var content = new object[columns];
-
-//		for (int i = 0; i < data.Count; ++i)
-//		{
-//			content = data[i].ListOfNumbers.Cast<object>().ToArray();
-//			table.Rows.Add(content);
-//		}
-
-//		table.EndLoadData();
-
-//		gridOfData.ItemsSource = table.DefaultView;
-
-//	}
-//}
-#endregion

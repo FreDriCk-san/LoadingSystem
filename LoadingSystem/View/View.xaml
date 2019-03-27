@@ -31,11 +31,12 @@
             </Menu>
 
 
-            <wpfTool:PropertyGrid x:Name="propGrid" Margin="7,27,10,2" SelectedObject="{Binding PropertyGridModel, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" />
+            <wpfTool:PropertyGrid x:Name="propGrid" Margin="7,26,10,2" SelectedObject="{Binding PropertyGridModel, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" />
 
+            <TextBox Name="filePath" Margin="10,26,10,0" TextWrapping="NoWrap" Text="{Binding FullFilePath}" IsReadOnly="True" Height="22" VerticalAlignment="Top"/>
 
             <TextBox x:Name="textBoxInfo" IsReadOnly="True" TextWrapping="NoWrap"
-                 Margin="10,27,10,10" AllowDrop="True"
+                 Margin="10,85,10,10" AllowDrop="True"
                  Text="{Binding TextBoxData, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" 
                  VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" Grid.RowSpan="2" PreviewDragOver="TextBoxInfo_PreviewDragOver" />
 
@@ -67,8 +68,9 @@
 
             <Button Name="buttonTable" IsEnabled="False" Content="Перепечатать таблицу" Grid.Column="1" Margin="7,3,0,5" Grid.Row="1" HorizontalAlignment="Left" Width="145" Command="{Binding ChangeTableCommand}"/>
 
-            <Image Name="dragDropImg" Source="/Images/DragDrop.png" Stretch="Fill" Grid.ColumnSpan="2" Grid.RowSpan="3" Visibility="Hidden" />
+            <TabControl Name="tabControl" Height="32" Margin="10,53,10,0" VerticalAlignment="Top" ItemsSource="{Binding TabCollection}" SelectionChanged="TabControl_SelectionChanged"/>
 
+            <Image Name="dragDropImg" Source="/Images/DragDrop.png" Stretch="Fill" Grid.ColumnSpan="2" Grid.RowSpan="3" Visibility="Hidden" />
         </Grid>
 
 
