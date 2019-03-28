@@ -7165,7 +7165,7 @@
                                 on this axis. MUST be greater than or equal to 1 and less than or equal to 31999.
             Series axis         MUST be 0.
             Date axis           catCross MUST be equal to the value given by the following formula:
-                                catCross = catCrossDate ЁC catMin + 1
+                                catCross = catCrossDate �C catMin + 1
                                 Where catCrossDate is the catCrossDate field of the AxcExt record 
                                 and catMin is the catMin field of the AxcExt record.
             </summary>
@@ -7375,7 +7375,7 @@
             If iFont is less than or equal to the number of Font records in the globals substream, 
                 iFont is a one-based index to a Font record in the globals substream. 
             Otherwise iFont is a one-based index into the collection of Font records in this chart sheet substream 
-                where the index is equal to iFont ЁC n, where n is the number of Font records in the globals substream.
+                where the index is equal to iFont �C n, where n is the number of Font records in the globals substream.
             </summary>
         </member>
         <member name="T:NPOI.HSSF.Record.Chart.FrtFontListRecord">
@@ -21384,7 +21384,7 @@
             
              @author Andrew C. Oliver (acoliver at apache dot org)
              @author Glen Stampoultzis (glens at apache.org)
-             @author Rolf-Jьrgen Moll
+             @author Rolf-J�rgen Moll
             
              @see org.apache.poi.hssf.record.MulRKRecord
              @see org.apache.poi.hssf.record.RKRecord

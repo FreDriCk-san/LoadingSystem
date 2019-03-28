@@ -1,5 +1,7 @@
 ﻿using Microsoft.Win32;
+using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Data;
@@ -18,6 +20,7 @@ namespace LoadingSystem.ViewModel
 		private FileInfo fileInfo;
 		private int countOfRows;
 		private int currentTab;
+		private List<int> listOfCheckedValues;
 
 		private ToggleCommand fileOpenCommand;
 		private ToggleCommand changeTextBoxCommand;
@@ -120,7 +123,9 @@ namespace LoadingSystem.ViewModel
 
 							using (var excelPackage = new OfficeOpenXml.ExcelPackage())
 							{
-								var isRead = await Model.ConvertToExcel.ReadData(DataGridTable, excelPackage);
+								var tableForExport = GetTableForExport(DataGridTable);
+
+								var isRead = await Model.ConvertToExcel.ReadData(tableForExport, excelPackage, fileInfo.Name);
 
 								using (var dialog = new System.Windows.Forms.SaveFileDialog())
 								{
@@ -181,6 +186,7 @@ namespace LoadingSystem.ViewModel
                     }));
             }
         }
+		
 
 
 
@@ -328,6 +334,7 @@ namespace LoadingSystem.ViewModel
 		public ViewModel()
 		{
             tasks = new ConcurrentBag<Task>();
+			listOfCheckedValues = new List<int>();
 
             PropertyGridModel = new Model.PropertyGridModel();
 			DataModel = new Model.DataModel();
@@ -413,7 +420,6 @@ namespace LoadingSystem.ViewModel
         {
 			LoadingGridVisible = true;
 			FullFilePath = path;
-			currentTab = 0;
             InitCancelToken();
 
 			var process = Task.Factory.StartNew(() =>
@@ -428,16 +434,18 @@ namespace LoadingSystem.ViewModel
 				// If excel file 2007+ (BIFF 12)
 				if (fileInfo.FullName.EndsWith(".xlsx"))
 				{
+					currentTab = 1;
+
 					var text = Task.Run(async () =>
 					{
-						return await Model.FileReader.ReadLinesFromXLSX(fileInfo.FullName, 100, 0, cancellationToken);
+						return await Model.FileReader.ReadLinesFromXLSX(fileInfo.FullName, 100, 1, cancellationToken);
 					});
 					ProgressValue++;
 
 					EditTextBox(text.Result, 100);
 					ProgressValue++;
 
-					DataModel = Model.FileReader.ReadAsXLSX(fileInfo.FullName, 0, cancellationToken);
+					DataModel = Model.FileReader.ReadAsXLSX(fileInfo.FullName, 1, cancellationToken);
 					ProgressValue++;
 				}
 				// TO DO: Make normal verification
@@ -449,6 +457,8 @@ namespace LoadingSystem.ViewModel
 				// If excel file 1997-2003 (BIFF 8)
 				else if (fileInfo.FullName.EndsWith(".xls"))
 				{
+					currentTab = 0;
+
 					var text = Task.Run(async () =>
 					{
 						return await Model.FileReader.ReadLinesFromXLS(fileInfo.FullName, 100, 0, cancellationToken);
@@ -707,6 +717,7 @@ namespace LoadingSystem.ViewModel
         }
 
 
+
 		private void InitTabs()
 		{
 			Application.Current.Dispatcher.Invoke(() =>
@@ -714,16 +725,128 @@ namespace LoadingSystem.ViewModel
 				TabCollection.Clear();
 			});
 
-			for (int i = 0; i < DataModel.CountOfWorkSpaces; ++i)
+			if (currentTab > 0)
 			{
-				Application.Current.Dispatcher.Invoke(() =>
+				for (int i = 1; i <= DataModel.CountOfWorkSpaces; ++i)
 				{
-					TabCollection.Add(new TabItem
+					Application.Current.Dispatcher.Invoke(() =>
 					{
-						Header = i.ToString()
+						var tab = new TabItem
+						{
+							Header = i.ToString()
+						};
+						tab.MouseLeftButtonUp += Tab_MouseLeftButtonUp;
+
+						if (i == 1)
+						{
+							tab.IsSelected = true;
+						}
+
+						TabCollection.Add(tab);
 					});
-				});
+				}
 			}
+			else
+			{
+				for (int i = 0; i < DataModel.CountOfWorkSpaces; ++i)
+				{
+					Application.Current.Dispatcher.Invoke(() =>
+					{
+						var tab = new TabItem
+						{
+							Header = i.ToString()
+						};
+						tab.MouseLeftButtonUp += Tab_MouseLeftButtonUp;
+
+						TabCollection.Add(tab);
+					});
+				}
+			}
+		}
+
+
+
+		private void Tab_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+		{
+			var currentTab = sender as TabItem;
+
+			var currentTabIndex = Int32.Parse(currentTab.Header.ToString());
+
+			UpdatedTab(currentTabIndex);
+		}
+
+
+
+		public void SetImportIndex(Util.CustomCheckBox customCheckBox)
+		{
+			var checkBox = customCheckBox;
+
+			if (checkBox.IsChecked == true)
+			{
+				var itemIsPresent = false;
+
+				for (int i = 0; i < listOfCheckedValues.Count; ++i)
+				{
+					if (listOfCheckedValues[i] == checkBox.Index)
+					{
+						itemIsPresent = true;
+					}
+				}
+
+				if (!itemIsPresent)
+				{
+					listOfCheckedValues.Add(checkBox.Index);
+				}
+			}
+			else
+			{
+				for (int i = 0; i < listOfCheckedValues.Count; ++i)
+				{
+					if (listOfCheckedValues[i] == checkBox.Index)
+					{
+						listOfCheckedValues.RemoveAt(i);
+					}
+				}
+			}
+		}
+
+
+
+		private DataTable GetTableForExport(DataTable dataTable)
+		{
+			// TO DO: Sort list before using!
+			var tableForExport = new DataTable();
+			var rowCount = dataTable.Rows.Count;
+			var listCount = listOfCheckedValues.Count;
+
+			tableForExport.BeginLoadData();
+
+			// Add columns
+			for (int i = 0; i < listCount; ++i)
+			{
+				var currentIndex = listOfCheckedValues[i];
+
+				tableForExport.Columns.Add(currentIndex.ToString());
+			}
+
+			// Add rows
+			for (int i = 0; i < rowCount; ++i)
+			{
+				var data = new object[listCount];
+
+				for (int j = 0; j < listCount; ++j)
+				{
+					var currentIndex = listOfCheckedValues[j];
+
+					data[j] = dataTable.Rows[i][currentIndex];
+				}
+
+				tableForExport.Rows.Add(data);
+			}
+
+			tableForExport.EndLoadData();
+
+			return tableForExport;
 		}
 
 

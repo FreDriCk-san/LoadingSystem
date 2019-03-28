@@ -12,11 +12,11 @@ namespace LoadingSystem.Model
 
 		}
 
-		public static Task<bool> ReadData(DataTable dataTable, ExcelPackage excelPackage)
+		public static Task<bool> ReadData(DataTable dataTable, ExcelPackage excelPackage, string fileName)
 		{
 			return Task<bool>.Factory.StartNew(() =>
 			{
-				var workSheets = excelPackage.Workbook.Worksheets.Add("ImportData");
+				var workSheets = excelPackage.Workbook.Worksheets.Add(fileName);
 
 				// TO DO: Set style or format for output
 				for (int i = 1; i <= dataTable.Columns.Count; ++i)

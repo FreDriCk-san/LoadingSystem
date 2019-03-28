@@ -182,12 +182,7 @@ namespace LoadingSystem.Model
 			{
 				using (var package = new ExcelPackage(stream))
 				{
-
-					// loop all worksheets
-					foreach (var sheets in package.Workbook.Worksheets)
-					{
-						countOfWorkSheets++;
-					}
+					countOfWorkSheets = package.Workbook.Worksheets.Count;
 
 					var workSheet = package.Workbook.Worksheets[numOfWorkSheet];
 					var lineOfNumbersFound = false;
@@ -251,16 +246,16 @@ namespace LoadingSystem.Model
 								rowIndex++;
 							}
 						}
-
-						// Temp separator for next (existing) sheet
-						var tempSeparator = new double[4096];
-						for (int t = 0; t < tempSeparator.Length; ++t)
-						{
-							tempSeparator[t] = double.MinValue;
-						}
-						arrayOfNumbers[rowIndex] = tempSeparator;
-						rowIndex++;
 					}
+
+					// Temp separator for next sheet
+					var tempSeparator = new double[4096];
+					for (int t = 0; t < tempSeparator.Length; ++t)
+					{
+						tempSeparator[t] = double.MinValue;
+					}
+					arrayOfNumbers[rowIndex] = tempSeparator;
+					rowIndex++;
 				}
 
 			}

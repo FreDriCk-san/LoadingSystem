@@ -31,7 +31,7 @@
             </Menu>
 
 
-            <wpfTool:PropertyGrid x:Name="propGrid" Margin="7,26,10,2" SelectedObject="{Binding PropertyGridModel, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" />
+            <wpfTool:PropertyGrid x:Name="propGrid" Margin="7,26,10,2" SelectedObject="{Binding PropertyGridModel, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Background="SkyBlue"/>
 
             <TextBox Name="filePath" Margin="10,26,10,0" TextWrapping="NoWrap" Text="{Binding FullFilePath}" IsReadOnly="True" Height="22" VerticalAlignment="Top"/>
 
@@ -42,10 +42,11 @@
 
 
             <Grid x:Name="gridOfProperties" Height="92" Margin="10,10,9,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Grid.Row="2" Drop="Grid_Drop" AllowDrop="True">
-                <TextBox IsReadOnly="True" Text="Имя" Margin="0,0,0,71" HorizontalAlignment="Left" Width="36"/>
-                <TextBox IsReadOnly="True" Text="Тип" Margin="0,21,0,50" HorizontalAlignment="Left" Width="36"/>
-                <TextBox IsReadOnly="True" Text="Ед.изм." Margin="0,42,0,29" HorizontalAlignment="Left" Width="36"/>
-                <ScrollViewer x:Name="stackPanelScroll" HorizontalScrollBarVisibility="Hidden" Margin="41,0,0,0">
+                <TextBox IsReadOnly="True" Text="Имя" Margin="0,0,0,71" HorizontalAlignment="Left" Width="59"/>
+                <TextBox IsReadOnly="True" Text="Тип" Margin="0,21,0,50" HorizontalAlignment="Left" Width="59"/>
+                <TextBox IsReadOnly="True" Text="Ед.изм." Margin="0,42,0,29" HorizontalAlignment="Left" Width="59"/>
+                <TextBox IsReadOnly="True" Text="Импорт" Margin="0,63,0,8" HorizontalAlignment="Left" Width="59"/>
+                <ScrollViewer x:Name="stackPanelScroll" HorizontalScrollBarVisibility="Hidden" Margin="59,0,0,0">
                     <StackPanel x:Name="propertyPanel" Orientation="Horizontal"/>
                 </ScrollViewer>
             </Grid>
@@ -53,7 +54,7 @@
 
             <DataGrid x:Name="gridOfData" 
                   Margin="10,145,9,10" 
-                  ColumnWidth="110" RowHeaderWidth="40" 
+                  ColumnWidth="110" RowHeaderWidth="60"
                   ItemsSource="{Binding DefaultTableView, UpdateSourceTrigger=PropertyChanged}" 
                   LoadingRow="DataGrid_LoadingRow" ScrollViewer.ScrollChanged="GridOfData_ScrollChanged" 
                   Loaded="GridOfData_Loaded" Grid.ColumnSpan="2" Grid.Row="2"/>
@@ -68,13 +69,13 @@
 
             <Button Name="buttonTable" IsEnabled="False" Content="Перепечатать таблицу" Grid.Column="1" Margin="7,3,0,5" Grid.Row="1" HorizontalAlignment="Left" Width="145" Command="{Binding ChangeTableCommand}"/>
 
-            <TabControl Name="tabControl" Height="32" Margin="10,53,10,0" VerticalAlignment="Top" ItemsSource="{Binding TabCollection}" SelectionChanged="TabControl_SelectionChanged"/>
+            <TabControl Name="tabControl" Height="32" Margin="10,53,10,0" VerticalAlignment="Top" ItemsSource="{Binding TabCollection}"/>
 
             <Image Name="dragDropImg" Source="/Images/DragDrop.png" Stretch="Fill" Grid.ColumnSpan="2" Grid.RowSpan="3" Visibility="Hidden" />
         </Grid>
 
 
-        <Grid Visibility="{Binding LoadingGridVisible, Converter={StaticResource boolToVisibility}}" IsEnabled="{Binding LoadingGridVisible, Converter={StaticResource boolToVisibility}}" Background="Gray" Opacity="0.6">
+        <!--<Grid Visibility="{Binding LoadingGridVisible, Converter={StaticResource boolToVisibility}}" IsEnabled="{Binding LoadingGridVisible, Converter={StaticResource boolToVisibility}}" Background="Gray" Opacity="0.6">
             <Grid.Effect>
                 <BlurEffect Radius="10" RenderingBias="Quality"/>
             </Grid.Effect>
@@ -85,7 +86,7 @@
             <Label Content="Загрузка..." Margin="104,22,103,78" FontFamily="Times New Roman" FontSize="18" HorizontalContentAlignment="Center" FontStyle="Italic"/>
             <ProgressBar Name="progressBar" Margin="43,0,49,46" Value="{Binding ProgressValue, Mode=OneWay}" Maximum="8" Height="32" VerticalAlignment="Bottom"/>
             <Button Content="Отмена" Margin="0,0,10,10" HorizontalAlignment="Right" Width="78" Height="21" VerticalAlignment="Bottom" Command="{Binding CancelLoading}"/>
-        </Grid>
+        </Grid>-->
     </Grid>
 
 </UserControl>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 
 namespace LoadingSystem.View
 {
@@ -97,12 +98,30 @@ namespace LoadingSystem.View
 					}
 				};
 
+				var checkExport = new Util.CustomCheckBox
+				{
+					HorizontalAlignment = HorizontalAlignment.Center,
+					Index = i
+				};
+				checkExport.Click += CheckExport_Click;
+
+
 				innerPanel.Children.Add(nameRow);
 				innerPanel.Children.Add(typeRow);
 				innerPanel.Children.Add(unitRow);
+				innerPanel.Children.Add(checkExport);
 
 				propertyPanel.Children.Add(innerPanel);
 			}
+		}
+
+
+
+		private void CheckExport_Click(object sender, RoutedEventArgs e)
+		{
+			var checkBox = sender as Util.CustomCheckBox;
+
+			((ViewModel.ViewModel)this.DataContext).SetImportIndex(checkBox);
 		}
 
 
@@ -147,20 +166,6 @@ namespace LoadingSystem.View
 			if (!e.Data.GetDataPresent(DataFormats.Text))
 			{
 				textBoxInfo.IsEnabled = false;
-			}
-		}
-
-
-
-		private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
-		{
-			var tab = tabControl.SelectedItem as TabItem;
-
-			if (tab != null)
-			{
-				var numOfTab = Int32.Parse(tab.Header.ToString());
-
-				((ViewModel.ViewModel)this.DataContext).UpdatedTab(numOfTab);
 			}
 		}
 	}
