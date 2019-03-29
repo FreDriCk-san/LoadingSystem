@@ -59,7 +59,7 @@
     </ApplicationDefinition>
     <Compile Include="Model\ConvertToExcel.cs" />
     <Compile Include="Util\CustomCheckBox.cs" />
-    <Compile Include="Util\CustomComboBox.cs" />
+    <Compile Include="Util\DataSorting.cs" />
     <Compile Include="Util\PropertyEnum.cs" />
     <Compile Include="ViewModel\ToggleCommand.cs" />
     <Compile Include="ViewModel\ViewModel.cs" />

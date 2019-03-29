@@ -21,7 +21,7 @@ namespace LoadingSystem.Model
 				// TO DO: Set style or format for output
 				for (int i = 1; i <= dataTable.Columns.Count; ++i)
 				{
-					workSheets.SetValue(1, i, $"H{i}");
+					workSheets.SetValue(1, i, $"H{dataTable.Columns[i - 1].Caption}");
 					workSheets.Cells[1, i].Style.Font.Bold = true;
 					workSheets.Cells[1, i].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
 					workSheets.Cells[1, i].Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.RoyalBlue);

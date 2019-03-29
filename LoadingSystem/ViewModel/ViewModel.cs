@@ -814,17 +814,19 @@ namespace LoadingSystem.ViewModel
 
 		private DataTable GetTableForExport(DataTable dataTable)
 		{
-			// TO DO: Sort list before using!
+			// Sort list by ascend before using CheckBox positions
+			var sortedListOfChecks = Util.DataSorting.MergeSort(listOfCheckedValues);
+
 			var tableForExport = new DataTable();
 			var rowCount = dataTable.Rows.Count;
-			var listCount = listOfCheckedValues.Count;
+			var listCount = sortedListOfChecks.Count;
 
 			tableForExport.BeginLoadData();
 
 			// Add columns
 			for (int i = 0; i < listCount; ++i)
 			{
-				var currentIndex = listOfCheckedValues[i];
+				var currentIndex = sortedListOfChecks[i];
 
 				tableForExport.Columns.Add(currentIndex.ToString());
 			}
@@ -836,7 +838,7 @@ namespace LoadingSystem.ViewModel
 
 				for (int j = 0; j < listCount; ++j)
 				{
-					var currentIndex = listOfCheckedValues[j];
+					var currentIndex = sortedListOfChecks[j];
 
 					data[j] = dataTable.Rows[i][currentIndex];
 				}
