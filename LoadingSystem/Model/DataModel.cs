@@ -26,6 +26,8 @@ namespace LoadingSystem.Model
 		private string bushName;
 		// Кол-во рабочих областей
 		private int countOfWorkSpaces;
+		// Массив имён рабочих областей
+		private string[] arrayOfWorkSheetsName;
 
 
 		#region Data Init
@@ -147,6 +149,17 @@ namespace LoadingSystem.Model
 			{
 				countOfWorkSpaces = value;
 				OnPropertyChanged("CountOfWorkSpaces");
+			}
+		}
+
+		public string[] ArrayOfWorkSheetsName
+		{
+			get { return arrayOfWorkSheetsName; }
+
+			set
+			{
+				arrayOfWorkSheetsName = value;
+				OnPropertyChanged("ArrayOfWorkSheetsName");
 			}
 		}
 		#endregion

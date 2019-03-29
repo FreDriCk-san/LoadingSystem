@@ -17,6 +17,7 @@ namespace LoadingSystem.Model
 
         private const FileOptions DefaultOptions = FileOptions.Asynchronous | FileOptions.SequentialScan;
 
+
 		// Считывание и обработка входных данных
         public static async Task<DataModel> ReadAllLinesAsync(string path, CancellationToken cancellationToken)
         {
@@ -177,12 +178,22 @@ namespace LoadingSystem.Model
 			var maxColumnCount = 0;
 			var rowIndex = 0;
 			var countOfWorkSheets = 0;
+			var arrayOfNames = new string[4096];
 
 			using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, DefaultBufferSize, DefaultOptions))
 			{
 				using (var package = new ExcelPackage(stream))
 				{
-					countOfWorkSheets = package.Workbook.Worksheets.Count;
+					foreach (var item in package.Workbook.Worksheets)
+					{
+						if (countOfWorkSheets % 4096 == 0 && countOfWorkSheets > 0)
+						{
+							Array.Resize(ref arrayOfNames, arrayOfNames.Length + 4096);
+						}
+
+						arrayOfNames[countOfWorkSheets] = item.Name;
+						countOfWorkSheets++;
+					}
 
 					var workSheet = package.Workbook.Worksheets[numOfWorkSheet];
 					var lineOfNumbersFound = false;
@@ -263,6 +274,7 @@ namespace LoadingSystem.Model
 			data.ArrayOfNumbers = arrayOfNumbers;
 			data.ColumnCount = maxColumnCount;
 			data.CountOfWorkSpaces = countOfWorkSheets;
+			data.ArrayOfWorkSheetsName = arrayOfNames;
 
 			return data;
 		}
@@ -278,6 +290,7 @@ namespace LoadingSystem.Model
 			var data = new DataModel();
 			var maxColumnCount = 0;
 			var rowIndex = 0;
+			var arrayOfNames = new string[4096];
 			HSSFWorkbook workBook;
 
 			using (var file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, DefaultBufferSize, DefaultOptions))
@@ -287,6 +300,20 @@ namespace LoadingSystem.Model
 
 			var workSheet = workBook.GetSheetAt(numOfWorkSheet);
 			var rows = workSheet.GetEnumerator();
+			var countOfSheets = workBook.NumberOfSheets;
+
+			for (int i = 0; i < countOfSheets; ++i)
+			{
+				if (i % 4096 == 0 && i > 0)
+				{
+					Array.Resize(ref arrayOfNames, arrayOfNames.Length + 4096);
+				}
+
+				var workSheetName = workBook.GetSheetName(i);
+				arrayOfNames[i] = workSheetName;
+			}
+
+
 
 			while (rows.MoveNext())
 			{
@@ -357,7 +384,8 @@ namespace LoadingSystem.Model
 
 			data.ArrayOfNumbers = arrayOfNumbers;
 			data.ColumnCount = maxColumnCount;
-			data.CountOfWorkSpaces = workBook.NumberOfSheets;
+			data.CountOfWorkSpaces = countOfSheets;
+			data.ArrayOfWorkSheetsName = arrayOfNames;
 
 			return data;
 		}

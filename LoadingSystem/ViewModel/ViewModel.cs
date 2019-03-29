@@ -506,7 +506,7 @@ namespace LoadingSystem.ViewModel
 				}
 				ProgressValue++;
 
-				InitTabs();
+				InitTabs(DataModel.ArrayOfWorkSheetsName);
 
 				DepthValue = SearchDepthColumn(DataModel.ArrayOfNumbers);
 				ProgressValue++;
@@ -718,22 +718,24 @@ namespace LoadingSystem.ViewModel
 
 
 
-		private void InitTabs()
+		private void InitTabs(string[] arrayOfSheetNames)
 		{
 			Application.Current.Dispatcher.Invoke(() =>
 			{
 				TabCollection.Clear();
 			});
 
+			var localIndex = 0;
+
 			if (currentTab > 0)
 			{
-				for (int i = 1; i <= DataModel.CountOfWorkSpaces; ++i)
+				for (int i = 1; i <= DataModel.CountOfWorkSpaces; ++i, ++localIndex)
 				{
 					Application.Current.Dispatcher.Invoke(() =>
 					{
 						var tab = new TabItem
 						{
-							Header = i.ToString()
+							Header = $"{i.ToString()}. {arrayOfSheetNames[localIndex]}"
 						};
 						tab.MouseLeftButtonUp += Tab_MouseLeftButtonUp;
 
@@ -748,13 +750,13 @@ namespace LoadingSystem.ViewModel
 			}
 			else
 			{
-				for (int i = 0; i < DataModel.CountOfWorkSpaces; ++i)
+				for (int i = 0; i < DataModel.CountOfWorkSpaces; ++i, ++localIndex)
 				{
 					Application.Current.Dispatcher.Invoke(() =>
 					{
 						var tab = new TabItem
 						{
-							Header = i.ToString()
+							Header = $"{i.ToString()}. {arrayOfSheetNames[localIndex]}"
 						};
 						tab.MouseLeftButtonUp += Tab_MouseLeftButtonUp;
 
@@ -770,7 +772,20 @@ namespace LoadingSystem.ViewModel
 		{
 			var currentTab = sender as TabItem;
 
-			var currentTabIndex = Int32.Parse(currentTab.Header.ToString());
+			var header = currentTab.Header.ToString();
+			var builder = new StringBuilder();
+
+			foreach(var character in header)
+			{
+				if (character == '.')
+				{
+					break;
+				}
+
+				builder.Append(character);
+			}
+
+			var currentTabIndex = Int32.Parse(builder.ToString());
 
 			UpdatedTab(currentTabIndex);
 		}
