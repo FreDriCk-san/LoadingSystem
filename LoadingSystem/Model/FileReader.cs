@@ -333,16 +333,20 @@ namespace LoadingSystem.Model
 							data.WellName = cellValue.ToString();
 						}
 
-						if (lineOfNumbersFound)
-						{
-							lineArray[lineStep] = StringToDouble(cellValue.ToString());
-							lineStep++;
-						}
-						else if (StringToDouble(cellValue.ToString()) != double.MinValue)
+						if (StringToDouble(cellValue.ToString()) != double.MinValue)
 						{
 							lineArray[lineStep] = StringToDouble(cellValue.ToString());
 							lineStep++;
 							lineOfNumbersFound = true;
+						}
+						else if (cellValue.CellType == NPOI.SS.UserModel.CellType.Formula)
+						{
+							if (cellValue.CachedFormulaResultType == NPOI.SS.UserModel.CellType.Numeric)
+							{
+								lineArray[lineStep] = cellValue.NumericCellValue;
+								lineStep++;
+								lineOfNumbersFound = true;
+							}
 						}
 					}
 					//else
@@ -473,7 +477,21 @@ namespace LoadingSystem.Model
 
 						if (null != cellValue)
 						{
-							builder.Append($"|{cellValue.ToString()}|\t");
+							if (cellValue.CellType == NPOI.SS.UserModel.CellType.Formula)
+							{
+								if (cellValue.CachedFormulaResultType == NPOI.SS.UserModel.CellType.Numeric)
+								{
+									builder.Append($"|{cellValue.NumericCellValue}|\t");
+								}
+								else if (cellValue.CachedFormulaResultType == NPOI.SS.UserModel.CellType.String)
+								{
+									builder.Append($"|{cellValue.StringCellValue}|\t");
+								}
+							}
+							else
+							{
+								builder.Append($"|{cellValue.ToString()}|\t");
+							}
 						}
 					}
 

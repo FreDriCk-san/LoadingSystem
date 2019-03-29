@@ -125,16 +125,23 @@ namespace LoadingSystem.ViewModel
 							{
 								var tableForExport = GetTableForExport(DataGridTable);
 
-								var isRead = await Model.ConvertToExcel.ReadData(tableForExport, excelPackage, fileInfo.Name);
-
-								using (var dialog = new System.Windows.Forms.SaveFileDialog())
+								if (null == tableForExport)
 								{
-									// Set default extension types of file
-									dialog.Filter = "Excel файлы (*.xlsx)|*.xlsx|Все файлы (*.*)|*.*";
+									MessageBox.Show("Импортируемые значения не выбраны!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+								}
+								else
+								{
+									var isRead = await Model.ConvertToExcel.ReadData(tableForExport, excelPackage, fileInfo.Name);
 
-									if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+									using (var dialog = new System.Windows.Forms.SaveFileDialog())
 									{
-										var isSaved = await Model.ConvertToExcel.SaveAsExcel(dialog.FileName, excelPackage);				
+										// Set default extension types of file
+										dialog.Filter = "Excel файлы (*.xlsx)|*.xlsx|Все файлы (*.*)|*.*";
+
+										if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+										{
+											var isSaved = await Model.ConvertToExcel.SaveAsExcel(dialog.FileName, excelPackage);
+										}
 									}
 								}
 							}
@@ -168,6 +175,7 @@ namespace LoadingSystem.ViewModel
 							readTo = countOfRows;
 						}
 
+						DepthValue = SearchDepthColumn(DataModel.ArrayOfNumbers, readFrom, readTo);
 						EditTable(readFrom, readTo);
 					}));
 			}
@@ -508,7 +516,7 @@ namespace LoadingSystem.ViewModel
 
 				InitTabs(DataModel.ArrayOfWorkSheetsName);
 
-				DepthValue = SearchDepthColumn(DataModel.ArrayOfNumbers);
+				DepthValue = SearchDepthColumn(DataModel.ArrayOfNumbers, 0, countOfRows);
 				ProgressValue++;
 
 
@@ -600,7 +608,7 @@ namespace LoadingSystem.ViewModel
 					}
 				}
 
-				DepthValue = SearchDepthColumn(DataModel.ArrayOfNumbers);
+				DepthValue = SearchDepthColumn(DataModel.ArrayOfNumbers, 0, countOfRows);
 
 
 				SetPropertiesToPropertyGrid();
@@ -638,7 +646,7 @@ namespace LoadingSystem.ViewModel
 
 
 
-		private int SearchDepthColumn(double[][] arrayOfNumbers)
+		private int SearchDepthColumn(double[][] arrayOfNumbers, int fromRow, int toRow)
 		{
 			var length = arrayOfNumbers[0].Length;
 
@@ -647,7 +655,7 @@ namespace LoadingSystem.ViewModel
 				var min = 0;
 				var max = 0;
 
-				for (int j = 0; j < countOfRows - 1; ++j)
+				for (int j = fromRow; j < toRow - 1; ++j)
 				{
 					var currentValue = arrayOfNumbers[j][i];
 					var nextValue = arrayOfNumbers[j + 1][i];
@@ -739,11 +747,6 @@ namespace LoadingSystem.ViewModel
 						};
 						tab.MouseLeftButtonUp += Tab_MouseLeftButtonUp;
 
-						if (i == 1)
-						{
-							tab.IsSelected = true;
-						}
-
 						TabCollection.Add(tab);
 					});
 				}
@@ -829,6 +832,11 @@ namespace LoadingSystem.ViewModel
 
 		private DataTable GetTableForExport(DataTable dataTable)
 		{
+			if (listOfCheckedValues.Count == 0)
+			{
+				return null;
+			}
+
 			// Sort list by ascend before using CheckBox positions
 			var sortedListOfChecks = Util.DataSorting.MergeSort(listOfCheckedValues);
 

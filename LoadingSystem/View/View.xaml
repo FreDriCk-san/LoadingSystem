@@ -130,7 +130,7 @@
         </Grid>
 
 
-        <!--<Grid Visibility="{Binding LoadingGridVisible, Converter={StaticResource boolToVisibility}}" IsEnabled="{Binding LoadingGridVisible, Converter={StaticResource boolToVisibility}}" Background="Gray" Opacity="0.6">
+        <Grid Visibility="{Binding LoadingGridVisible, Converter={StaticResource boolToVisibility}}" IsEnabled="{Binding LoadingGridVisible, Converter={StaticResource boolToVisibility}}" Background="Gray" Opacity="0.6">
             <Grid.Effect>
                 <BlurEffect Radius="10" RenderingBias="Quality"/>
             </Grid.Effect>
@@ -141,7 +141,7 @@
             <Label Content="Загрузка..." Margin="104,22,103,78" FontFamily="Times New Roman" FontSize="18" HorizontalContentAlignment="Center" FontStyle="Italic"/>
             <ProgressBar Name="progressBar" Margin="43,0,49,46" Value="{Binding ProgressValue, Mode=OneWay}" Maximum="8" Height="32" VerticalAlignment="Bottom"/>
             <Button Content="Отмена" Margin="0,0,10,10" HorizontalAlignment="Right" Width="78" Height="21" VerticalAlignment="Bottom" Command="{Binding CancelLoading}"/>
-        </Grid>-->
+        </Grid>
     </Grid>
 
 </UserControl>
