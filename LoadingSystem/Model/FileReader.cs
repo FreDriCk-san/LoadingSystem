@@ -258,15 +258,6 @@ namespace LoadingSystem.Model
 							}
 						}
 					}
-
-					// Temp separator for next sheet
-					var tempSeparator = new double[4096];
-					for (int t = 0; t < tempSeparator.Length; ++t)
-					{
-						tempSeparator[t] = double.MinValue;
-					}
-					arrayOfNumbers[rowIndex] = tempSeparator;
-					rowIndex++;
 				}
 
 			}
@@ -374,15 +365,6 @@ namespace LoadingSystem.Model
 				}
 
 			}
-
-			// If next sheet is available, create separator between sheets (blank space)
-			var tempSeparator = new double[256];
-			for (int t = 0; t < tempSeparator.Length; ++t)
-			{
-				tempSeparator[t] = double.MinValue;
-			}
-			arrayOfNumbers[rowIndex] = tempSeparator;
-			rowIndex++;
 
 
 

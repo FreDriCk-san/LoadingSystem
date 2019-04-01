@@ -53,7 +53,7 @@
 
 
             <DataGrid x:Name="gridOfData" 
-                  Margin="10,145,9,10" 
+                  Margin="10,145,9,10"
                   ColumnWidth="110" RowHeaderWidth="60"
                   ItemsSource="{Binding DefaultTableView, UpdateSourceTrigger=PropertyChanged}" 
                   LoadingRow="DataGrid_LoadingRow" ScrollViewer.ScrollChanged="GridOfData_ScrollChanged" 

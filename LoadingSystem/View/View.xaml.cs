@@ -167,5 +167,6 @@ namespace LoadingSystem.View
 				textBoxInfo.IsEnabled = false;
 			}
 		}
+
 	}
 }

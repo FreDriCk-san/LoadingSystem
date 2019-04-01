@@ -49,6 +49,8 @@ namespace LoadingSystem.ViewModel
 
 		private ObservableCollection<TabItem> tabCollection;
 
+		private bool createIndexCurve = false;
+
 		
 		public ToggleCommand FileOpenCommand
 		{
@@ -173,6 +175,11 @@ namespace LoadingSystem.ViewModel
 						{
 							PropertyGridModel.OutputDescription.ReadToRow = countOfRows;
 							readTo = countOfRows;
+						}
+						else if (readFrom > countOfRows)
+						{
+							PropertyGridModel.OutputDescription.ReadFromRow = 0;
+							readFrom = 0;
 						}
 
 						DepthValue = SearchDepthColumn(DataModel.ArrayOfNumbers, readFrom, readTo);
@@ -384,34 +391,75 @@ namespace LoadingSystem.ViewModel
 			DefaultTableView = new DataView();
 			DataGridTable.BeginLoadData();
 
-			for (int i = 1; i <= columns; ++i)
+			if (createIndexCurve)
 			{
-				DataGridTable.Columns.Add(i.ToString());
-			}
+				DataGridTable.Columns.Add("Индексная кривая");
 
-			var content = new object[columns];
-
-			for (int i = fromRow; i < toRow; ++i)
-			{
-				for (int j = 0; j < columns; ++j)
+				for (int i = 1; i <= columns; ++i)
 				{
-					var currentValue = DataModel.ArrayOfNumbers[i][j];
-
-					if (currentValue == CurrentNull)
-					{
-						content[j] = double.NaN;
-					}
-					else if (currentValue == double.MinValue)
-					{
-						content[j] = string.Empty;
-					}
-					else
-					{
-						content[j] = currentValue;
-					}
+					DataGridTable.Columns.Add(i.ToString());
 				}
 
-				DataGridTable.Rows.Add(content);
+				var content = new object[columns + 1];
+
+				for (int i = fromRow, t = 1; i < toRow; ++i, ++t)
+				{
+					content[0] = t;
+
+					for (int j = 0; j < columns; ++j)
+					{
+						var currentValue = DataModel.ArrayOfNumbers[i][j];
+
+						if (currentValue == CurrentNull)
+						{
+							content[j + 1] = double.NaN;
+						}
+						else if (currentValue == double.MinValue)
+						{
+							content[j + 1] = string.Empty;
+						}
+						else
+						{
+							content[j + 1] = currentValue;
+						}
+					}
+
+					DataGridTable.Rows.Add(content);
+				}
+
+				DataGridTable.Columns[0].ReadOnly = true;
+			}
+			else
+			{
+				for (int i = 1; i <= columns; ++i)
+				{
+					DataGridTable.Columns.Add(i.ToString());
+				}
+
+				var content = new object[columns];
+
+				for (int i = fromRow; i < toRow; ++i)
+				{
+					for (int j = 0; j < columns; ++j)
+					{
+						var currentValue = DataModel.ArrayOfNumbers[i][j];
+
+						if (currentValue == CurrentNull)
+						{
+							content[j] = double.NaN;
+						}
+						else if (currentValue == double.MinValue)
+						{
+							content[j] = string.Empty;
+						}
+						else
+						{
+							content[j] = currentValue;
+						}
+					}
+
+					DataGridTable.Rows.Add(content);
+				}
 			}
 
 			DataGridTable.EndLoadData();
@@ -608,6 +656,9 @@ namespace LoadingSystem.ViewModel
 					}
 				}
 
+				PropertyGridModel.OutputDescription.ReadFromRow = 0;
+				PropertyGridModel.OutputDescription.ReadToRow = countOfRows;
+
 				DepthValue = SearchDepthColumn(DataModel.ArrayOfNumbers, 0, countOfRows);
 
 
@@ -648,40 +699,42 @@ namespace LoadingSystem.ViewModel
 
 		private int SearchDepthColumn(double[][] arrayOfNumbers, int fromRow, int toRow)
 		{
-			var length = arrayOfNumbers[0].Length;
-
-			for (int i = 0; i < length; ++i)
+			if (null != arrayOfNumbers[0])
 			{
-				var min = 0;
-				var max = 0;
+				var length = arrayOfNumbers[0].Length;
 
-				for (int j = fromRow; j < toRow - 1; ++j)
+				for (int i = 0; i < length; ++i)
 				{
-					var currentValue = arrayOfNumbers[j][i];
-					var nextValue = arrayOfNumbers[j + 1][i];
+					var min = 0;
+					var max = 0;
 
-					if (currentValue == double.MinValue || currentValue == double.NaN
-						|| nextValue == double.MinValue || nextValue == double.NaN)
+					for (int j = fromRow; j < toRow - 1; ++j)
 					{
-						min++;
-						max++;
-					}
-					else if (currentValue <= nextValue)
-					{
-						max++;
-					}
-					else if (currentValue >= nextValue)
-					{
-						min++;
-					}
-				}
+						var currentValue = arrayOfNumbers[j][i];
+						var nextValue = arrayOfNumbers[j + 1][i];
 
-				if (max == countOfRows - 1 || min == countOfRows - 1)
-				{
-					return i;
+						if (currentValue < nextValue)
+						{
+							max++;
+						}
+						else if (currentValue > nextValue)
+						{
+							min++;
+						}
+					}
+
+					var currentCountOfRows = countOfRows - (fromRow + (countOfRows - toRow) + 1);
+
+					if (max == currentCountOfRows
+						|| min == currentCountOfRows)
+					{
+						createIndexCurve = false;
+						return i;
+					}
 				}
 			}
 
+			createIndexCurve = true;
 			return 0;
 		}
 
