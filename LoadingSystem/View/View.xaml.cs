@@ -77,7 +77,7 @@ namespace LoadingSystem.View
 					HorizontalContentAlignment = HorizontalAlignment.Center,
 					ItemsSource = new List<string>()
 					{
-						"Depth", "RadioWaves", "LinearWaves"
+						"Depth", ""
 					}
 				};
 
@@ -93,7 +93,7 @@ namespace LoadingSystem.View
 					HorizontalContentAlignment = HorizontalAlignment.Center,
 					ItemsSource = new List<string>()
 					{
-						"Meter", "Kilometer", "Centimeter"
+						"Meter", "Kilometer", "Centimeter", ""
 					}
 				};
 

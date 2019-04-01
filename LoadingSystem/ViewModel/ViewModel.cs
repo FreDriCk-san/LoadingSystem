@@ -498,6 +498,12 @@ namespace LoadingSystem.ViewModel
 					});
 					ProgressValue++;
 
+					if (null == text.Result)
+					{
+						MessageBox.Show("Данные недоступны. Возможно, файл уже где-то открыт.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+						Thread.CurrentThread.Abort();
+					}
+
 					EditTextBox(text.Result, 100);
 					ProgressValue++;
 
@@ -520,6 +526,12 @@ namespace LoadingSystem.ViewModel
 						return await Model.FileReader.ReadLinesFromXLS(fileInfo.FullName, 100, 0, cancellationToken);
 					});
 					ProgressValue++;
+
+					if (null == text.Result)
+					{
+						MessageBox.Show("Данные недоступны. Возможно, файл уже где-то открыт.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+						Thread.CurrentThread.Abort();
+					}
 
 					EditTextBox(text.Result, 100);
 					ProgressValue++;
@@ -603,6 +615,12 @@ namespace LoadingSystem.ViewModel
 						return await Model.FileReader.ReadLinesFromXLSX(fileInfo.FullName, 100, tabNum, cancellationToken);
 					});
 
+					if (null == text.Result)
+					{
+						MessageBox.Show("Данные недоступны. Возможно, файл уже где-то открыт.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+						Thread.CurrentThread.Abort();
+					}
+
 					EditTextBox(text.Result, 100);
 
 					DataModel = Model.FileReader.ReadAsXLSX(fileInfo.FullName, tabNum, cancellationToken);
@@ -620,6 +638,12 @@ namespace LoadingSystem.ViewModel
 					{
 						return await Model.FileReader.ReadLinesFromXLS(fileInfo.FullName, 100, tabNum, cancellationToken);
 					});
+
+					if (null == text.Result)
+					{
+						MessageBox.Show("Данные недоступны. Возможно, файл уже где-то открыт.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+						Thread.CurrentThread.Abort();
+					}
 
 					EditTextBox(text.Result, 100);
 

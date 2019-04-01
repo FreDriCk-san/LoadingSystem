@@ -167,7 +167,7 @@ namespace LoadingSystem.Model
 		}
 
 
-		// TO DO: Optimize reading data
+
 		public static DataModel ReadAsXLSX(string path, int numOfWorkSheet, CancellationToken cancellationToken)
 		{
 			// Max row count:	 ~1048576
@@ -179,6 +179,11 @@ namespace LoadingSystem.Model
 			var rowIndex = 0;
 			var countOfWorkSheets = 0;
 			var arrayOfNames = new string[4096];
+
+			if (!CanReadFromFile(path))
+			{
+				return null;
+			}
 
 			using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, DefaultBufferSize, DefaultOptions))
 			{
@@ -284,6 +289,11 @@ namespace LoadingSystem.Model
 			var arrayOfNames = new string[4096];
 			HSSFWorkbook workBook;
 
+			if (!CanReadFromFile(path))
+			{
+				return null;
+			}
+
 			using (var file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, DefaultBufferSize, DefaultOptions))
 			{
 				workBook = new HSSFWorkbook(file);
@@ -382,6 +392,11 @@ namespace LoadingSystem.Model
 		{
 			return Task<string[]>.Factory.StartNew(() =>
 			{
+				if (!CanReadFromFile(path))
+				{
+					return null;
+				}
+
 				var result = new string[1024];
 				var index = 0;
 
@@ -436,6 +451,11 @@ namespace LoadingSystem.Model
 		{
 			return Task<string[]>.Factory.StartNew(() =>
 			{
+				if (!CanReadFromFile(path))
+				{
+					return null;
+				}
+
 				var result = new string[1024];
 				var index = 0;
 				HSSFWorkbook workBook;
@@ -663,6 +683,23 @@ namespace LoadingSystem.Model
 			}
 		}
 
+
+		private static bool CanReadFromFile(string path)
+		{
+			try
+			{
+				using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, DefaultBufferSize, DefaultOptions))
+				{
+
+				}
+
+				return true;
+			}
+			catch
+			{
+				return false;
+			}
+		}
 
 
 		private static Tuple<double[], bool, int[], char, char> FirstHeuristic(string line, char separator, char decimalSeparator, int columnCount, bool firstLineProcessed, int[] positions)
