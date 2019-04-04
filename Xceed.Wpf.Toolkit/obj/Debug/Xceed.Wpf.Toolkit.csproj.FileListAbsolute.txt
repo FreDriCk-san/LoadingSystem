@@ -190,7 +190,6 @@ C:\TempFolder\LoadingSystem\Xceed.Wpf.Toolkit\obj\Debug\Xceed.Wpf.Toolkit.dll
 C:\TempFolder\LoadingSystem\Xceed.Wpf.Toolkit\obj\Debug\Xceed.Wpf.Toolkit.pdb
 E:\TempFolder\LoadingSystem\LoadingSystem\Xceed.Wpf.Toolkit\bin\Debug\Xceed.Wpf.Toolkit.dll
 E:\TempFolder\LoadingSystem\LoadingSystem\Xceed.Wpf.Toolkit\bin\Debug\Xceed.Wpf.Toolkit.pdb
-E:\TempFolder\LoadingSystem\LoadingSystem\Xceed.Wpf.Toolkit\obj\Debug\Xceed.Wpf.Toolkit.csprojAssemblyReference.cache
 E:\TempFolder\LoadingSystem\LoadingSystem\Xceed.Wpf.Toolkit\obj\Debug\Themes\Aero2.NormalColor.baml
 E:\TempFolder\LoadingSystem\LoadingSystem\Xceed.Wpf.Toolkit\obj\Debug\Themes\classic.baml
 E:\TempFolder\LoadingSystem\LoadingSystem\Xceed.Wpf.Toolkit\obj\Debug\Themes\luna.homestead.baml

@@ -2,6 +2,7 @@
 using NPOI.HSSF.UserModel;
 using OfficeOpenXml;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -179,8 +180,9 @@ namespace LoadingSystem.Model
 			var rowIndex = 0;
 			var countOfWorkSheets = 0;
 			var arrayOfNames = new string[4096];
+            var listOfCurveNames = new List<string> { "" };
 
-			if (!CanReadFromFile(path))
+            if (!CanReadFromFile(path))
 			{
 				return null;
 			}
@@ -202,6 +204,7 @@ namespace LoadingSystem.Model
 
 					var workSheet = package.Workbook.Worksheets[numOfWorkSheet];
 					var lineOfNumbersFound = false;
+                    var lineOfPropertiesFound = false;
 
 					if (null != workSheet.Dimension)
 					{
@@ -222,25 +225,41 @@ namespace LoadingSystem.Model
 
 								if (null != cellValue)
 								{
+                                    var cellContent = cellValue.ToString();
+
+                                    if (lineOfPropertiesFound && cellContent != string.Empty)
+                                    {
+                                        listOfCurveNames.Add(cellContent);
+                                    }
+                                    else if (cellContent.Equals("depth", StringComparison.InvariantCultureIgnoreCase) 
+                                        || cellContent.Equals("dp", StringComparison.InvariantCultureIgnoreCase))
+                                    {
+                                        listOfCurveNames.Add(cellContent);
+                                        lineOfPropertiesFound = true;
+                                    }
+
+
+
 									if (lineOfNumbersFound)
 									{
-										lineArray[lineStep] = StringToDouble(cellValue.ToString());
+										lineArray[lineStep] = StringToDouble(cellContent);
 										lineStep++;
 									}
-									else if (double.MinValue != StringToDouble(cellValue.ToString()))
+									else if (double.MinValue != StringToDouble(cellContent))
 									{
-										lineArray[lineStep] = StringToDouble(cellValue.ToString());
+										lineArray[lineStep] = StringToDouble(cellContent);
 										lineStep++;
 										lineOfNumbersFound = true;
 									}
 								}
-								//else
-								//{
-								//	lineArray[lineStep] = double.MinValue;
-								//	lineStep++;
-								//}
+                                else
+                                {
+                                    lineOfPropertiesFound = false;
+                                }
 
-								if (lineStep % 4096 == 0 && lineStep > 0)
+
+
+                                if (lineStep % 4096 == 0 && lineStep > 0)
 								{
 									Array.Resize(ref lineArray, lineArray.Length + 4096);
 								}
@@ -271,6 +290,7 @@ namespace LoadingSystem.Model
 			data.ColumnCount = maxColumnCount;
 			data.CountOfWorkSpaces = countOfWorkSheets;
 			data.ArrayOfWorkSheetsName = arrayOfNames;
+            data.ListOfCurveNames = listOfCurveNames;
 
 			return data;
 		}
@@ -287,7 +307,8 @@ namespace LoadingSystem.Model
 			var maxColumnCount = 0;
 			var rowIndex = 0;
 			var arrayOfNames = new string[4096];
-			HSSFWorkbook workBook;
+            var listOfCurveNames = new List<string> { "" };
+            HSSFWorkbook workBook;
 
 			if (!CanReadFromFile(path))
 			{
@@ -320,7 +341,8 @@ namespace LoadingSystem.Model
 			{
 				var row = (HSSFRow)rows.Current;
 				var lineOfNumbersFound = false;
-				var lineArray = new double[256];
+                var lineOfPropertiesFound = false;
+                var lineArray = new double[256];
 				var lineStep = 0;
 
 				for (int j = 0; j < row.LastCellNum; ++j)
@@ -329,14 +351,33 @@ namespace LoadingSystem.Model
 
 					if (null != cellValue)
 					{
-						if (StringIsProperty(cellValue.ToString(), "WELL", "well", "Well"))
+                        var cellContent = cellValue.ToString();
+
+
+
+                        if (StringIsProperty(cellContent, "WELL", "well", "Well"))
 						{
-							data.WellName = cellValue.ToString();
+							data.WellName = cellContent;
 						}
 
-						if (StringToDouble(cellValue.ToString()) != double.MinValue)
+
+
+                        if (lineOfPropertiesFound && cellContent != string.Empty)
+                        {
+                            listOfCurveNames.Add(cellContent);
+                        }
+                        else if (cellContent.Equals("depth", StringComparison.InvariantCultureIgnoreCase)
+                            || cellContent.Equals("dp", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            listOfCurveNames.Add(cellContent);
+                            lineOfPropertiesFound = true;
+                        }
+
+
+
+						if (StringToDouble(cellContent) != double.MinValue)
 						{
-							lineArray[lineStep] = StringToDouble(cellValue.ToString());
+							lineArray[lineStep] = StringToDouble(cellContent);
 							lineStep++;
 							lineOfNumbersFound = true;
 						}
@@ -350,13 +391,14 @@ namespace LoadingSystem.Model
 							}
 						}
 					}
-					//else
-					//{
-					//	lineArray[lineStep] = double.MinValue;
-					//	lineStep++;
-					//}
+                    else
+                    {
+                        lineOfPropertiesFound = false;
+                    }
 
-				}
+
+
+                }
 
 				if (lineOfNumbersFound)
 				{
@@ -382,6 +424,7 @@ namespace LoadingSystem.Model
 			data.ColumnCount = maxColumnCount;
 			data.CountOfWorkSpaces = countOfSheets;
 			data.ArrayOfWorkSheetsName = arrayOfNames;
+            data.ListOfCurveNames = listOfCurveNames;
 
 			return data;
 		}

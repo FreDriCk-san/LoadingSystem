@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace LoadingSystem.Model
 {
@@ -28,6 +29,8 @@ namespace LoadingSystem.Model
 		private int countOfWorkSpaces;
 		// Массив имён рабочих областей
 		private string[] arrayOfWorkSheetsName;
+        // Массив наименований кривых
+        private List<string> listOfCurveNames;
 
 
 		#region Data Init
@@ -162,6 +165,17 @@ namespace LoadingSystem.Model
 				OnPropertyChanged("ArrayOfWorkSheetsName");
 			}
 		}
+
+        public List<string> ListOfCurveNames
+        {
+            get { return listOfCurveNames; }
+
+            set
+            {
+                listOfCurveNames = value;
+                OnPropertyChanged("ArrayOfCurveNames");
+            }
+        }
 		#endregion
 
 		public DataModel()

@@ -49,6 +49,9 @@ namespace LoadingSystem.View
 		private void ItemsSourceIsChanged(object sender, EventArgs e)
 		{
 			var depthValue = ((ViewModel.ViewModel)this.DataContext).DepthValue;
+            var listOfCurveNames = ((ViewModel.ViewModel)this.DataContext).DataModel.ListOfCurveNames;
+
+
 
 			propertyPanel.Children.Clear();
 			textBoxInfo.IsEnabled = true;
@@ -56,62 +59,16 @@ namespace LoadingSystem.View
 			buttonTable.IsEnabled = true;
 			toExcel.IsEnabled = true;
 
-			for (int i = 0; i < gridOfData.Columns.Count; ++i)
-			{
-				var innerPanel = new StackPanel()
-				{
-					Orientation = Orientation.Vertical
-				};
-
-				var nameRow = new TextBox()
-				{
-					Width = gridOfData.ColumnWidth.Value,
-					Text = $"H{i.ToString()}",
-					TextAlignment = TextAlignment.Center,
-					IsEnabled = false
-				};
-
-				var typeRow = new ComboBox()
-				{
-					Width = gridOfData.ColumnWidth.Value,
-					HorizontalContentAlignment = HorizontalAlignment.Center,
-					ItemsSource = new List<string>()
-					{
-						"Depth", ""
-					}
-				};
-
-				// Change, when "normal" itemsource will be added!
-				if (i == depthValue)
-				{
-					typeRow.SelectedItem = "Depth";
-				}
-
-				var unitRow = new ComboBox()
-				{
-					Width = gridOfData.ColumnWidth.Value,
-					HorizontalContentAlignment = HorizontalAlignment.Center,
-					ItemsSource = new List<string>()
-					{
-						"Meter", "Kilometer", "Centimeter", ""
-					}
-				};
-
-				var checkExport = new Util.CustomCheckBox
-				{
-					HorizontalAlignment = HorizontalAlignment.Center,
-					Index = i
-				};
-				checkExport.Click += CheckExport_Click;
 
 
-				innerPanel.Children.Add(nameRow);
-				innerPanel.Children.Add(typeRow);
-				innerPanel.Children.Add(unitRow);
-				innerPanel.Children.Add(checkExport);
-
-				propertyPanel.Children.Add(innerPanel);
-			}
+            if (null != listOfCurveNames && listOfCurveNames.Count > 1)
+            {
+                PropertiesReadFromData(listOfCurveNames);
+            }
+            else
+            {
+                StandartInitOfProperties(depthValue);
+            }
 		}
 
 
@@ -168,5 +125,149 @@ namespace LoadingSystem.View
 			}
 		}
 
-	}
+
+
+        protected void StandartInitOfProperties(int depthValue)
+        {
+            for (int i = 0; i < gridOfData.Columns.Count; ++i)
+            {
+                var innerPanel = new StackPanel()
+                {
+                    Orientation = Orientation.Vertical
+                };
+
+                var nameRow = new TextBox()
+                {
+                    Width = gridOfData.ColumnWidth.Value,
+                    Text = $"H{i.ToString()}",
+                    TextAlignment = TextAlignment.Center,
+                    IsEnabled = false
+                };
+
+                var typeRow = new ComboBox()
+                {
+                    Width = gridOfData.ColumnWidth.Value,
+                    HorizontalContentAlignment = HorizontalAlignment.Center,
+                    ItemsSource = new List<string>()
+                    {
+                        "", "Depth"
+                    }
+                };
+
+                // Change, when "normal" itemsource will be added!
+                if (i == depthValue)
+                {
+                    typeRow.SelectedItem = "Depth";
+                }
+
+                var unitRow = new ComboBox()
+                {
+                    Width = gridOfData.ColumnWidth.Value,
+                    HorizontalContentAlignment = HorizontalAlignment.Center,
+                    ItemsSource = new List<string>()
+                    {
+                        "", "mRKB", "frac", "mD"
+                    }
+                };
+
+                var checkExport = new Util.CustomCheckBox
+                {
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Index = i
+                };
+                checkExport.Click += CheckExport_Click;
+
+
+                innerPanel.Children.Add(nameRow);
+                innerPanel.Children.Add(typeRow);
+                innerPanel.Children.Add(unitRow);
+                innerPanel.Children.Add(checkExport);
+
+                propertyPanel.Children.Add(innerPanel);
+            }
+        }
+
+
+
+        protected void PropertiesReadFromData(List<string> listOfCurveNames)
+        {
+
+            for (int i = 0; i < gridOfData.Columns.Count; ++i)
+            {
+                var innerPanel = new StackPanel()
+                {
+                    Orientation = Orientation.Vertical
+                };
+
+                var nameRow = new TextBox()
+                {
+                    Width = gridOfData.ColumnWidth.Value,
+                    Text = $"H{i.ToString()}",
+                    TextAlignment = TextAlignment.Center,
+                    IsEnabled = false
+                };
+
+                var typeRow = new ComboBox()
+                {
+                    Width = gridOfData.ColumnWidth.Value,
+                    HorizontalContentAlignment = HorizontalAlignment.Center,
+                    ItemsSource = listOfCurveNames,
+                    ContextMenu = GetContextMenuOfType()
+                };
+
+                // If count of properties is equal to dataTable count of columns
+                if (i < listOfCurveNames.Count)
+                {
+                    typeRow.SelectedItem = listOfCurveNames[i];
+                }
+
+                var unitRow = new ComboBox()
+                {
+                    Width = gridOfData.ColumnWidth.Value,
+                    HorizontalContentAlignment = HorizontalAlignment.Center,
+                    ItemsSource = new List<string>()
+                    {
+                        "", "mRKB", "frac", "mD"
+                    }
+                };
+
+                var checkExport = new Util.CustomCheckBox
+                {
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    Index = i
+                };
+                checkExport.Click += CheckExport_Click;
+
+
+                innerPanel.Children.Add(nameRow);
+                innerPanel.Children.Add(typeRow);
+                innerPanel.Children.Add(unitRow);
+                innerPanel.Children.Add(checkExport);
+
+                propertyPanel.Children.Add(innerPanel);
+            }
+        }
+
+
+
+        protected ContextMenu GetContextMenuOfType()
+        {
+            var contextMenu = new ContextMenu();
+            var item = new MenuItem
+            {
+                Header = "aaadasdas"
+            };
+            item.Click += Item_Click;
+            // TO DO: Create connection to VM
+            contextMenu.Items.Add(item);
+            
+
+            return contextMenu;
+        }
+
+        private void Item_Click(object sender, RoutedEventArgs e)
+        {
+            
+        }
+    }
 }

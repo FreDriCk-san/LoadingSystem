@@ -25,11 +25,6 @@ E:\TempFolder\LoadingSystem\TestProject\newer exc\obj\Debug\NPOI.csproj.CopyComp
 E:\TempFolder\LoadingSystem\LoadingSystem\solution\Lib\NPOI.XML
 E:\TempFolder\LoadingSystem\LoadingSystem\solution\Lib\NPOI.dll
 E:\TempFolder\LoadingSystem\LoadingSystem\solution\Lib\NPOI.pdb
-E:\TempFolder\LoadingSystem\LoadingSystem\npoi\obj\Debug\NPOI.csprojAssemblyReference.cache
-E:\TempFolder\LoadingSystem\LoadingSystem\npoi\obj\Debug\NPOI.csproj.CoreCompileInputs.cache
-E:\TempFolder\LoadingSystem\LoadingSystem\npoi\obj\Debug\NPOI.csproj.CopyComplete
-E:\TempFolder\LoadingSystem\LoadingSystem\npoi\obj\Debug\NPOI.dll
-E:\TempFolder\LoadingSystem\LoadingSystem\npoi\obj\Debug\NPOI.pdb
 E:\TempFolder\LoadingSystem\LoadingSystem\npoi\LocalLib\NPOI.XML
 E:\TempFolder\LoadingSystem\LoadingSystem\npoi\LocalLib\NPOI.dll
 E:\TempFolder\LoadingSystem\LoadingSystem\npoi\LocalLib\NPOI.pdb
@@ -47,3 +42,8 @@ E:\TempFolder\LoadingSystem\LoadingSystem\npoi\LocalLib\Debug\NPOI.XML
 E:\TempFolder\LoadingSystem\LoadingSystem\npoi\LocalLib\Debug\NPOI.dll
 E:\TempFolder\LoadingSystem\LoadingSystem\npoi\LocalLib\Debug\NPOI.pdb
 E:\TempFolder\LoadingSystem\LoadingSystem\npoi\LocalLib\Debug\ICSharpCode.SharpZipLib.dll
+E:\TempFolder\LoadingSystem\LoadingSystem\npoi\obj\Debug\NPOI.csprojAssemblyReference.cache
+E:\TempFolder\LoadingSystem\LoadingSystem\npoi\obj\Debug\NPOI.csproj.CoreCompileInputs.cache
+E:\TempFolder\LoadingSystem\LoadingSystem\npoi\obj\Debug\NPOI.csproj.CopyComplete
+E:\TempFolder\LoadingSystem\LoadingSystem\npoi\obj\Debug\NPOI.dll
+E:\TempFolder\LoadingSystem\LoadingSystem\npoi\obj\Debug\NPOI.pdb
