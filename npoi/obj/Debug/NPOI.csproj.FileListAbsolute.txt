@@ -1,0 +1,53 @@
+C:\TempFolder\TestProject\npoi\solution\Lib\NPOI.XML
+C:\TempFolder\TestProject\npoi\solution\Lib\NPOI.dll
+C:\TempFolder\TestProject\npoi\solution\Lib\NPOI.pdb
+C:\TempFolder\TestProject\npoi\main\obj\Debug\NPOI.csprojResolveAssemblyReference.cache
+C:\TempFolder\TestProject\npoi\main\obj\Debug\NPOI.csproj.CoreCompileInputs.cache
+C:\TempFolder\TestProject\npoi\main\obj\Debug\NPOI.csproj.CopyComplete
+C:\TempFolder\TestProject\npoi\main\obj\Debug\NPOI.dll
+C:\TempFolder\TestProject\npoi\main\obj\Debug\NPOI.pdb
+E:\TempFolder\LoadingSystem\TestProject\npoi\solution\Lib\NPOI.XML
+E:\TempFolder\LoadingSystem\TestProject\npoi\solution\Lib\NPOI.dll
+E:\TempFolder\LoadingSystem\TestProject\npoi\solution\Lib\NPOI.pdb
+E:\TempFolder\LoadingSystem\TestProject\npoi\main\obj\Debug\NPOI.csprojAssemblyReference.cache
+E:\TempFolder\LoadingSystem\TestProject\npoi\main\obj\Debug\NPOI.csproj.CoreCompileInputs.cache
+E:\TempFolder\LoadingSystem\TestProject\npoi\main\obj\Debug\NPOI.csproj.CopyComplete
+E:\TempFolder\LoadingSystem\TestProject\npoi\main\obj\Debug\NPOI.dll
+E:\TempFolder\LoadingSystem\TestProject\npoi\main\obj\Debug\NPOI.pdb
+E:\TempFolder\LoadingSystem\TestProject\newer exc\obj\Debug\NPOI.csprojAssemblyReference.cache
+E:\TempFolder\LoadingSystem\TestProject\newer exc\obj\Debug\NPOI.csproj.CoreCompileInputs.cache
+E:\TempFolder\LoadingSystem\TestProject\newer exc\obj\Debug\NPOI.dll
+E:\TempFolder\LoadingSystem\TestProject\newer exc\obj\Debug\NPOI.pdb
+E:\TempFolder\LoadingSystem\TestProject\solution\Lib\NPOI.XML
+E:\TempFolder\LoadingSystem\TestProject\solution\Lib\NPOI.dll
+E:\TempFolder\LoadingSystem\TestProject\solution\Lib\NPOI.pdb
+E:\TempFolder\LoadingSystem\TestProject\newer exc\obj\Debug\NPOI.csproj.CopyComplete
+E:\TempFolder\LoadingSystem\LoadingSystem\solution\Lib\NPOI.XML
+E:\TempFolder\LoadingSystem\LoadingSystem\solution\Lib\NPOI.dll
+E:\TempFolder\LoadingSystem\LoadingSystem\solution\Lib\NPOI.pdb
+E:\TempFolder\LoadingSystem\LoadingSystem\npoi\LocalLib\NPOI.XML
+E:\TempFolder\LoadingSystem\LoadingSystem\npoi\LocalLib\NPOI.dll
+E:\TempFolder\LoadingSystem\LoadingSystem\npoi\LocalLib\NPOI.pdb
+E:\TempFolder\LoadingSystem\LoadingSystem\npoi\LocalLib\ICSharpCode.SharpZipLib.dll
+C:\TempFolder\LoadingSystem\npoi\LocalLib\NPOI.XML
+C:\TempFolder\LoadingSystem\npoi\LocalLib\NPOI.dll
+C:\TempFolder\LoadingSystem\npoi\LocalLib\NPOI.pdb
+C:\TempFolder\LoadingSystem\npoi\LocalLib\ICSharpCode.SharpZipLib.dll
+C:\TempFolder\LoadingSystem\npoi\obj\Debug\NPOI.csprojResolveAssemblyReference.cache
+C:\TempFolder\LoadingSystem\npoi\obj\Debug\NPOI.csproj.CoreCompileInputs.cache
+C:\TempFolder\LoadingSystem\npoi\obj\Debug\NPOI.csproj.CopyComplete
+C:\TempFolder\LoadingSystem\npoi\obj\Debug\NPOI.dll
+C:\TempFolder\LoadingSystem\npoi\obj\Debug\NPOI.pdb
+E:\TempFolder\LoadingSystem\LoadingSystem\npoi\LocalLib\Debug\NPOI.XML
+E:\TempFolder\LoadingSystem\LoadingSystem\npoi\LocalLib\Debug\NPOI.dll
+E:\TempFolder\LoadingSystem\LoadingSystem\npoi\LocalLib\Debug\NPOI.pdb
+E:\TempFolder\LoadingSystem\LoadingSystem\npoi\LocalLib\Debug\ICSharpCode.SharpZipLib.dll
+E:\TempFolder\LoadingSystem\LoadingSystem\npoi\obj\Debug\NPOI.csprojAssemblyReference.cache
+E:\TempFolder\LoadingSystem\LoadingSystem\npoi\obj\Debug\NPOI.csproj.CoreCompileInputs.cache
+E:\TempFolder\LoadingSystem\LoadingSystem\npoi\obj\Debug\NPOI.csproj.CopyComplete
+E:\TempFolder\LoadingSystem\LoadingSystem\npoi\obj\Debug\NPOI.dll
+E:\TempFolder\LoadingSystem\LoadingSystem\npoi\obj\Debug\NPOI.pdb
+C:\TempFolder\LoadingSystem\npoi\LocalLib\Debug\NPOI.XML
+C:\TempFolder\LoadingSystem\npoi\LocalLib\Debug\NPOI.dll
+C:\TempFolder\LoadingSystem\npoi\LocalLib\Debug\NPOI.pdb
+C:\TempFolder\LoadingSystem\npoi\LocalLib\Debug\ICSharpCode.SharpZipLib.dll

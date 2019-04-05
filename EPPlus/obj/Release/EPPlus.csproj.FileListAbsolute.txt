@@ -1,0 +1,7 @@
+C:\TempFolder\LoadingSystem\EPPlus\bin\Release\EPPlus.XML
+C:\TempFolder\LoadingSystem\EPPlus\bin\Release\EPPlus.dll
+C:\TempFolder\LoadingSystem\EPPlus\bin\Release\EPPlus.pdb
+C:\TempFolder\LoadingSystem\EPPlus\obj\Release\EPPlus.csprojResolveAssemblyReference.cache
+C:\TempFolder\LoadingSystem\EPPlus\obj\Release\EPPlus.csproj.CoreCompileInputs.cache
+C:\TempFolder\LoadingSystem\EPPlus\obj\Release\EPPlus.dll
+C:\TempFolder\LoadingSystem\EPPlus\obj\Release\EPPlus.pdb
