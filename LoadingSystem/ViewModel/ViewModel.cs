@@ -133,7 +133,7 @@ namespace LoadingSystem.ViewModel
 								}
 								else
 								{
-									var isRead = await Model.ConvertToExcel.ReadData(tableForExport, excelPackage, fileInfo.Name);
+									var isRead = await Model.ConvertToExcel.ReadData(tableForExport, excelPackage, fileInfo.Name, DataModel.ListOfCurveNames);
 
 									using (var dialog = new System.Windows.Forms.SaveFileDialog())
 									{
@@ -604,6 +604,7 @@ namespace LoadingSystem.ViewModel
 		public void UpdatedTab(int tabNum)
 		{
 			currentTab = tabNum;
+            listOfCheckedValues.Clear();
 
 			var process = Task.Factory.StartNew(() =>
 			{

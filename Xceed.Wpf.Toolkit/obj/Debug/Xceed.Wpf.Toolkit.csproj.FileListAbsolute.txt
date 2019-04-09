@@ -282,3 +282,4 @@ E:\TempFolder\LoadingSystem\LoadingSystem\Xceed.Wpf.Toolkit\obj\Debug\Xceed.Wpf.
 E:\TempFolder\LoadingSystem\LoadingSystem\Xceed.Wpf.Toolkit\obj\Debug\Xceed.Wpf.Toolkit.csproj.CoreCompileInputs.cache
 E:\TempFolder\LoadingSystem\LoadingSystem\Xceed.Wpf.Toolkit\obj\Debug\Xceed.Wpf.Toolkit.dll
 E:\TempFolder\LoadingSystem\LoadingSystem\Xceed.Wpf.Toolkit\obj\Debug\Xceed.Wpf.Toolkit.pdb
+E:\TempFolder\LoadingSystem\LoadingSystem\Xceed.Wpf.Toolkit\obj\Debug\Xceed.Wpf.Toolkit.csprojAssemblyReference.cache

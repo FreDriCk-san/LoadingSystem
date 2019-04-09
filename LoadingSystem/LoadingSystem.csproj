@@ -110,9 +110,6 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <None Include="Resources\104_ДМН_791 - Original.UT" />
-    <None Include="Resources\104_ДМН_791.UT" />
-    <None Include="Resources\Трц-1 LAS ГТИ %280068-4500%29_Общий.LAS" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -130,9 +127,6 @@
       <Project>{72e591d6-8f83-4d8c-8f67-9c325e623234}</Project>
       <Name>Xceed.Wpf.Toolkit</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\asd.txt" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
