@@ -21,7 +21,7 @@ namespace LoadingSystem.View
 
 
 
-		private void DataGrid_LoadingRow(object sender, DataGridRowEventArgs e)
+        private void DataGrid_LoadingRow(object sender, DataGridRowEventArgs e)
 		{
 			e.Row.Header = (e.Row.GetIndex() + 1).ToString();
 		}
@@ -58,7 +58,6 @@ namespace LoadingSystem.View
 			buttonRead.IsEnabled = true;
 			buttonTable.IsEnabled = true;
 			toExcel.IsEnabled = true;
-
 
 
             if (null != listOfCurveNames && listOfCurveNames.Count > 1)
@@ -103,6 +102,22 @@ namespace LoadingSystem.View
 
 
 
+        protected void InitTextBoxesNumbers()
+        {
+            var countOfRows = ((ViewModel.ViewModel)this.DataContext).countOfRows.ToString();
+
+            tbCountOfRows.Text = "100";
+            tbCountOfRows.IsEnabled = true;
+
+            tbImportFrom.Text = "0";
+            tbImportFrom.IsEnabled = true;
+
+            tbImportTo.Text = countOfRows;
+            tbImportTo.IsEnabled = true;
+        }
+
+
+
 		protected void LoadDropedFile(DragEventArgs eventArgs)
 		{
 			if (eventArgs.Data.GetDataPresent(DataFormats.FileDrop))
@@ -113,7 +128,7 @@ namespace LoadingSystem.View
 			}
 
 			dragDropImg.Visibility = Visibility.Hidden;
-		}
+        }
 
 
 
@@ -277,6 +292,8 @@ namespace LoadingSystem.View
             return contextMenu;
         }
 
+
+
         private void MoveLeft_Click(object sender, RoutedEventArgs e)
         {
             var items = ((ViewModel.ViewModel)this.DataContext).DataModel.ListOfCurveNames; ;
@@ -309,6 +326,8 @@ namespace LoadingSystem.View
             }
         }
 
+
+
         private void MoveRight_Click(object sender, RoutedEventArgs e)
         {
             var items = ((ViewModel.ViewModel)this.DataContext).DataModel.ListOfCurveNames; ;
@@ -337,6 +356,75 @@ namespace LoadingSystem.View
                             childIndex++;
                         }
                     }   
+                }
+            }
+        }
+
+
+
+        private void TbCountOfRows_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.Enter)
+            {
+                if (int.TryParse(tbCountOfRows.Text, out var readTo))
+                {
+                    ((ViewModel.ViewModel)this.DataContext).ChangeTextBoxAsync(readTo);
+                }
+                else
+                {
+                    tbCountOfRows.Text = string.Empty;
+                    MessageBox.Show("Вводить можно только числа!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+            }
+        }
+
+
+
+        private void ButtonRead_Click(object sender, RoutedEventArgs e)
+        {
+            if (int.TryParse(tbCountOfRows.Text, out var readTo))
+            {
+                ((ViewModel.ViewModel)this.DataContext).ChangeTextBoxAsync(readTo);
+            }
+            else
+            {
+                tbCountOfRows.Text = string.Empty;
+                MessageBox.Show("Вводить можно только числа!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+
+
+        private void TbImportFrom_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.Enter)
+            {
+                if (int.TryParse(tbImportFrom.Text, out var importFrom) && int.TryParse(tbImportTo.Text, out var importTo))
+                {
+                    ((ViewModel.ViewModel)this.DataContext).ChangeTable(importFrom, importTo);
+                }
+                else
+                {
+                    tbImportFrom.Text = string.Empty;
+                    MessageBox.Show("Вводить можно только числа!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+            }
+        }
+
+
+
+        private void TbImportTo_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == System.Windows.Input.Key.Enter)
+            {
+                if (int.TryParse(tbImportFrom.Text, out var importFrom) && int.TryParse(tbImportTo.Text, out var importTo))
+                {
+                    ((ViewModel.ViewModel)this.DataContext).ChangeTable(importFrom, importTo);
+                }
+                else
+                {
+                    tbImportTo.Text = string.Empty;
+                    MessageBox.Show("Вводить можно только числа!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
             }
         }

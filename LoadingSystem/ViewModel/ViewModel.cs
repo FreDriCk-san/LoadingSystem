@@ -16,14 +16,15 @@ namespace LoadingSystem.ViewModel
 {
 	public class ViewModel : INotifyPropertyChanged
 	{
+        public int countOfRows;
+
         private ConcurrentBag<Task> tasks;
 		private FileInfo fileInfo;
-		private int countOfRows;
 		private int currentTab;
 		private List<int> listOfCheckedValues;
 
+
 		private ToggleCommand fileOpenCommand;
-		private ToggleCommand changeTextBoxCommand;
 		private ToggleCommand saveToExcelFormat;
 		private ToggleCommand changeTableCommand;
         private ToggleCommand cancelLoading;
@@ -66,44 +67,6 @@ namespace LoadingSystem.ViewModel
 							ProcessIncomingFile(openFileDialog.FileName);
 						}
 
-
-					}));
-			}
-		}
-
-
-		public ToggleCommand ChangeTextBoxCommand
-		{
-			get
-			{
-				return changeTextBoxCommand ??
-					(changeTextBoxCommand = new ToggleCommand(async command =>
-					{
-						InitCancelToken();
-
-						var readTo = PropertyGridModel.OutputDescription.ImportTo;
-
-						if (fileInfo.FullName.EndsWith(".xlsx"))
-						{
-							var text = await Model.FileReader.ReadLinesFromXLSX(fileInfo.FullName, readTo, currentTab, cancellationToken);
-
-							EditTextBox(text, readTo);
-						}
-						else if (fileInfo.FullName.EndsWith(".xls"))
-						{
-							var text = await Model.FileReader.ReadLinesFromXLS(fileInfo.FullName, readTo, currentTab, cancellationToken);
-
-							EditTextBox(text, readTo);
-						}
-						else
-						{
-							var textTask = Task.Run(async () =>
-							{
-								return await Model.FileReader.ReadLinesAsync(fileInfo.FullName, readTo, cancellationToken);
-							});
-
-							EditTextBox(textTask.Result, readTo);
-						}
 
 					}));
 			}
@@ -472,236 +435,238 @@ namespace LoadingSystem.ViewModel
 
 
 
-        public void ProcessIncomingFile(string path)
+        public async void ProcessIncomingFile(string path)
         {
 			LoadingGridVisible = true;
 			FullFilePath = path;
             InitCancelToken();
 
-			var process = Task.Factory.StartNew(() =>
-			{
+            var process = new Task(() =>
+             {
 
-				ProgressValue = 0;
+                 ProgressValue = 0;
 
-				fileInfo = new FileInfo(path);
+                 fileInfo = new FileInfo(path);
 
-				canChangeNullValue = true;
+                 canChangeNullValue = true;
 
-				// If excel file 2007+ (BIFF 12)
-				if (fileInfo.FullName.EndsWith(".xlsx"))
-				{
-					currentTab = 1;
+                 // If excel file 2007+ (BIFF 12)
+                 if (fileInfo.FullName.EndsWith(".xlsx"))
+                 {
+                     currentTab = 1;
 
-					var text = Task.Run(async () =>
-					{
-						return await Model.FileReader.ReadLinesFromXLSX(fileInfo.FullName, 100, 1, cancellationToken);
-					});
-					ProgressValue++;
+                     var text = Task.Run(async () =>
+                     {
+                         return await Model.FileReader.ReadLinesFromXLSX(fileInfo.FullName, 100, 1, cancellationToken);
+                     });
+                     ProgressValue++;
 
-					if (null == text.Result)
-					{
-						MessageBox.Show("Данные недоступны. Возможно, файл уже где-то открыт.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-						Thread.CurrentThread.Abort();
-					}
+                     if (null == text.Result)
+                     {
+                         MessageBox.Show("Данные недоступны. Возможно, файл уже где-то открыт.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                         Thread.CurrentThread.Abort();
+                     }
 
-					EditTextBox(text.Result, 100);
-					ProgressValue++;
+                     EditTextBox(text.Result, 100);
+                     ProgressValue++;
 
-					DataModel = Model.FileReader.ReadAsXLSX(fileInfo.FullName, 1, cancellationToken);
-					ProgressValue++;
-				}
-				// TO DO: Make normal verification
-				else if (fileInfo.FullName.EndsWith(".XLS"))
-				{
-					MessageBox.Show("Недопустимый формат файла!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-					Thread.CurrentThread.Abort();
-				}
-				// If excel file 1997-2003 (BIFF 8)
-				else if (fileInfo.FullName.EndsWith(".xls"))
-				{
-					currentTab = 0;
+                     DataModel = Model.FileReader.ReadAsXLSX(fileInfo.FullName, 1, cancellationToken);
+                     ProgressValue++;
+                 }
+                 // TO DO: Make normal verification
+                 else if (fileInfo.FullName.EndsWith(".XLS"))
+                 {
+                     MessageBox.Show("Недопустимый формат файла!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                     Thread.CurrentThread.Abort();
+                 }
+                 // If excel file 1997-2003 (BIFF 8)
+                 else if (fileInfo.FullName.EndsWith(".xls"))
+                 {
+                     currentTab = 0;
 
-					var text = Task.Run(async () =>
-					{
-						return await Model.FileReader.ReadLinesFromXLS(fileInfo.FullName, 100, 0, cancellationToken);
-					});
-					ProgressValue++;
+                     var text = Task.Run(async () =>
+                     {
+                         return await Model.FileReader.ReadLinesFromXLS(fileInfo.FullName, 100, 0, cancellationToken);
+                     });
+                     ProgressValue++;
 
-					if (null == text.Result)
-					{
-						MessageBox.Show("Данные недоступны. Возможно, файл уже где-то открыт.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-						Thread.CurrentThread.Abort();
-					}
+                     if (null == text.Result)
+                     {
+                         MessageBox.Show("Данные недоступны. Возможно, файл уже где-то открыт.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                         Thread.CurrentThread.Abort();
+                     }
 
-					EditTextBox(text.Result, 100);
-					ProgressValue++;
+                     EditTextBox(text.Result, 100);
+                     ProgressValue++;
 
-					DataModel = Model.FileReader.ReadAsXLS(fileInfo.FullName, 0, cancellationToken);
-					ProgressValue++;
-				}
-				// If text file
-				else
-				{
-					var textTasks = Task.Run(async () =>
-					{
-						return await Model.FileReader.ReadLinesAsync(fileInfo.FullName, 100, cancellationToken);
-					});
-					tasks.Add(textTasks);
-					ProgressValue++;
-
-
-					EditTextBox(textTasks.Result, 100);
-					ProgressValue++;
+                     DataModel = Model.FileReader.ReadAsXLS(fileInfo.FullName, 0, cancellationToken);
+                     ProgressValue++;
+                 }
+                 // If text file
+                 else
+                 {
+                     var textTasks = Task.Run(async () =>
+                     {
+                         return await Model.FileReader.ReadLinesAsync(fileInfo.FullName, 100, cancellationToken);
+                     });
+                     tasks.Add(textTasks);
+                     ProgressValue++;
 
 
-					var dataTask = Task.Run(async () =>
-					{
-						return await Model.FileReader.ReadAllLinesAsync(fileInfo.FullName, cancellationToken);
-					});
-					tasks.Add(dataTask);
-					ProgressValue++;
-
-					DataModel = dataTask.Result;
-				}
-
-				for (int i = 0; i < DataModel.ArrayOfNumbers.Length; ++i)
-				{
-					if (null == DataModel.ArrayOfNumbers[i])
-					{
-						countOfRows = i;
-						break;
-					}
-				}
-				ProgressValue++;
-
-				InitTabs(DataModel.ArrayOfWorkSheetsName);
-
-				DepthValue = SearchDepthColumn(DataModel.ArrayOfNumbers, 0, countOfRows);
-				ProgressValue++;
+                     EditTextBox(textTasks.Result, 100);
+                     ProgressValue++;
 
 
-				SetPropertiesToPropertyGrid();
-				ProgressValue++;
+                     var dataTask = Task.Run(async () =>
+                     {
+                         return await Model.FileReader.ReadAllLinesAsync(fileInfo.FullName, cancellationToken);
+                     });
+                     tasks.Add(dataTask);
+                     ProgressValue++;
+
+                     DataModel = dataTask.Result;
+                 }
+
+                 for (int i = 0; i < DataModel.ArrayOfNumbers.Length; ++i)
+                 {
+                     if (null == DataModel.ArrayOfNumbers[i])
+                     {
+                         countOfRows = i;
+                         break;
+                     }
+                 }
+                 ProgressValue++;
+
+                 InitTabs(DataModel.ArrayOfWorkSheetsName);
+
+                 DepthValue = SearchDepthColumn(DataModel.ArrayOfNumbers, 0, countOfRows);
+                 ProgressValue++;
 
 
-				CheckDataNullValue();
-				ProgressValue++;
+                 SetPropertiesToPropertyGrid();
+                 ProgressValue++;
 
 
-				EditTable(PropertyGridModel.OutputDescription.ReadFromRow, PropertyGridModel.OutputDescription.ReadToRow);
-				ProgressValue++;
+                 CheckDataNullValue();
+                 ProgressValue++;
 
-			}, cancellationToken).ContinueWith(task =>
-			{
-				LoadingGridVisible = false;
-			});
 
-			tasks.Add(process);
+                 EditTable(PropertyGridModel.OutputDescription.ReadFromRow, PropertyGridModel.OutputDescription.ReadToRow);
+                 ProgressValue++;
+
+             }, cancellationToken);
+
+            process.Start();
+            await process;
+            process.Dispose();
+
+            LoadingGridVisible = false;
         }
 
 
 
-		public void UpdatedTab(int tabNum)
+		public async void UpdatedTab(int tabNum)
 		{
 			currentTab = tabNum;
             listOfCheckedValues.Clear();
 
-			var process = Task.Factory.StartNew(() =>
-			{
-				// If excel file 2007+ (BIFF 12)
-				if (fileInfo.FullName.EndsWith(".xlsx"))
-				{
-					var text = Task.Run(async () =>
-					{
-						return await Model.FileReader.ReadLinesFromXLSX(fileInfo.FullName, 100, tabNum, cancellationToken);
-					});
+            var process = new Task(() =>
+            {
+                // If excel file 2007+ (BIFF 12)
+                if (fileInfo.FullName.EndsWith(".xlsx"))
+                {
+                    var text = Task.Run(async () =>
+                    {
+                        return await Model.FileReader.ReadLinesFromXLSX(fileInfo.FullName, 100, tabNum, cancellationToken);
+                    });
 
-					if (null == text.Result)
-					{
-						MessageBox.Show("Данные недоступны. Возможно, файл уже где-то открыт.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-						Thread.CurrentThread.Abort();
-					}
+                    if (null == text.Result)
+                    {
+                        MessageBox.Show("Данные недоступны. Возможно, файл уже где-то открыт.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        Thread.CurrentThread.Abort();
+                    }
 
-					EditTextBox(text.Result, 100);
+                    EditTextBox(text.Result, 100);
 
-					DataModel = Model.FileReader.ReadAsXLSX(fileInfo.FullName, tabNum, cancellationToken);
-				}
-				// TO DO: Make normal verification
-				else if (fileInfo.FullName.EndsWith(".XLS"))
-				{
-					MessageBox.Show("Недопустимый формат файла!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-					Thread.CurrentThread.Abort();
-				}
-				// If excel file 1997-2003 (BIFF 8)
-				else if (fileInfo.FullName.EndsWith(".xls"))
-				{
-					var text = Task.Run(async () =>
-					{
-						return await Model.FileReader.ReadLinesFromXLS(fileInfo.FullName, 100, tabNum, cancellationToken);
-					});
+                    DataModel = Model.FileReader.ReadAsXLSX(fileInfo.FullName, tabNum, cancellationToken);
+                }
+                // TO DO: Make normal verification
+                else if (fileInfo.FullName.EndsWith(".XLS"))
+                {
+                    MessageBox.Show("Недопустимый формат файла!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    Thread.CurrentThread.Abort();
+                }
+                // If excel file 1997-2003 (BIFF 8)
+                else if (fileInfo.FullName.EndsWith(".xls"))
+                {
+                    var text = Task.Run(async () =>
+                    {
+                        return await Model.FileReader.ReadLinesFromXLS(fileInfo.FullName, 100, tabNum, cancellationToken);
+                    });
 
-					if (null == text.Result)
-					{
-						MessageBox.Show("Данные недоступны. Возможно, файл уже где-то открыт.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-						Thread.CurrentThread.Abort();
-					}
+                    if (null == text.Result)
+                    {
+                        MessageBox.Show("Данные недоступны. Возможно, файл уже где-то открыт.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        Thread.CurrentThread.Abort();
+                    }
 
-					EditTextBox(text.Result, 100);
+                    EditTextBox(text.Result, 100);
 
-					DataModel = Model.FileReader.ReadAsXLS(fileInfo.FullName, tabNum, cancellationToken);
-				}
-				// If text file
-				else
-				{
-					var textTasks = Task.Run(async () =>
-					{
-						return await Model.FileReader.ReadLinesAsync(fileInfo.FullName, 100, cancellationToken);
-					});
-					tasks.Add(textTasks);
-
-
-					EditTextBox(textTasks.Result, 100);
+                    DataModel = Model.FileReader.ReadAsXLS(fileInfo.FullName, tabNum, cancellationToken);
+                }
+                // If text file
+                else
+                {
+                    var textTasks = Task.Run(async () =>
+                    {
+                        return await Model.FileReader.ReadLinesAsync(fileInfo.FullName, 100, cancellationToken);
+                    });
+                    tasks.Add(textTasks);
 
 
-					var dataTask = Task.Run(async () =>
-					{
-						return await Model.FileReader.ReadAllLinesAsync(fileInfo.FullName, cancellationToken);
-					});
-					tasks.Add(dataTask);
-
-					DataModel = dataTask.Result;
-				}
-
-				for (int i = 0; i < DataModel.ArrayOfNumbers.Length; ++i)
-				{
-					if (null == DataModel.ArrayOfNumbers[i])
-					{
-						countOfRows = i;
-						break;
-					}
-				}
-
-				PropertyGridModel.OutputDescription.ReadFromRow = 0;
-				PropertyGridModel.OutputDescription.ReadToRow = countOfRows;
-
-				DepthValue = SearchDepthColumn(DataModel.ArrayOfNumbers, 0, countOfRows);
+                    EditTextBox(textTasks.Result, 100);
 
 
-				SetPropertiesToPropertyGrid();
+                    var dataTask = Task.Run(async () =>
+                    {
+                        return await Model.FileReader.ReadAllLinesAsync(fileInfo.FullName, cancellationToken);
+                    });
+                    tasks.Add(dataTask);
+
+                    DataModel = dataTask.Result;
+                }
+
+                for (int i = 0; i < DataModel.ArrayOfNumbers.Length; ++i)
+                {
+                    if (null == DataModel.ArrayOfNumbers[i])
+                    {
+                        countOfRows = i;
+                        break;
+                    }
+                }
+
+                PropertyGridModel.OutputDescription.ReadFromRow = 0;
+                PropertyGridModel.OutputDescription.ReadToRow = countOfRows;
+
+                DepthValue = SearchDepthColumn(DataModel.ArrayOfNumbers, 0, countOfRows);
 
 
-				CheckDataNullValue();
+                SetPropertiesToPropertyGrid();
 
 
-				EditTable(PropertyGridModel.OutputDescription.ReadFromRow, PropertyGridModel.OutputDescription.ReadToRow);
+                CheckDataNullValue();
 
-			}, cancellationToken).ContinueWith(task =>
-			{
-				LoadingGridVisible = false;
-			});
 
-			tasks.Add(process);
-		}
+                EditTable(PropertyGridModel.OutputDescription.ReadFromRow, PropertyGridModel.OutputDescription.ReadToRow);
+
+            }, cancellationToken);
+
+            process.Start();
+            await process;
+            process.Dispose();
+
+            LoadingGridVisible = false;
+        }
 
 
 
@@ -905,6 +870,54 @@ namespace LoadingSystem.ViewModel
 				}
 			}
 		}
+
+
+
+        public async void ChangeTextBoxAsync(int readTo)
+        {
+            InitCancelToken();
+
+            if (fileInfo.FullName.EndsWith(".xlsx"))
+            {
+                var text = await Model.FileReader.ReadLinesFromXLSX(fileInfo.FullName, readTo, currentTab, cancellationToken);
+
+                EditTextBox(text, readTo);
+            }
+            else if (fileInfo.FullName.EndsWith(".xls"))
+            {
+                var text = await Model.FileReader.ReadLinesFromXLS(fileInfo.FullName, readTo, currentTab, cancellationToken);
+
+                EditTextBox(text, readTo);
+            }
+            else
+            {
+                var textTask = Task.Run(async () =>
+                {
+                    return await Model.FileReader.ReadLinesAsync(fileInfo.FullName, readTo, cancellationToken);
+                });
+
+                EditTextBox(textTask.Result, readTo);
+            }
+        }
+
+
+
+        public void ChangeTable(int importFrom, int importTo)
+        {
+            if (importTo > countOfRows)
+            {
+                PropertyGridModel.OutputDescription.ReadToRow = countOfRows;
+                importTo = countOfRows;
+            }
+            else if (importFrom > countOfRows)
+            {
+                PropertyGridModel.OutputDescription.ReadFromRow = 0;
+                importFrom = 0;
+            }
+
+            DepthValue = SearchDepthColumn(DataModel.ArrayOfNumbers, importFrom, importTo);
+            EditTable(importFrom, importTo);
+        }
 
 
 
