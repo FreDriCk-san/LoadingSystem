@@ -26,10 +26,9 @@ namespace LoadingSystem.ViewModel
 
 		private ToggleCommand fileOpenCommand;
 		private ToggleCommand saveToExcelFormat;
-		private ToggleCommand changeTableCommand;
         private ToggleCommand cancelLoading;
 
-		private Model.PropertyGridModel propertyGridModel;
+        private Model.PropertiesModel propertiesModel;
 		private Model.DataModel dataModel;
 		private DataTable dataGridTable;
 		private DataView defaultTableView;
@@ -51,6 +50,10 @@ namespace LoadingSystem.ViewModel
 		private ObservableCollection<TabItem> tabCollection;
 
 		private bool createIndexCurve = false;
+
+        private string tbImportTo;
+        private string tbTableImportFrom;
+        private string tbTableImportTo;
 
 		
 		public ToggleCommand FileOpenCommand
@@ -124,35 +127,6 @@ namespace LoadingSystem.ViewModel
 
 
 
-		public ToggleCommand ChangeTableCommand
-		{
-			get
-			{
-				return changeTableCommand ??
-					(changeTableCommand = new ToggleCommand(command =>
-					{
-						var readFrom = PropertyGridModel.OutputDescription.ReadFromRow;
-						var readTo = PropertyGridModel.OutputDescription.ReadToRow;
-
-						if (readTo > countOfRows)
-						{
-							PropertyGridModel.OutputDescription.ReadToRow = countOfRows;
-							readTo = countOfRows;
-						}
-						else if (readFrom > countOfRows)
-						{
-							PropertyGridModel.OutputDescription.ReadFromRow = 0;
-							readFrom = 0;
-						}
-
-						DepthValue = SearchDepthColumn(DataModel.ArrayOfNumbers, readFrom, readTo);
-						EditTable(readFrom, readTo);
-					}));
-			}
-		}
-
-
-
         public ToggleCommand CancelLoading
         {
             get
@@ -213,16 +187,16 @@ namespace LoadingSystem.ViewModel
 			}
 		}
 
-		public Model.PropertyGridModel PropertyGridModel
-		{
-			get { return propertyGridModel; }
+		public Model.PropertiesModel PropertiesModel
+        {
+            get { return propertiesModel; }
 
-			set
-			{
-				propertyGridModel = value;
-				OnPropertyChanged("PropertyGridModel");
-			}
-		}
+            set
+            {
+                propertiesModel = value;
+                OnPropertyChanged("PropertiesModel");
+            }
+        }
 
 		public ObservableCollection<double> CollectionOfNull
 		{
@@ -246,7 +220,7 @@ namespace LoadingSystem.ViewModel
 
 				if (canChangeNullValue)
 				{
-					EditTable(PropertyGridModel.OutputDescription.ReadFromRow, PropertyGridModel.OutputDescription.ReadToRow);
+                    PreEditTable();
 				}
 			}
 		}
@@ -305,6 +279,39 @@ namespace LoadingSystem.ViewModel
 				OnPropertyChanged("TabCollection");
 			}
 		}
+
+        public string TbImportTo
+        {
+            get { return tbImportTo; }
+
+            set
+            {
+                tbImportTo = value;
+                OnPropertyChanged("TbImportTo");
+            }
+        }
+
+        public string TbTableImportFrom
+        {
+            get { return tbTableImportFrom; }
+
+            set
+            {
+                tbTableImportFrom = value;
+                OnPropertyChanged("TbTableImportFrom");
+            }
+        }
+
+        public string TbTableImportTo
+        {
+            get { return tbTableImportTo; }
+
+            set
+            {
+                tbTableImportTo = value;
+                OnPropertyChanged("TbTableImportTo");
+            }
+        }
 		#endregion
 
 
@@ -314,7 +321,7 @@ namespace LoadingSystem.ViewModel
             tasks = new ConcurrentBag<Task>();
 			listOfCheckedValues = new List<int>();
 
-            PropertyGridModel = new Model.PropertyGridModel();
+            PropertiesModel = new Model.PropertiesModel();
 			DataModel = new Model.DataModel();
 
 			CollectionOfNull = new ObservableCollection<double>
@@ -537,13 +544,17 @@ namespace LoadingSystem.ViewModel
                  }
                  ProgressValue++;
 
+                 TbImportTo = "100";
+                 TbTableImportFrom = "0";
+                 TbTableImportTo = countOfRows.ToString();
+
                  InitTabs(DataModel.ArrayOfWorkSheetsName);
 
                  DepthValue = SearchDepthColumn(DataModel.ArrayOfNumbers, 0, countOfRows);
                  ProgressValue++;
 
 
-                 SetPropertiesToPropertyGrid();
+                 SetPropertiesToView();
                  ProgressValue++;
 
 
@@ -551,7 +562,7 @@ namespace LoadingSystem.ViewModel
                  ProgressValue++;
 
 
-                 EditTable(PropertyGridModel.OutputDescription.ReadFromRow, PropertyGridModel.OutputDescription.ReadToRow);
+                 PreEditTable();
                  ProgressValue++;
 
              }, cancellationToken);
@@ -645,19 +656,21 @@ namespace LoadingSystem.ViewModel
                     }
                 }
 
-                PropertyGridModel.OutputDescription.ReadFromRow = 0;
-                PropertyGridModel.OutputDescription.ReadToRow = countOfRows;
+                TbImportTo = "100";
+                TbTableImportFrom = "0";
+                TbTableImportTo = countOfRows.ToString();
+
 
                 DepthValue = SearchDepthColumn(DataModel.ArrayOfNumbers, 0, countOfRows);
 
 
-                SetPropertiesToPropertyGrid();
+                SetPropertiesToView();
 
 
                 CheckDataNullValue();
 
 
-                EditTable(PropertyGridModel.OutputDescription.ReadFromRow, PropertyGridModel.OutputDescription.ReadToRow);
+                PreEditTable();
 
             }, cancellationToken);
 
@@ -670,19 +683,14 @@ namespace LoadingSystem.ViewModel
 
 
 
-        private void SetPropertiesToPropertyGrid()
+        private void SetPropertiesToView()
 		{
-			PropertyGridModel.PropertyGridType.Separator = DataModel.Separator;
-			PropertyGridModel.PropertyGridType.DecimalSeparator = DataModel.DecimalSeparator;
-
-			PropertyGridModel.OutputDescription.DataStartsFrom = DataModel.DataStartsFrom;
-
-			PropertyGridModel.PropertyGridCommon.WellName = DataModel.WellName;
-			PropertyGridModel.PropertyGridCommon.FieldName = DataModel.FieldName;
-			PropertyGridModel.PropertyGridCommon.DataSetName = DataModel.DataSetName;
-			PropertyGridModel.PropertyGridCommon.BushName = DataModel.BushName;
-
-			PropertyGridModel.OutputDescription.ReadToRow = countOfRows;
+            PropertiesModel.TbInfoStartsFrom = DataModel.DataStartsFrom.ToString();
+            PropertiesModel.TbDataSetName = DataModel.DataSetName;
+            PropertiesModel.TbFieldName = DataModel.FieldName;
+            PropertiesModel.TbWellName = DataModel.WellName;
+            PropertiesModel.TbDecimalSeparator = DataModel.DecimalSeparator.ToString();
+            PropertiesModel.TbSeparator = DataModel.Separator.ToString();
 		}
 
 
@@ -877,6 +885,12 @@ namespace LoadingSystem.ViewModel
         {
             InitCancelToken();
 
+            if (readTo < 0 || readTo > 1000)
+            {
+                readTo = 100;
+                TbImportTo = "100";
+            }
+
             if (fileInfo.FullName.EndsWith(".xlsx"))
             {
                 var text = await Model.FileReader.ReadLinesFromXLSX(fileInfo.FullName, readTo, currentTab, cancellationToken);
@@ -904,14 +918,14 @@ namespace LoadingSystem.ViewModel
 
         public void ChangeTable(int importFrom, int importTo)
         {
-            if (importTo > countOfRows)
+            if (importTo > countOfRows || importTo < 0)
             {
-                PropertyGridModel.OutputDescription.ReadToRow = countOfRows;
+                TbTableImportTo = countOfRows.ToString();
                 importTo = countOfRows;
             }
-            else if (importFrom > countOfRows)
+            else if (importFrom > countOfRows || importFrom < 0)
             {
-                PropertyGridModel.OutputDescription.ReadFromRow = 0;
+                TbTableImportFrom = "0";
                 importFrom = 0;
             }
 
@@ -967,7 +981,20 @@ namespace LoadingSystem.ViewModel
 
 
 
-		public event PropertyChangedEventHandler PropertyChanged;
+        protected void PreEditTable()
+        {
+            if (int.TryParse(TbTableImportFrom, out var importFrom) && int.TryParse(TbTableImportTo, out var importTo))
+            {
+                EditTable(importFrom, importTo);
+            }
+            else
+            {
+                MessageBox.Show("Задайте значения импорта данных таблицы!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+
+        public event PropertyChangedEventHandler PropertyChanged;
 		protected void OnPropertyChanged(string name)
 		{
 			var handler = PropertyChanged;

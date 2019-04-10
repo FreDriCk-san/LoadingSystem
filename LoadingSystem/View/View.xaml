@@ -7,7 +7,7 @@
              xmlns:local="clr-namespace:LoadingSystem.View"
              mc:Ignorable="d" 
              d:DesignHeight="757" d:DesignWidth="1081">
-    
+
     <!--Another way to init events in VM-->
     <!--<UserControl.Resources>
         <RoutedUICommand x:Key="Commands."/>
@@ -16,7 +16,7 @@
     <UserControl.CommandBindings>
         <CommandBinding Command="{StaticResource Commands.}" Executed=""/>
     </UserControl.CommandBindings>-->
-    
+
     <Grid>
         <Grid.Resources>
             <BooleanToVisibilityConverter x:Key="boolToVisibility"/>
@@ -39,9 +39,6 @@
                     <MenuItem Name="toExcel" Header="Перевод в Excel" IsEnabled="False" Command="{Binding SaveToExcelFormat}"/>
                 </MenuItem>
             </Menu>
-
-
-            <wpfTool:PropertyGrid x:Name="propGrid" Margin="7,26,10,2" SelectedObject="{Binding PropertyGridModel, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" Background="SkyBlue"/>
 
             <TextBox Name="filePath" Margin="10,26,10,0" TextWrapping="NoWrap" Text="{Binding FullFilePath}" IsReadOnly="True" Height="22" VerticalAlignment="Top"/>
 
@@ -77,11 +74,11 @@
                 <TextBox IsReadOnly="True" Margin="39,0,176,8" TextWrapping="Wrap" Text="Null-значение:" TextAlignment="Right" VerticalContentAlignment="Center"/>
             </Grid>
 
-            <Button Name="buttonTable" IsEnabled="False" Content="Перепечатать таблицу" Grid.Column="1" Margin="7,3,0,5" Grid.Row="1" HorizontalAlignment="Left" Width="145" Command="{Binding ChangeTableCommand}"/>
+            <Button Name="buttonTable" IsEnabled="False" Content="Перепечатать таблицу" Grid.Column="1" Margin="7,3,0,5" Grid.Row="1" HorizontalAlignment="Left" Width="145" Click="ButtonTable_Click"/>
 
             <Label Content="Импорт текста до" HorizontalAlignment="Left" Margin="10,54,0,0" VerticalAlignment="Top" Width="107"/>
 
-            <TextBox Name="tbCountOfRows" HorizontalAlignment="Left" Height="23" Margin="117,57,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="60" KeyDown="TbCountOfRows_KeyDown" IsEnabled="False" Text="100"/>
+            <TextBox Name="tbCountOfRows" HorizontalAlignment="Left" Height="23" Margin="117,57,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="60" KeyDown="TbCountOfRows_KeyDown" IsEnabled="False" Text="{Binding TbImportTo}" MaxLength="3"/>
 
             <TabControl Name="tabControl" Height="32" Margin="200,53,10,0" VerticalAlignment="Top" ItemsSource="{Binding TabCollection}">
                 <TabControl.Template>
@@ -141,14 +138,61 @@
             </TabControl>
 
             <Grid Margin="3,108,0,0" Grid.Row="2" HorizontalAlignment="Left" Width="299" Height="27" VerticalAlignment="Top">
-                <TextBox Name="tbImportFrom" HorizontalAlignment="Left" Height="19" Margin="124,4,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="47" IsEnabled="False" KeyDown="TbImportFrom_KeyDown"/>
+                <TextBox Name="tbImportFrom" HorizontalAlignment="Left" Height="19" Margin="124,4,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="47" IsEnabled="False" KeyDown="TbImportFrom_KeyDown" Text="{Binding TbTableImportFrom}" MaxLength="9"/>
                 <Label Content="Импорт таблицы от" Height="19" Margin="3,4,0,0" Width="121" HorizontalContentAlignment="Center" VerticalAlignment="Top" HorizontalAlignment="Left" Padding="5,0"/>
                 <Label Content="до" Height="19" Margin="171,4,0,0" Width="31" HorizontalContentAlignment="Center" VerticalAlignment="Top" HorizontalAlignment="Left" Padding="5,0"/>
-                <TextBox Name="tbImportTo" HorizontalAlignment="Left" Height="19" Margin="202,4,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="47" IsEnabled="False" KeyDown="TbImportTo_KeyDown"/>
+                <TextBox Name="tbImportTo" HorizontalAlignment="Left" Height="19" Margin="202,4,0,0" TextWrapping="NoWrap" VerticalAlignment="Top" Width="47" IsEnabled="False" KeyDown="TbImportTo_KeyDown" Text="{Binding TbTableImportTo}" MaxLength="9"/>
 
             </Grid>
 
+
+            <Grid Grid.Column="1" Margin="0,26,5,10">
+                <Grid.Background>
+                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                        <GradientStop Color="#FF0074B6" Offset="0.337"/>
+                        <GradientStop Color="Gray" Offset="0.968"/>
+                    </LinearGradientBrush>
+                </Grid.Background>
+                
+                <Label Content="Свойства" HorizontalAlignment="Left" Margin="134,0,0,0" VerticalAlignment="Top" Background="#FF00649C"/>
+                
+                <StackPanel Margin="0,31,0,10" HorizontalAlignment="Left" Width="186" Orientation="Vertical">
+                    <StackPanel.Resources>
+                        <Style TargetType="{x:Type Label}">
+                            <Setter Property="Margin" Value="0,4,0,0"/>
+                        </Style>
+                    </StackPanel.Resources>
+                    
+                    <Label Content="Данные начинаются со строки:"/>
+                    <Label Content="Наименование дата-сета:"/>
+                    <Label Content="Наименование куста:"/>
+                    <Label Content="Наименование месторождения:"/>
+                    <Label Content="Наименование скважин:"/>
+                    <Label Content="Разделитель десятичной дроби:"/>
+                    <Label Content="Разделитель значений:"/>
+                </StackPanel>
+
+                <StackPanel Margin="0,31,10,10" Orientation="Vertical" HorizontalAlignment="Right" Width="124">
+                    <StackPanel.Resources>
+                        <Style TargetType="{x:Type TextBox}">
+                            <Setter Property="Margin" Value="0,11,0,0"/>
+                        </Style>
+                    </StackPanel.Resources>
+
+                    <TextBox Name="tbInfoStartsFrom"/>
+                    <TextBox Name="tbDataSetname"/>
+                    <TextBox Name="tbFieldName"/>
+                    <TextBox Name="tbBushName"/>
+                    <TextBox Name="tbWellName"/>
+                    <TextBox Name="tbDecimalSeparator"/>
+                    <TextBox Name="tbSeparator"/>
+                </StackPanel>
+                
+            </Grid>
+
+
             <Image Name="dragDropImg" Source="/Images/DragDrop.png" Stretch="Fill" Grid.ColumnSpan="2" Grid.RowSpan="3" Visibility="Hidden" />
+
         </Grid>
 
 

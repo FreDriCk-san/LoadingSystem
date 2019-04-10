@@ -58,6 +58,18 @@ namespace LoadingSystem.View
 			buttonRead.IsEnabled = true;
 			buttonTable.IsEnabled = true;
 			toExcel.IsEnabled = true;
+            tbCountOfRows.IsEnabled = true;
+            tbImportFrom.IsEnabled = true;
+            tbImportTo.IsEnabled = true;
+
+
+            tbInfoStartsFrom.Text = ((ViewModel.ViewModel)this.DataContext).PropertiesModel.TbInfoStartsFrom;
+            tbDataSetname.Text = ((ViewModel.ViewModel)this.DataContext).PropertiesModel.TbDataSetName;
+            tbFieldName.Text = ((ViewModel.ViewModel)this.DataContext).PropertiesModel.TbFieldName;
+            tbBushName.Text = ((ViewModel.ViewModel)this.DataContext).PropertiesModel.TbBushName;
+            tbWellName.Text = ((ViewModel.ViewModel)this.DataContext).PropertiesModel.TbWellName;
+            tbDecimalSeparator.Text = ((ViewModel.ViewModel)this.DataContext).PropertiesModel.TbDecimalSeparator;
+            tbSeparator.Text = ((ViewModel.ViewModel)this.DataContext).PropertiesModel.TbSeparator;
 
 
             if (null != listOfCurveNames && listOfCurveNames.Count > 1)
@@ -99,22 +111,6 @@ namespace LoadingSystem.View
 		{
 			dragDropImg.Visibility = Visibility.Hidden;
 		}
-
-
-
-        protected void InitTextBoxesNumbers()
-        {
-            var countOfRows = ((ViewModel.ViewModel)this.DataContext).countOfRows.ToString();
-
-            tbCountOfRows.Text = "100";
-            tbCountOfRows.IsEnabled = true;
-
-            tbImportFrom.Text = "0";
-            tbImportFrom.IsEnabled = true;
-
-            tbImportTo.Text = countOfRows;
-            tbImportTo.IsEnabled = true;
-        }
 
 
 
@@ -366,15 +362,7 @@ namespace LoadingSystem.View
         {
             if (e.Key == System.Windows.Input.Key.Enter)
             {
-                if (int.TryParse(tbCountOfRows.Text, out var readTo))
-                {
-                    ((ViewModel.ViewModel)this.DataContext).ChangeTextBoxAsync(readTo);
-                }
-                else
-                {
-                    tbCountOfRows.Text = string.Empty;
-                    MessageBox.Show("Вводить можно только числа!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
-                }
+                RebootText();
             }
         }
 
@@ -382,15 +370,7 @@ namespace LoadingSystem.View
 
         private void ButtonRead_Click(object sender, RoutedEventArgs e)
         {
-            if (int.TryParse(tbCountOfRows.Text, out var readTo))
-            {
-                ((ViewModel.ViewModel)this.DataContext).ChangeTextBoxAsync(readTo);
-            }
-            else
-            {
-                tbCountOfRows.Text = string.Empty;
-                MessageBox.Show("Вводить можно только числа!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
+            RebootText();
         }
 
 
@@ -399,15 +379,7 @@ namespace LoadingSystem.View
         {
             if (e.Key == System.Windows.Input.Key.Enter)
             {
-                if (int.TryParse(tbImportFrom.Text, out var importFrom) && int.TryParse(tbImportTo.Text, out var importTo))
-                {
-                    ((ViewModel.ViewModel)this.DataContext).ChangeTable(importFrom, importTo);
-                }
-                else
-                {
-                    tbImportFrom.Text = string.Empty;
-                    MessageBox.Show("Вводить можно только числа!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
-                }
+                RebootTable();
             }
         }
 
@@ -417,15 +389,44 @@ namespace LoadingSystem.View
         {
             if (e.Key == System.Windows.Input.Key.Enter)
             {
-                if (int.TryParse(tbImportFrom.Text, out var importFrom) && int.TryParse(tbImportTo.Text, out var importTo))
-                {
-                    ((ViewModel.ViewModel)this.DataContext).ChangeTable(importFrom, importTo);
-                }
-                else
-                {
-                    tbImportTo.Text = string.Empty;
-                    MessageBox.Show("Вводить можно только числа!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
-                }
+                RebootTable();
+            }
+        }
+
+
+
+        private void ButtonTable_Click(object sender, RoutedEventArgs e)
+        {
+            RebootTable();
+        }
+
+
+
+        protected void RebootTable()
+        {
+            if (int.TryParse(tbImportFrom.Text, out var importFrom) && int.TryParse(tbImportTo.Text, out var importTo))
+            {
+                ((ViewModel.ViewModel)this.DataContext).ChangeTable(importFrom, importTo);
+            }
+            else
+            {
+                tbImportTo.Text = string.Empty;
+                MessageBox.Show("Вводить можно только числа!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+
+
+        protected void RebootText()
+        {
+            if (int.TryParse(tbCountOfRows.Text, out var readTo))
+            {
+                ((ViewModel.ViewModel)this.DataContext).ChangeTextBoxAsync(readTo);
+            }
+            else
+            {
+                tbCountOfRows.Text = string.Empty;
+                MessageBox.Show("Вводить можно только числа!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
     }

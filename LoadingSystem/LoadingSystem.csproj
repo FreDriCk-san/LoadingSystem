@@ -73,6 +73,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Model\ConvertToExcel.cs" />
+    <Compile Include="Model\PropertiesModel.cs" />
     <Compile Include="Util\CustomCheckBox.cs" />
     <Compile Include="Util\CustomComboBox.cs" />
     <Compile Include="Util\DataSorting.cs" />
