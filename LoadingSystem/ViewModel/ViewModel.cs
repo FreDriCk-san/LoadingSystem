@@ -380,11 +380,7 @@ namespace LoadingSystem.ViewModel
 					{
 						var currentValue = DataModel.ArrayOfNumbers[i][j];
 
-						if (currentValue == CurrentNull)
-						{
-							content[j + 1] = double.NaN;
-						}
-						else if (currentValue == double.MinValue)
+						if (currentValue == double.MinValue || currentValue == CurrentNull)
 						{
 							content[j + 1] = string.Empty;
 						}
@@ -414,11 +410,7 @@ namespace LoadingSystem.ViewModel
 					{
 						var currentValue = DataModel.ArrayOfNumbers[i][j];
 
-						if (currentValue == CurrentNull)
-						{
-							content[j] = double.NaN;
-						}
-						else if (currentValue == double.MinValue)
+						if (currentValue == double.MinValue || currentValue == CurrentNull)
 						{
 							content[j] = string.Empty;
 						}
