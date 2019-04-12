@@ -18,7 +18,6 @@ namespace LoadingSystem.ViewModel
 	{
         public int countOfRows;
 
-        private ConcurrentBag<Task> tasks;
 		private FileInfo fileInfo;
 		private int currentTab;
 		private List<int> listOfCheckedValues;
@@ -55,8 +54,13 @@ namespace LoadingSystem.ViewModel
         private string tbTableImportFrom;
         private string tbTableImportTo;
 
-		
-		public ToggleCommand FileOpenCommand
+
+        #region Описание
+        /// <summary>
+        /// Команда открытия файла
+        /// </summary>
+        #endregion
+        public ToggleCommand FileOpenCommand
 		{
 			get
 			{
@@ -76,8 +80,12 @@ namespace LoadingSystem.ViewModel
 		}
 
 
-
-		public ToggleCommand SaveToExcelFormat
+        #region Описание
+        /// <summary>
+        /// Команда сохранения в Excel формат
+        /// </summary>
+        #endregion
+        public ToggleCommand SaveToExcelFormat
 		{
 			get
 			{
@@ -126,7 +134,11 @@ namespace LoadingSystem.ViewModel
 		}
 
 
-
+        #region Описание
+        /// <summary>
+        /// Команда отмены текущего действия
+        /// </summary>
+        #endregion
         public ToggleCommand CancelLoading
         {
             get
@@ -138,7 +150,6 @@ namespace LoadingSystem.ViewModel
                     }));
             }
         }
-		
 
 
 
@@ -318,7 +329,6 @@ namespace LoadingSystem.ViewModel
 
 		public ViewModel()
 		{
-            tasks = new ConcurrentBag<Task>();
 			listOfCheckedValues = new List<int>();
 
             PropertiesModel = new Model.PropertiesModel();
@@ -333,8 +343,14 @@ namespace LoadingSystem.ViewModel
 		}
 
 
-
-		private void EditTextBox(string[] data, int readTo)
+        #region Описание
+        /// <summary>
+        /// Перепечатывание текста в блоке вывода содержимого входных данных
+        /// </summary>
+        /// <param name="data">Массив строк входных данных</param>
+        /// <param name="readTo">До какой строки считывать</param>
+        #endregion
+        private void EditTextBox(string[] data, int readTo)
 		{
 			var textBuilder = new StringBuilder();
 
@@ -347,8 +363,14 @@ namespace LoadingSystem.ViewModel
 		}
 
 
-
-		private void EditTable(int fromRow, int toRow)
+        #region Описание
+        /// <summary>
+        /// Инициализация таблицы и её дальнейшее заполнение полученными данными
+        /// </summary>
+        /// <param name="fromRow">С какой строки (ячейки)</param>
+        /// <param name="toRow">По какую строку (ячейку)</param>
+        #endregion
+        private void EditTable(int fromRow, int toRow)
 		{
 			var columns = DataModel.ColumnCount;
 
@@ -433,7 +455,12 @@ namespace LoadingSystem.ViewModel
 		}
 
 
-
+        #region Описание
+        /// <summary>
+        /// Первоначальная обработка входных данных
+        /// </summary>
+        /// <param name="path">Путь файла входных данных</param>
+        #endregion
         public async void ProcessIncomingFile(string path)
         {
 			LoadingGridVisible = true;
@@ -441,134 +468,143 @@ namespace LoadingSystem.ViewModel
             InitCancelToken();
 
             var process = new Task(() =>
-             {
+            {
 
-                 ProgressValue = 0;
+                ProgressValue = 0;
 
-                 fileInfo = new FileInfo(path);
+                fileInfo = new FileInfo(path);
 
-                 canChangeNullValue = true;
+                canChangeNullValue = true;
 
-                 // If excel file 2007+ (BIFF 12)
-                 if (fileInfo.FullName.EndsWith(".xlsx"))
-                 {
-                     currentTab = 1;
+                // If excel file 2007+ (BIFF 12)
+                if (fileInfo.FullName.EndsWith(".xlsx"))
+                {
+                    currentTab = 1;
 
-                     var text = Task.Run(async () =>
-                     {
-                         return await Model.FileReader.ReadLinesFromXLSX(fileInfo.FullName, 100, 1, cancellationToken);
-                     });
-                     ProgressValue++;
+                    var text = Task.Run(async () =>
+                    {
+                        return await Model.FileReader.ReadLinesFromXLSX(fileInfo.FullName, 100, 1, cancellationToken);
+                    });
+                    ProgressValue++;
 
-                     if (null == text.Result)
-                     {
-                         MessageBox.Show("Данные недоступны. Возможно, файл уже где-то открыт.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                         Thread.CurrentThread.Abort();
-                     }
+                    if (null == text.Result)
+                    {
+                        MessageBox.Show("Данные недоступны. Возможно, файл уже где-то открыт.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
 
-                     EditTextBox(text.Result, 100);
-                     ProgressValue++;
+                    EditTextBox(text.Result, 100);
+                    ProgressValue++;
 
-                     DataModel = Model.FileReader.ReadAsXLSX(fileInfo.FullName, 1, cancellationToken);
-                     ProgressValue++;
-                 }
-                 // TO DO: Make normal verification
-                 else if (fileInfo.FullName.EndsWith(".XLS"))
-                 {
-                     MessageBox.Show("Недопустимый формат файла!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                     Thread.CurrentThread.Abort();
-                 }
-                 // If excel file 1997-2003 (BIFF 8)
-                 else if (fileInfo.FullName.EndsWith(".xls"))
-                 {
-                     currentTab = 0;
+                    DataModel = Model.FileReader.ReadAsXLSX(fileInfo.FullName, 1, cancellationToken);
+                    ProgressValue++;
+                }
+                // TO DO: Make normal verification
+                else if (fileInfo.FullName.EndsWith(".XLS"))
+                {
+                    MessageBox.Show("Недопустимый формат файла!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+                // If excel file 1997-2003 (BIFF 8)
+                else if (fileInfo.FullName.EndsWith(".xls"))
+                {
+                    currentTab = 0;
 
-                     var text = Task.Run(async () =>
-                     {
-                         return await Model.FileReader.ReadLinesFromXLS(fileInfo.FullName, 100, 0, cancellationToken);
-                     });
-                     ProgressValue++;
+                    var text = Task.Run(async () =>
+                    {
+                        return await Model.FileReader.ReadLinesFromXLS(fileInfo.FullName, 100, 0, cancellationToken);
+                    });
+                    ProgressValue++;
 
-                     if (null == text.Result)
-                     {
-                         MessageBox.Show("Данные недоступны. Возможно, файл уже где-то открыт.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                         Thread.CurrentThread.Abort();
-                     }
+                    if (null == text.Result)
+                    {
+                        MessageBox.Show("Данные недоступны. Возможно, файл уже где-то открыт.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                        return;
+                    }
 
-                     EditTextBox(text.Result, 100);
-                     ProgressValue++;
+                    EditTextBox(text.Result, 100);
+                    ProgressValue++;
 
-                     DataModel = Model.FileReader.ReadAsXLS(fileInfo.FullName, 0, cancellationToken);
-                     ProgressValue++;
-                 }
-                 // If text file
-                 else
-                 {
-                     var textTasks = Task.Run(async () =>
-                     {
-                         return await Model.FileReader.ReadLinesAsync(fileInfo.FullName, 100, cancellationToken);
-                     });
-                     tasks.Add(textTasks);
-                     ProgressValue++;
-
-
-                     EditTextBox(textTasks.Result, 100);
-                     ProgressValue++;
+                    DataModel = Model.FileReader.ReadAsXLS(fileInfo.FullName, 0, cancellationToken);
+                    ProgressValue++;
+                }
+                // If text file
+                else
+                {
+                    var textTasks = Task.Run(async () =>
+                    {
+                        return await Model.FileReader.ReadLinesAsync(fileInfo.FullName, 100, cancellationToken);
+                    });
+                    ProgressValue++;
 
 
-                     var dataTask = Task.Run(async () =>
-                     {
-                         return await Model.FileReader.ReadAllLinesAsync(fileInfo.FullName, cancellationToken);
-                     });
-                     tasks.Add(dataTask);
-                     ProgressValue++;
-
-                     DataModel = dataTask.Result;
-                 }
-
-                 for (int i = 0; i < DataModel.ArrayOfNumbers.Length; ++i)
-                 {
-                     if (null == DataModel.ArrayOfNumbers[i])
-                     {
-                         countOfRows = i;
-                         break;
-                     }
-                 }
-                 ProgressValue++;
-
-                 TbImportTo = "100";
-                 TbTableImportFrom = "0";
-                 TbTableImportTo = countOfRows.ToString();
-
-                 InitTabs(DataModel.ArrayOfWorkSheetsName);
-
-                 DepthValue = SearchDepthColumn(DataModel.ArrayOfNumbers, 0, countOfRows);
-                 ProgressValue++;
+                    EditTextBox(textTasks.Result, 100);
+                    ProgressValue++;
 
 
-                 SetPropertiesToView();
-                 ProgressValue++;
+                    var dataTask = Task.Run(async () =>
+                    {
+                        return await Model.FileReader.ReadAllLinesAsync(fileInfo.FullName, cancellationToken);
+                    });
+                    ProgressValue++;
+
+                    DataModel = dataTask.Result;
+                }
+
+                for (int i = 0; i < DataModel.ArrayOfNumbers.Length; ++i)
+                {
+                    if (null == DataModel.ArrayOfNumbers[i])
+                    {
+                        countOfRows = i;
+                        break;
+                    }
+                }
+                ProgressValue++;
+
+                TbImportTo = "100";
+                TbTableImportFrom = "0";
+                TbTableImportTo = countOfRows.ToString();
+
+                InitTabs(DataModel.ArrayOfWorkSheetsName);
+
+                DepthValue = SearchDepthColumn(DataModel.ArrayOfNumbers, 0, countOfRows);
+                ProgressValue++;
 
 
-                 CheckDataNullValue();
-                 ProgressValue++;
+                SetPropertiesToView();
+                ProgressValue++;
 
 
-                 PreEditTable();
-                 ProgressValue++;
+                CheckDataNullValue();
+                ProgressValue++;
 
-             }, cancellationToken);
 
-            process.Start();
-            await process;
-            process.Dispose();
+                PreEditTable();
+                ProgressValue++;
+
+            }, cancellationToken);
+
+            try
+            {
+                process.Start();
+                await process;
+            }
+            finally
+            {
+                process.Dispose();
+            }
 
             LoadingGridVisible = false;
         }
 
 
-
-		public async void UpdatedTab(int tabNum)
+        #region Описание
+        /// <summary>
+        /// Обновление содержимого компоненты при смене вкладки (рабочей области, книги...)
+        /// </summary>
+        /// <param name="tabNum">Номер вкладки</param>
+        #endregion
+        public async void UpdatedTab(int tabNum)
 		{
 			currentTab = tabNum;
             listOfCheckedValues.Clear();
@@ -586,7 +622,7 @@ namespace LoadingSystem.ViewModel
                     if (null == text.Result)
                     {
                         MessageBox.Show("Данные недоступны. Возможно, файл уже где-то открыт.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                        Thread.CurrentThread.Abort();
+                        return;
                     }
 
                     EditTextBox(text.Result, 100);
@@ -597,7 +633,7 @@ namespace LoadingSystem.ViewModel
                 else if (fileInfo.FullName.EndsWith(".XLS"))
                 {
                     MessageBox.Show("Недопустимый формат файла!", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                    Thread.CurrentThread.Abort();
+                    return;
                 }
                 // If excel file 1997-2003 (BIFF 8)
                 else if (fileInfo.FullName.EndsWith(".xls"))
@@ -610,7 +646,7 @@ namespace LoadingSystem.ViewModel
                     if (null == text.Result)
                     {
                         MessageBox.Show("Данные недоступны. Возможно, файл уже где-то открыт.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                        Thread.CurrentThread.Abort();
+                        return;
                     }
 
                     EditTextBox(text.Result, 100);
@@ -624,8 +660,6 @@ namespace LoadingSystem.ViewModel
                     {
                         return await Model.FileReader.ReadLinesAsync(fileInfo.FullName, 100, cancellationToken);
                     });
-                    tasks.Add(textTasks);
-
 
                     EditTextBox(textTasks.Result, 100);
 
@@ -634,7 +668,6 @@ namespace LoadingSystem.ViewModel
                     {
                         return await Model.FileReader.ReadAllLinesAsync(fileInfo.FullName, cancellationToken);
                     });
-                    tasks.Add(dataTask);
 
                     DataModel = dataTask.Result;
                 }
@@ -666,15 +699,25 @@ namespace LoadingSystem.ViewModel
 
             }, cancellationToken);
 
-            process.Start();
-            await process;
-            process.Dispose();
+            try
+            {
+                process.Start();
+                await process;
+            }
+            finally
+            {
+                process.Dispose();
+            }
 
             LoadingGridVisible = false;
         }
 
 
-
+        #region Описание
+        /// <summary>
+        /// Установка свойств в классе "PropertiesModel"
+        /// </summary>
+        #endregion
         private void SetPropertiesToView()
 		{
             PropertiesModel.TbInfoStartsFrom = DataModel.DataStartsFrom.ToString();
@@ -686,8 +729,19 @@ namespace LoadingSystem.ViewModel
 		}
 
 
-
-		private int SearchDepthColumn(double[][] arrayOfNumbers, int fromRow, int toRow)
+        #region Описание
+        /// <summary>
+        /// Поиск кривой, отвечающей за "Глубину" (DEPTH).
+        /// </summary>
+        /// <param name="arrayOfNumbers">Массив входных (обработанных) данных</param>
+        /// <param name="fromRow">С какой строки таблицы искать</param>
+        /// <param name="toRow">До какой строки таблицы искать</param>
+        /// <returns>
+        /// Возвращает номер столбца, содержащую кривую глубины. 
+        /// Если таковую не удалось найти, флагу создания "Индексной кривой" присваивается значение true.
+        /// </returns>
+        #endregion
+        private int SearchDepthColumn(double[][] arrayOfNumbers, int fromRow, int toRow)
 		{
 			if (null != arrayOfNumbers[0])
 			{
@@ -729,8 +783,13 @@ namespace LoadingSystem.ViewModel
 		}
 
 
-
-		private void CheckDataNullValue()
+        #region Описание
+        /// <summary>
+        /// Определение null-значения и его последующий поиск в существующем списке "CollectionOfNull".
+        /// Если таковой найти не удаётся, происходит добавление в этот список.
+        /// </summary>
+        #endregion
+        private void CheckDataNullValue()
 		{
 			var nullValue = DataModel.NullValue;
 
@@ -760,7 +819,11 @@ namespace LoadingSystem.ViewModel
 		}
 
 
-
+        #region Описание
+        /// <summary>
+        /// Инициализация токена отмены
+        /// </summary>
+        #endregion
         private void InitCancelToken()
         {
             tokenSource = new CancellationTokenSource();
@@ -768,8 +831,14 @@ namespace LoadingSystem.ViewModel
         }
 
 
-
-		private void InitTabs(string[] arrayOfSheetNames)
+        #region Описание
+        /// <summary>
+        /// Инициализация вкладок (рабочих областей, книг...).
+        /// Каждой созданной вкладке присваивается локальный ивент "Tab_MouseLeftButton".
+        /// </summary>
+        /// <param name="arrayOfSheetNames">Массив имён вкладок. Должен быть результатом считывания данных входного файла.</param>
+        #endregion
+        private void InitTabs(string[] arrayOfSheetNames)
 		{
 			Application.Current.Dispatcher.Invoke(() =>
 			{
@@ -813,8 +882,15 @@ namespace LoadingSystem.ViewModel
 		}
 
 
-
-		private void Tab_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        #region Описание
+        /// <summary>
+        /// При нажатии на вкладку происходит перепечатывание содержимого компоненты.
+        /// Исходя из названия, будет загружена та или иная рабочая область.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        #endregion
+        private void Tab_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
 		{
 			var currentTab = sender as TabItem;
 
@@ -837,8 +913,15 @@ namespace LoadingSystem.ViewModel
 		}
 
 
-
-		public void SetImportIndex(Util.CustomCheckBox customCheckBox)
+        #region Описание
+        /// <summary>
+        /// Установка импортируемых столбцов.
+        /// При клике на элемент "CheckBox" происходит добавление\удаление элемента во внутреннем списке.
+        /// При вызове импорта, производится выбор определённых столбцов (из элементов внутреннего списка).
+        /// </summary>
+        /// <param name="customCheckBox">"CheckBox", который необходимо обработать</param>
+        #endregion
+        public void SetImportIndex(Util.CustomCheckBox customCheckBox)
 		{
 			var checkBox = customCheckBox;
 
@@ -872,7 +955,12 @@ namespace LoadingSystem.ViewModel
 		}
 
 
-
+        #region Описание
+        /// <summary>
+        /// Асинхронное перепечатываение содержимого блока вывода входных данных.
+        /// </summary>
+        /// <param name="readTo">До какой строки перепечатывать текст</param>
+        #endregion
         public async void ChangeTextBoxAsync(int readTo)
         {
             InitCancelToken();
@@ -907,7 +995,13 @@ namespace LoadingSystem.ViewModel
         }
 
 
-
+        #region Описание
+        /// <summary>
+        /// Перепечатывание таблицы (с какой строки по какую строку)
+        /// </summary>
+        /// <param name="importFrom">С какой ячейки (строки) выводить данные</param>
+        /// <param name="importTo">До какой ячейки (строки) выводить данные</param>
+        #endregion
         public void ChangeTable(int importFrom, int importTo)
         {
             if (importTo > countOfRows || importTo < 0)
@@ -926,8 +1020,15 @@ namespace LoadingSystem.ViewModel
         }
 
 
-
-		private DataTable GetTableForExport(DataTable dataTable)
+        #region Описание
+        /// <summary>
+        /// Инициализация импортируемой таблицы, исходя из данных, полученных при обработке
+        /// и локальном списке импортируемых столбцов.
+        /// </summary>
+        /// <param name="dataTable">Таблица, полученная при обработке входящих данных</param>
+        /// <returns>Возвращает таблицу, которую необходимо перевести во внутренний формат</returns>
+        #endregion
+        private DataTable GetTableForExport(DataTable dataTable)
 		{
 			if (listOfCheckedValues.Count == 0)
 			{
@@ -972,7 +1073,11 @@ namespace LoadingSystem.ViewModel
 		}
 
 
-
+        #region Описание
+        /// <summary>
+        /// Если не был выбран ни один из импортируемых столбцов
+        /// </summary>
+        #endregion
         protected void PreEditTable()
         {
             if (int.TryParse(TbTableImportFrom, out var importFrom) && int.TryParse(TbTableImportTo, out var importTo))

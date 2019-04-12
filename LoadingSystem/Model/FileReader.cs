@@ -19,7 +19,14 @@ namespace LoadingSystem.Model
         private const FileOptions DefaultOptions = FileOptions.Asynchronous | FileOptions.SequentialScan;
 
 
-		// Считывание и обработка входных данных
+        #region Описание
+        /// <summary>
+        /// Считывание и обработка входных данных (текстовый файл)
+        /// </summary>
+        /// <param name="path">Путь к ипортируемому файлу</param>
+        /// <param name="cancellationToken">Токен отмены</param>
+        /// <returns>Возвращает модель данных</returns>
+        #endregion
         public static async Task<DataModel> ReadAllLinesAsync(string path, CancellationToken cancellationToken)
         {
 			var data = new DataModel();
@@ -137,8 +144,17 @@ namespace LoadingSystem.Model
         }
 
 
-		// Считать определённое количество строк
-		public static async Task<string[]> ReadLinesAsync(string path, int toString, CancellationToken cancellationToken)
+        #region Описание
+        /// <summary>
+        /// Считывание определённого количества строк входного файла,
+        /// для дальнейшего вывода на экран. (текстовый файл)
+        /// </summary>
+        /// <param name="path">Путь к импортируемому файлу</param>
+        /// <param name="toString">До какой строки считывать</param>
+        /// <param name="cancellationToken">Токен отмены</param>
+        /// <returns>Возвращает массив строк, который необходимо поместить в блок вывода содержимого файла</returns>
+        #endregion
+        public static async Task<string[]> ReadLinesAsync(string path, int toString, CancellationToken cancellationToken)
 		{
 			var result = new string[1024];
 			var index = 0;
@@ -168,8 +184,16 @@ namespace LoadingSystem.Model
 		}
 
 
-
-		public static DataModel ReadAsXLSX(string path, int numOfWorkSheet, CancellationToken cancellationToken)
+        #region Описание
+        /// <summary>
+        /// Считывание и обработка входных данных (файл формата Excel ".xlsx")
+        /// </summary>
+        /// <param name="path">Путь к импортируемому файлу</param>
+        /// <param name="numOfWorkSheet">Номер импортируемой рабочей области (книги)</param>
+        /// <param name="cancellationToken">Токен отмены</param>
+        /// <returns>Возвращает модель данных</returns>
+        #endregion
+        public static DataModel ReadAsXLSX(string path, int numOfWorkSheet, CancellationToken cancellationToken)
 		{
 			// Max row count:	 ~1048576
 			// Max column count: ~16384
@@ -184,8 +208,8 @@ namespace LoadingSystem.Model
 
             if (!CanReadFromFile(path))
 			{
-				return null;
-			}
+                return null;
+            }
 
 			using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, DefaultBufferSize, DefaultOptions))
 			{
@@ -300,8 +324,17 @@ namespace LoadingSystem.Model
 		}
 
 
-		// TO DO: Get position of row with information
-		public static DataModel ReadAsXLS(string path, int numOfWorkSheet, CancellationToken cancellationToken)
+        #region Описание
+        /// <summary>
+        /// Считывание и обработка входных данных (файл формата Excel ".xls")
+        /// ПРИМЕЧАНИЕ: не поддерживает формат файла ".XLS"
+        /// </summary>
+        /// <param name="path">Путь к импортируемому файлу</param>
+        /// <param name="numOfWorkSheet">Номер импортируемой рабочей области (книги)</param>
+        /// <param name="cancellationToken">Токен отмены</param>
+        /// <returns>Возврщает модель данных</returns>
+        #endregion
+        public static DataModel ReadAsXLS(string path, int numOfWorkSheet, CancellationToken cancellationToken)
 		{
 			// Max row count:	 ~65536
 			// Max column count: ~256
@@ -316,7 +349,7 @@ namespace LoadingSystem.Model
 
 			if (!CanReadFromFile(path))
 			{
-				return null;
+                return null;
 			}
 
 			using (var file = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, DefaultBufferSize, DefaultOptions))
@@ -434,8 +467,18 @@ namespace LoadingSystem.Model
 		}
 
 
-
-		public static Task<string[]> ReadLinesFromXLSX(string path, int toRow, int numOfWorkSheet, CancellationToken cancellationToken)
+        #region Описание
+        /// <summary>
+        /// Считывание определённого количества строк входного файла,
+        /// для дальнейшего вывода на экран. (файл формата Excel ".xlsx")
+        /// </summary>
+        /// <param name="path">Путь к импортируемому файлу</param>
+        /// <param name="toRow">До какой строки считывать</param>
+        /// <param name="numOfWorkSheet">Номер импортируемой рабочей области (книги)</param>
+        /// <param name="cancellationToken">Токен отмены</param>
+        /// <returns>Возвращает массив строк, который необходимо поместить в блок вывода содержимого файла</returns>
+        #endregion
+        public static Task<string[]> ReadLinesFromXLSX(string path, int toRow, int numOfWorkSheet, CancellationToken cancellationToken)
 		{
 			return Task<string[]>.Factory.StartNew(() =>
 			{
@@ -493,8 +536,19 @@ namespace LoadingSystem.Model
 		}
 
 
-
-		public static Task<string[]> ReadLinesFromXLS(string path, int toRow, int numOfWorkSheet, CancellationToken cancellationToken)
+        #region Описание
+        /// <summary>
+        /// Считывание определённого количества строк входного файла,
+        /// для дальнейшего вывода на экран. (файл формата Excel ".xls")
+        /// ПРИМЕЧАНИЕ: не поддерживает формат файла ".XLS"
+        /// </summary>
+        /// <param name="path">Путь к импортируемому файлу</param>
+        /// <param name="toRow">До какой строки считывать</param>
+        /// <param name="numOfWorkSheet">Номер импортируемой рабочей области (книги)</param>
+        /// <param name="cancellationToken">Токен отмены</param>
+        /// <returns>Возвращает массив строк, который необходимо поместить в блок вывода содержимого файла</returns>
+        #endregion
+        public static Task<string[]> ReadLinesFromXLS(string path, int toRow, int numOfWorkSheet, CancellationToken cancellationToken)
 		{
 			return Task<string[]>.Factory.StartNew(() =>
 			{
@@ -552,9 +606,15 @@ namespace LoadingSystem.Model
 			});
 		}
 
-
-
-		private static double StringToDouble(string text)
+        
+        #region Описание
+        /// <summary>
+        /// Перевод строки в double
+        /// </summary>
+        /// <param name="text">Текст, который необходимо перевести</param>
+        /// <returns>Возвращает double значение строки. Иначе, если строка не валидна, возвращается значение double.NaN</returns>
+        #endregion
+        private static double StringToDouble(string text)
 		{
 			double result;
 
@@ -567,8 +627,14 @@ namespace LoadingSystem.Model
 		}
 
 
-
-		private static bool StringIsDigitOnly(string text)
+        #region Описание
+        /// <summary>
+        /// Проверка, если строка содержит только числа
+        /// </summary>
+        /// <param name="text">Текст, который необходимо проверить</param>
+        /// <returns>Возвращает true, если проверка завершилась удачно. Иначе, вернётся false</returns>
+        #endregion
+        private static bool StringIsDigitOnly(string text)
 		{
             // If current string is null or contains only spaces
             if (string.IsNullOrWhiteSpace(text))
@@ -601,8 +667,14 @@ namespace LoadingSystem.Model
 		}
 
 
-
-		private static bool StringIsASCII(string text)
+        #region Описание
+        /// <summary>
+        /// Проверка, если строка содержит ключевое слово "ASCII"
+        /// </summary>
+        /// <param name="text">Строка, которую необходимо проверить</param>
+        /// <returns>Возвращает true, если строка содержит данное слово. Иначе, false</returns>
+        #endregion
+        private static bool StringIsASCII(string text)
 		{
 			// If current string is null or contains only spaces
 			if (string.IsNullOrWhiteSpace(text))
@@ -619,8 +691,14 @@ namespace LoadingSystem.Model
 		}
 
 
-
-		private static int CountOfColumns(string text)
+        #region Описание
+        /// <summary>
+        /// Подсчёт количества колонок с данными во входящем (текстовом) файле
+        /// </summary>
+        /// <param name="text">Текст, в котором необходимо произвести подсчёт</param>
+        /// <returns>Возвращает количество столбцов с данными</returns>
+        #endregion
+        private static int CountOfColumns(string text)
 		{
 			var result = 0;
 
@@ -656,8 +734,16 @@ namespace LoadingSystem.Model
 		}
 
 
-
-		private static int[] GetNumericPositions(string line, int columnCount, char separator)
+        #region Описание
+        /// <summary>
+        /// Получить массив позиции значений (текстового) файла. Позиции справа
+        /// </summary>
+        /// <param name="line">Строка, в которой необходимо произвести данный подсчёт</param>
+        /// <param name="columnCount">Количество колонок</param>
+        /// <param name="separator">Разделитель значений</param>
+        /// <returns>Возвращает массив (чисел) позиций</returns>
+        #endregion
+        private static int[] GetNumericPositions(string line, int columnCount, char separator)
 		{
 			var result = new int[columnCount];
 			var arrayStep = 0;
@@ -675,8 +761,17 @@ namespace LoadingSystem.Model
 		}
 
 
-
-		private static bool StringIsProperty(string text, string firstType, string secondType, string thirdType)
+        #region Описание
+        /// <summary>
+        /// Если строка является одним из свойств файла (наименование...)
+        /// </summary>
+        /// <param name="text">Текст, который необходимо проверить</param>
+        /// <param name="firstType">Первый тип проверки</param>
+        /// <param name="secondType">Второй тип роверки</param>
+        /// <param name="thirdType">Третий тип проверки</param>
+        /// <returns>Возврщает true, если один из типов дал положительный результат. Иначе, false</returns>
+        #endregion
+        private static bool StringIsProperty(string text, string firstType, string secondType, string thirdType)
 		{
 			// If current string is null or contains only spaces
 			if (string.IsNullOrWhiteSpace(text))
@@ -693,8 +788,15 @@ namespace LoadingSystem.Model
 		}
 
 
-
-		private static string InspectPropertyLine(PropertyEnum property, string line)
+        #region Описание
+        /// <summary>
+        /// Исследование найденной строки свойств
+        /// </summary>
+        /// <param name="property">Перечисляемый тип свойств данных</param>
+        /// <param name="line">Строка, которую необходимо исследовать</param>
+        /// <returns>Возвращает строку, в которой содержится информация о свойстве</returns>
+        #endregion
+        private static string InspectPropertyLine(PropertyEnum property, string line)
 		{
 			var builder = new StringBuilder();
 
@@ -731,8 +833,14 @@ namespace LoadingSystem.Model
 		}
 
 
-
-		private static bool CanReadFromFile(string path)
+        #region Описание
+        /// <summary>
+        /// Проверка на "читабельность" импортируемого файла.
+        /// </summary>
+        /// <param name="path">Путь к импортируемому файлу</param>
+        /// <returns>Возвращает false, если указанный файл открыт в другом приложении. Иначе, true</returns>
+        #endregion
+        private static bool CanReadFromFile(string path)
 		{
 			try
 			{
@@ -750,7 +858,13 @@ namespace LoadingSystem.Model
 		}
 
 
-
+        #region Описание
+        /// <summary>
+        /// Получение свойств из обработанной информации
+        /// </summary>
+        /// <param name="stringBuilder"></param>
+        /// <returns>Возвращает список распознанных свойств</returns>
+        #endregion
         private static List<string> GetPropertiesFromRowLine(StringBuilder stringBuilder)
         {
             var result = new List<string> { "" };
@@ -765,8 +879,19 @@ namespace LoadingSystem.Model
         }
 
 
-
-		private static Tuple<double[], bool, int[], char, char> FirstHeuristic(string line, char separator, char decimalSeparator, int columnCount, bool firstLineProcessed, int[] positions)
+        #region Описание
+        /// <summary>
+        /// Первая эвристика обработки входящих данных. Предназначена для (относительно) стандартных текстовых файлов.
+        /// </summary>
+        /// <param name="line">Строка, которую необходимо исследовать</param>
+        /// <param name="separator">Разделитель значений</param>
+        /// <param name="decimalSeparator">Разделитель десятичной дроби</param>
+        /// <param name="columnCount">Количество колонок</param>
+        /// <param name="firstLineProcessed">Если первая строка импортируемого файла была обработана</param>
+        /// <param name="positions">Массив позиций значений (справа)</param>
+        /// <returns>Возвращает: массив значений, статус обработки первой строки, массив позиций (справа), разделитель значений, разделитель десятичной дроби</returns>
+        #endregion
+        private static Tuple<double[], bool, int[], char, char> FirstHeuristic(string line, char separator, char decimalSeparator, int columnCount, bool firstLineProcessed, int[] positions)
 		{
 			try
 			{
