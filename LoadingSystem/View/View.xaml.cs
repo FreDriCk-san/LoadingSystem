@@ -140,6 +140,8 @@ namespace LoadingSystem.View
 
         protected void StandartInitOfProperties(int depthValue)
         {
+            var brushConverter = new System.Windows.Media.BrushConverter();
+
             for (int i = 0; i < gridOfData.Columns.Count; ++i)
             {
                 var innerPanel = new StackPanel()
@@ -152,6 +154,8 @@ namespace LoadingSystem.View
                     Width = gridOfData.ColumnWidth.Value,
                     Text = $"H{i.ToString()}",
                     TextAlignment = TextAlignment.Center,
+                    Background = (System.Windows.Media.Brush)brushConverter.ConvertFrom("#ff177e89"),
+                    Foreground = System.Windows.Media.Brushes.White,
                     IsEnabled = false
                 };
 
@@ -202,6 +206,7 @@ namespace LoadingSystem.View
 
         protected void PropertiesReadFromData(int depthValue, List<string> listOfCurveNames)
         {
+            var brushConverter = new System.Windows.Media.BrushConverter();
 
             for (int i = 0; i < gridOfData.Columns.Count; ++i)
             {
@@ -215,6 +220,8 @@ namespace LoadingSystem.View
                     Width = gridOfData.ColumnWidth.Value,
                     Text = $"H{i.ToString()}",
                     TextAlignment = TextAlignment.Center,
+                    Background = (System.Windows.Media.Brush)brushConverter.ConvertFrom("#ff177e89"),
+                    Foreground = System.Windows.Media.Brushes.White,
                     IsEnabled = false
                 };
 

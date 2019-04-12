@@ -8,7 +8,8 @@
         xmlns:view="clr-namespace:LoadingSystem.View"
         xmlns:model="clr-namespace:LoadingSystem.Model"
         mc:Ignorable="d"
-        Title="LoadingSystem" Height="757" Width="1081">
+        Title="LoadingSystem" Height="757" Width="1081"
+        Background="#FFF7F7F7">
 
     <Grid>
         <view:View />

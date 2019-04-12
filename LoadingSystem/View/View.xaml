@@ -20,6 +20,7 @@
     <Grid>
         <Grid.Resources>
             <BooleanToVisibilityConverter x:Key="boolToVisibility"/>
+            <DropShadowBitmapEffect Color="Black" Direction="210" ShadowDepth="12" Opacity=".5" Softness="9" x:Key="shadowForLabel"/>
         </Grid.Resources>
 
         <Grid Name="mainGrid" Drop="Grid_Drop" AllowDrop="True" DragOver="MainGrid_DragOver" MouseDown="MainGrid_MouseDown">
@@ -33,14 +34,14 @@
                 <ColumnDefinition Width="Auto" MinWidth="330" MaxWidth="330"/>
             </Grid.ColumnDefinitions>
 
-            <Menu Height="21" VerticalAlignment="Top" Grid.ColumnSpan="2">
-                <MenuItem Header="Файл">
-                    <MenuItem Header="Открыть" Command="{Binding FileOpenCommand}"/>
-                    <MenuItem Name="toExcel" Header="Перевод в Excel" IsEnabled="False" Command="{Binding SaveToExcelFormat}"/>
+            <Menu Height="21" VerticalAlignment="Top" Grid.ColumnSpan="2" Background="#ff177e89">
+                <MenuItem Header="Файл" Foreground="White">
+                    <MenuItem Header="Открыть" Command="{Binding FileOpenCommand}" Background="#ff177e89"/>
+                    <MenuItem Name="toExcel" Header="Перевод в Excel" IsEnabled="False" Command="{Binding SaveToExcelFormat}" Background="#ff177e89"/>
                 </MenuItem>
             </Menu>
 
-            <TextBox Name="filePath" Margin="10,26,10,0" TextWrapping="NoWrap" Text="{Binding FullFilePath}" IsReadOnly="True" Height="22" VerticalAlignment="Top"/>
+            <TextBox Name="filePath" Margin="10,26,10,0" TextWrapping="NoWrap" Text="{Binding FullFilePath}" IsReadOnly="True" Height="22" VerticalAlignment="Top" Background="#ff177e89" Foreground="White"/>
 
             <TextBox x:Name="textBoxInfo" IsReadOnly="True" TextWrapping="NoWrap"
                  Margin="10,85,10,10" AllowDrop="True"
@@ -49,10 +50,20 @@
 
 
             <Grid x:Name="gridOfProperties" Height="92" Margin="10,10,9,0" VerticalAlignment="Top" Grid.ColumnSpan="2" Grid.Row="2" Drop="Grid_Drop" AllowDrop="True">
-                <TextBox IsReadOnly="True" Text="Имя" Margin="0,0,0,71" HorizontalAlignment="Left" Width="59"/>
-                <TextBox IsReadOnly="True" Text="Тип" Margin="0,21,0,50" HorizontalAlignment="Left" Width="59"/>
-                <TextBox IsReadOnly="True" Text="Ед.изм." Margin="0,42,0,29" HorizontalAlignment="Left" Width="59"/>
-                <TextBox IsReadOnly="True" Text="Импорт" Margin="0,63,0,8" HorizontalAlignment="Left" Width="59"/>
+                <Grid.Resources>
+                    <Style TargetType="{x:Type TextBox}">
+                        <Setter Property="IsEnabled" Value="False"/>
+                        <Setter Property="HorizontalAlignment" Value="Left"/>
+                        <Setter Property="Width" Value="59"/>
+                        <Setter Property="Background" Value="#FFB97A0B"/>
+                        <Setter Property="Foreground" Value="White"/>
+                    </Style>
+                </Grid.Resources>
+                
+                <TextBox Text="Имя" Margin="0,0,0,71"/>
+                <TextBox Text="Тип" Margin="0,21,0,50"/>
+                <TextBox Text="Ед.изм." Margin="0,42,0,29"/>
+                <TextBox Text="Импорт" Margin="0,63,0,8"/>
                 <ScrollViewer x:Name="stackPanelScroll" HorizontalScrollBarVisibility="Hidden" Margin="59,0,0,0">
                     <StackPanel x:Name="propertyPanel" Orientation="Horizontal"/>
                 </ScrollViewer>
@@ -71,7 +82,7 @@
 
             <Grid Grid.Column="1" Margin="10,107,10,0" Grid.Row="2" Height="33" VerticalAlignment="Top">
                 <ComboBox Name="nullComboBox" Margin="139,0,29,8" ItemsSource="{Binding CollectionOfNull}" SelectedItem="{Binding CurrentNull}"/>
-                <TextBox IsReadOnly="True" Margin="39,0,176,8" TextWrapping="Wrap" Text="Null-значение:" TextAlignment="Right" VerticalContentAlignment="Center"/>
+                <TextBox IsEnabled="False" Margin="39,0,176,8" TextWrapping="Wrap" Text="Null-значение:" TextAlignment="Right" VerticalContentAlignment="Center" Background="#ff177e89" Foreground="White"/>
             </Grid>
 
             <Button Name="buttonTable" IsEnabled="False" Content="Перепечатать таблицу" Grid.Column="1" Margin="7,3,0,5" Grid.Row="1" HorizontalAlignment="Left" Width="145" Click="ButtonTable_Click"/>
@@ -148,21 +159,22 @@
 
             <Grid Grid.Column="1" Margin="0,26,5,10">
                 <Grid.Background>
-                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
-                        <GradientStop Color="#FF0074B6" Offset="0.337"/>
-                        <GradientStop Color="Gray" Offset="0.968"/>
-                    </LinearGradientBrush>
+                    <SolidColorBrush Color="#FFB97A0B" Opacity="0.9"/>
                 </Grid.Background>
-                
-                <Label Content="Свойства" HorizontalAlignment="Left" Margin="134,0,0,0" VerticalAlignment="Top" Background="#FF00649C"/>
-                
+
+                <Label Content="Свойства" HorizontalAlignment="Left" Margin="134,0,0,0" VerticalAlignment="Top" Foreground="White" BorderThickness="1,0,1,1" BorderBrush="#FFC5B511"/>
+
                 <StackPanel Margin="0,31,0,10" HorizontalAlignment="Left" Width="186" Orientation="Vertical">
                     <StackPanel.Resources>
                         <Style TargetType="{x:Type Label}">
                             <Setter Property="Margin" Value="0,4,0,0"/>
+                            <Setter Property="Foreground" Value="White"/>
+                            <Setter Property="BorderThickness" Value="0,1,1,1"/>
+                            <Setter Property="BorderBrush" Value="#FFC5B511"/>
+                            <Setter Property="BitmapEffect" Value="{StaticResource shadowForLabel}"/>
                         </Style>
                     </StackPanel.Resources>
-                    
+
                     <Label Content="Данные начинаются со строки:"/>
                     <Label Content="Наименование дата-сета:"/>
                     <Label Content="Наименование куста:"/>
@@ -175,7 +187,8 @@
                 <StackPanel Margin="0,31,10,10" Orientation="Vertical" HorizontalAlignment="Right" Width="124">
                     <StackPanel.Resources>
                         <Style TargetType="{x:Type TextBox}">
-                            <Setter Property="Margin" Value="0,11,0,0"/>
+                            <Setter Property="Margin" Value="0,10,0,0"/>
+                            <Setter Property="BorderThickness" Value="2,4.5,1,1"/>
                         </Style>
                     </StackPanel.Resources>
 
@@ -187,7 +200,7 @@
                     <TextBox Name="tbDecimalSeparator"/>
                     <TextBox Name="tbSeparator"/>
                 </StackPanel>
-                
+
             </Grid>
 
 
@@ -203,8 +216,8 @@
         </Grid>
 
 
-        <Grid Name="loadingGrid" Visibility="{Binding LoadingGridVisible, Converter={StaticResource boolToVisibility}}" Background="#FFCBCBCB" Margin="375,0,317,298" Height="130" VerticalAlignment="Bottom">
-            <Label Content="Загрузка..." Margin="104,22,103,78" FontFamily="Times New Roman" FontSize="18" HorizontalContentAlignment="Center" FontStyle="Italic"/>
+        <Grid Name="loadingGrid" Visibility="{Binding LoadingGridVisible, Converter={StaticResource boolToVisibility}}" Background="#ff177e89" Margin="375,0,317,298" Height="130" VerticalAlignment="Bottom">
+            <Label Content="Загрузка..." Margin="104,22,103,78" FontFamily="Times New Roman" FontSize="18" HorizontalContentAlignment="Center" FontStyle="Italic" Foreground="White"/>
             <ProgressBar Name="progressBar" Margin="43,0,49,46" Value="{Binding ProgressValue, Mode=OneWay}" Maximum="8" Height="32" VerticalAlignment="Bottom"/>
             <Button Content="Отмена" Margin="0,0,10,10" HorizontalAlignment="Right" Width="78" Height="21" VerticalAlignment="Bottom" Command="{Binding CancelLoading}"/>
         </Grid>
