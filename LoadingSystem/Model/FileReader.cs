@@ -319,6 +319,8 @@ namespace LoadingSystem.Model
 			data.ColumnCount = maxColumnCount;
 			data.CountOfWorkSpaces = countOfWorkSheets;
 			data.ArrayOfWorkSheetsName = arrayOfNames;
+            data.Separator = '|';
+            data.DecimalSeparator = ',';
 
 			return data;
 		}
@@ -462,8 +464,10 @@ namespace LoadingSystem.Model
 			data.ColumnCount = maxColumnCount;
 			data.CountOfWorkSpaces = countOfSheets;
 			data.ArrayOfWorkSheetsName = arrayOfNames;
+            data.Separator = '|';
+            data.DecimalSeparator = ',';
 
-			return data;
+            return data;
 		}
 
 
